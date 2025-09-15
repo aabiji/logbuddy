@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --ion-color-primary: #4DA6FF;
+  --ion-color-primary-rgb: 77, 166, 255;
+  --ion-color-primary-contrast: #ffffff; /* text/icons on primary */
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3399FF; /* slightly darker for hover/active */
+  --ion-color-primary-tint: #80C1FF; /* lighter variant */
+
+  --ion-color-secondary: #F5F6F8;
+  --ion-color-secondary-rgb: 245, 246, 248;
+  --ion-color-secondary-contrast: #1A1A1A;
+  --ion-color-secondary-contrast-rgb: 26, 26, 26;
+  --ion-color-secondary-shade: #E0E0E0;
+  --ion-color-secondary-tint: #FFFFFF;
+
+  --ion-color-dark: #1A1A1A;
+  --ion-color-dark-rgb: 26, 26, 26;
+  --ion-color-dark-contrast: #FFFFFF;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+
+  --ion-color-medium: #6B6B6B; /* secondary text / placeholder */
+  --ion-color-medium-rgb: 107, 107, 107;
+  --ion-color-medium-contrast: #FFFFFF;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+
+  --ion-color-light: #FFFFFF;
+  --ion-color-light-rgb: 255, 255, 255;
+  --ion-color-light-contrast: #1A1A1A;
+  --ion-color-light-contrast-rgb: 26, 26, 26;
+
+  --ion-color-tertiary: #3399FF; /* hover/active blue */
+  --ion-color-success: #28a745;
+  --ion-color-warning: #ffc107;
+  --ion-color-danger: #dc3545;
+  --ion-color-info: #17a2b8;
+
+  --ion-font-family: 'Inter', sans-serif;
+  --ion-text-color: var(--ion-color-dark);
+  --ion-background-color: var(--ion-color-light);
+}
