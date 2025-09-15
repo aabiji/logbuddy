@@ -1,24 +1,58 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import {
+  IonCard, IonContent, IonList, IonCardHeader,
+  IonPage, IonItem, IonLabel, IonCardTitle,
+  IonCardSubtitle, IonCardContent,
+} from '@ionic/react';
 
-const Index: React.FC = () => {
+import "./Index.css";
+
+function Workout() {
+  const workout = {
+    name: "Workout name",
+    date: "September 15, 2025",
+    exercises: [
+      {
+        name: "Exercise name",
+        reps: [1, 2, 3, 4]
+      },
+      {
+        name: "Another exercise name",
+        reps: [2, 3, 4, 5]
+      }
+    ]
+  }
+
+  return (
+    <IonCard color="light">
+      <IonCardHeader>
+        <IonCardTitle>{workout.name}</IonCardTitle>
+        <IonCardSubtitle>{workout.date}</IonCardSubtitle>
+      </IonCardHeader>
+
+      <IonCardContent>
+        <IonList>
+          {workout.exercises.map((e, i) => (
+            <IonItem key={i}>
+              <IonLabel>{e.name}</IonLabel>
+              <div className="flex-row">
+                {e.reps.map((r, i) =>
+                  <input key={i} className="small-input" placeholder="0" />
+                )}
+              </div>
+            </IonItem>
+          ))}
+        </IonList>
+      </IonCardContent>
+    </IonCard>
+  );
+}
+
+function Index() {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Main page</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <IonContent>
 
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Main page</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-
-        <div>
-          <p className="text-red-500">hello :) -- main page</p>
-        </div>
+        <Workout />
 
       </IonContent>
     </IonPage>
