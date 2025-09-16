@@ -1,7 +1,7 @@
 import {
   IonCard, IonContent, IonList, IonCardHeader,
   IonPage, IonItem, IonLabel, IonCardTitle,
-  IonCardSubtitle, IonCardContent,
+  IonCardSubtitle, IonCardContent, IonTextarea
 } from '@ionic/react';
 
 import "./Index.css";
@@ -42,6 +42,10 @@ function Workout() {
             </IonItem>
           ))}
         </IonList>
+        <IonItem>
+          <IonTextarea label="Notes"
+            labelPlacement="floating" placeholder="Workout notes" />
+        </IonItem>
       </IonCardContent>
     </IonCard>
   );
