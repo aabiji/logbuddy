@@ -1,24 +1,24 @@
 
 -- name: CreateUser :one
-insert into Users (LastModified, Email, Password)
-values ($1, $2, $3) returning ID;
+insert into users (lastModified, email, password)
+values ($1, $2, $3) returning id;
 
 -- name: GetUserByID :one
-select ID from Users where ID = $1;
+select id from users where id = $1;
 
 -- name: GetUserByEmail :one
-select ID, Email, Password from Users where Email = $1;
+select id, email, Password from users where email = $1;
 
 -- name: CreateFood :one
-insert into Foods
-(LastModified, Name, Servings, ServingSizes, Calories,
-Carbohydrates, Protein, Fat, Calcium, Potassium, Iron)
+insert into foods
+(lastModified, name, servings, servingSizes, calories,
+carbohydrate, protein, fat, calcium, potassium, iron)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-returning ID;
+returning id;
 
 -- name: GetFoodByID :one
-select * from Foods where ID = $1;
+select * from foods where id = $1;
 
 -- name: SearchFoods :many
-select * from Foods
-where to_tsvector(Name) @@ websearch_to_tsquery($1);
+select * from foods
+where to_tsvector(name) @@ websearch_to_tsquery($1);

@@ -36,6 +36,15 @@ func NewAPI() (API, error) {
 		return API{}, err
 	}
 
+	schema, err := os.ReadFile("sql/schema.sql")
+	if err != nil {
+		return API{}, err
+	}
+
+	if _, err := conn.Exec(ctx, string(schema)); err != nil {
+		return API{}, err
+	}
+
 	queries := database.New(conn)
 	return API{ctx, conn, queries}, nil
 }
@@ -47,11 +56,12 @@ func (a *API) Cleanup() {
 func respond(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	payload := map[string]any{}
+
+	var payload any
 	if message, ok := data.(string); ok {
-		payload["error"] = message
+		payload = map[string]string{"error": message}
 	} else {
-		payload["data"] = data
+		payload = data
 	}
 	json.NewEncoder(w).Encode(payload)
 }
@@ -96,13 +106,15 @@ func main() {
 	}
 	defer api.Cleanup()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/auth/login", api.Login)
-	mux.HandleFunc("/auth/new", api.CreateAccount)
-	mux.HandleFunc("/auth/issue", api.IssueToken)
+	// TODO: log endpoints as they're being requested
 
-	mux.HandleFunc("/food/new", api.CreateFood)
-	mux.HandleFunc("/food/search", api.SearchFood)
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /auth/login", api.Login)
+	mux.HandleFunc("POST /auth/new", api.CreateAccount)
+	mux.HandleFunc("POST /auth/issue", api.IssueToken)
+
+	mux.HandleFunc("POST /food/new", api.CreateFood)
+	mux.HandleFunc("GET /food/search", api.SearchFood)
 
 	handler := corsMiddleware(mux)
 	log.Println("Server starting at localhost:8080")

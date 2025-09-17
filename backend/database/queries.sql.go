@@ -11,25 +11,25 @@ import (
 )
 
 const createFood = `-- name: CreateFood :one
-insert into Foods
-(LastModified, Name, Servings, ServingSizes, Calories,
-Carbohydrates, Protein, Fat, Calcium, Potassium, Iron)
+insert into foods
+(lastModified, name, servings, servingSizes, calories,
+carbohydrate, protein, fat, calcium, potassium, iron)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-returning ID
+returning id
 `
 
 type CreateFoodParams struct {
-	Lastmodified  time.Time
-	Name          string
-	Servings      []int32
-	Servingsizes  []string
-	Calories      float64
-	Carbohydrates float64
-	Protein       float64
-	Fat           float64
-	Calcium       float64
-	Potassium     float64
-	Iron          float64
+	Lastmodified time.Time
+	Name         string
+	Servings     []int32
+	Servingsizes []string
+	Calories     float64
+	Carbohydrate float64
+	Protein      float64
+	Fat          float64
+	Calcium      float64
+	Potassium    float64
+	Iron         float64
 }
 
 func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, error) {
@@ -39,7 +39,7 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 		arg.Servings,
 		arg.Servingsizes,
 		arg.Calories,
-		arg.Carbohydrates,
+		arg.Carbohydrate,
 		arg.Protein,
 		arg.Fat,
 		arg.Calcium,
@@ -52,8 +52,8 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 }
 
 const createUser = `-- name: CreateUser :one
-insert into Users (LastModified, Email, Password)
-values ($1, $2, $3) returning ID
+insert into users (lastModified, email, password)
+values ($1, $2, $3) returning id
 `
 
 type CreateUserParams struct {
@@ -70,7 +70,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, 
 }
 
 const getFoodByID = `-- name: GetFoodByID :one
-select id, lastmodified, name, servings, servingsizes, calories, carbohydrates, protein, fat, calcium, potassium, iron from Foods where ID = $1
+select id, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
 
 func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
@@ -83,7 +83,7 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 		&i.Servings,
 		&i.Servingsizes,
 		&i.Calories,
-		&i.Carbohydrates,
+		&i.Carbohydrate,
 		&i.Protein,
 		&i.Fat,
 		&i.Calcium,
@@ -94,7 +94,7 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select ID, Email, Password from Users where Email = $1
+select id, email, Password from users where email = $1
 `
 
 type GetUserByEmailRow struct {
@@ -111,7 +111,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 }
 
 const getUserByID = `-- name: GetUserByID :one
-select ID from Users where ID = $1
+select id from users where id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
@@ -121,8 +121,8 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const searchFoods = `-- name: SearchFoods :many
-select id, lastmodified, name, servings, servingsizes, calories, carbohydrates, protein, fat, calcium, potassium, iron from Foods
-where to_tsvector(Name) @@ websearch_to_tsquery($1)
+select id, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+where to_tsvector(name) @@ websearch_to_tsquery($1)
 `
 
 func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([]Food, error) {
@@ -141,7 +141,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 			&i.Servings,
 			&i.Servingsizes,
 			&i.Calories,
-			&i.Carbohydrates,
+			&i.Carbohydrate,
 			&i.Protein,
 			&i.Fat,
 			&i.Calcium,

@@ -1,26 +1,26 @@
 
 create table if not exists Users (
-    ID serial primary key,
-    LastModified timestamp not null,
+    id serial primary key,
+    lastModified timestamp not null,
 
-    Email text not null,
-    Password text not null
+    email text not null,
+    password text not null
 );
 
 create table if not exists Foods (
-    ID serial primary key,
-    LastModified timestamp not null,
+    id serial primary key,
+    lastModified timestamp not null,
 
-    Name text not null,
-    Servings int[] not null,
-    ServingSizes text[] not null,
+    name text not null,
+    servings int[] not null,
+    servingSizes text[] not null,
 
     -- per 1 g
-    Calories float not null,
-    Carbohydrates float not null,
-    Protein float not null,
-    Fat float not null,
-    Calcium float not null,
-    Potassium float not null,
-    Iron float not null
+    calories float not null,
+    carbohydrate float not null,
+    protein float not null,
+    fat float not null,
+    calcium float not null,
+    potassium float not null,
+    iron float not null
 );

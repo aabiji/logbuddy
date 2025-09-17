@@ -51,7 +51,7 @@ function Workout() {
   );
 }
 
-function Index() {
+export default function IndexPage() {
   return (
     <IonPage>
       <IonContent>
@@ -62,5 +62,3 @@ function Index() {
     </IonPage>
   );
 };
-
-export default Index;

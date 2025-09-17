@@ -8,17 +8,17 @@ import (
 )
 
 type FoodJSON struct {
-	ID            int32    `json:"id,omitempty"`
-	Name          string   `json:"name"`
-	Servings      []int32  `json:"servings"`
-	ServingSizes  []string `json:"units"`
-	Calories      float64  `json:"calories"`
-	Carbohydrates float64  `json:"carbohydrates"`
-	Protein       float64  `json:"protein"`
-	Fat           float64  `json:"fat"`
-	Calcium       float64  `json:"calcium"`
-	Potassium     float64  `json:"potassium"`
-	Iron          float64  `json:"iron"`
+	ID           int32    `json:"id,omitempty"`
+	Name         string   `json:"name"`
+	Servings     []int32  `json:"servings"`
+	ServingSizes []string `json:"units"`
+	Calories     float64  `json:"calories"`
+	Carbohydrate float64  `json:"carbohydrate"`
+	Protein      float64  `json:"protein"`
+	Fat          float64  `json:"fat"`
+	Calcium      float64  `json:"calcium"`
+	Potassium    float64  `json:"potassium"`
+	Iron         float64  `json:"iron"`
 }
 
 func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
@@ -28,17 +28,17 @@ func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := a.queries.CreateFood(a.ctx, database.CreateFoodParams{
-		Lastmodified:  time.Now(),
-		Name:          req.Name,
-		Servings:      req.Servings,
-		Servingsizes:  req.ServingSizes,
-		Calories:      req.Calories,
-		Carbohydrates: req.Carbohydrates,
-		Protein:       req.Protein,
-		Fat:           req.Fat,
-		Calcium:       req.Calcium,
-		Potassium:     req.Potassium,
-		Iron:          req.Iron,
+		Lastmodified: time.Now(),
+		Name:         req.Name,
+		Servings:     req.Servings,
+		Servingsizes: req.ServingSizes,
+		Calories:     req.Calories,
+		Carbohydrate: req.Carbohydrate,
+		Protein:      req.Protein,
+		Fat:          req.Fat,
+		Calcium:      req.Calcium,
+		Potassium:    req.Potassium,
+		Iron:         req.Iron,
 	})
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "couldn't create food")
@@ -63,17 +63,17 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 	foods := []FoodJSON{}
 	for _, row := range results {
 		foods = append(foods, FoodJSON{
-			ID:            row.ID,
-			Name:          row.Name,
-			Servings:      row.Servings,
-			ServingSizes:  row.Servingsizes,
-			Calories:      row.Calories,
-			Carbohydrates: row.Carbohydrates,
-			Protein:       row.Protein,
-			Fat:           row.Fat,
-			Calcium:       row.Calcium,
-			Potassium:     row.Potassium,
-			Iron:          row.Iron,
+			ID:           row.ID,
+			Name:         row.Name,
+			Servings:     row.Servings,
+			ServingSizes: row.Servingsizes,
+			Calories:     row.Calories,
+			Carbohydrate: row.Carbohydrate,
+			Protein:      row.Protein,
+			Fat:          row.Fat,
+			Calcium:      row.Calcium,
+			Potassium:    row.Potassium,
+			Iron:         row.Iron,
 		})
 	}
 
