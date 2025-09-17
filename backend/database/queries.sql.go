@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const createFood = `-- name: CreateFood :exec
+const createFood = `-- name: CreateFood :one
 insert into Foods
 (LastModified, Name, Servings, ServingSizes, Calories,
 Carbohydrates, Protein, Fat, Calcium, Potassium, Iron)
@@ -32,8 +32,8 @@ type CreateFoodParams struct {
 	Iron          float64
 }
 
-func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) error {
-	_, err := q.db.Exec(ctx, createFood,
+func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createFood,
 		arg.Lastmodified,
 		arg.Name,
 		arg.Servings,
@@ -46,12 +46,14 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) error {
 		arg.Potassium,
 		arg.Iron,
 	)
-	return err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createUser = `-- name: CreateUser :one
 insert into Users (LastModified, Email, Password)
-values ($1, $2, $3) returning id
+values ($1, $2, $3) returning ID
 `
 
 type CreateUserParams struct {
@@ -67,12 +69,12 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, 
 	return id, err
 }
 
-const findByID = `-- name: FindByID :one
+const getFoodByID = `-- name: GetFoodByID :one
 select id, lastmodified, name, servings, servingsizes, calories, carbohydrates, protein, fat, calcium, potassium, iron from Foods where ID = $1
 `
 
-func (q *Queries) FindByID(ctx context.Context, id int32) (Food, error) {
-	row := q.db.QueryRow(ctx, findByID, id)
+func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
+	row := q.db.QueryRow(ctx, getFoodByID, id)
 	var i Food
 	err := row.Scan(
 		&i.ID,
@@ -116,4 +118,42 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	err := row.Scan(&id)
 	return id, err
+}
+
+const searchFoods = `-- name: SearchFoods :many
+select id, lastmodified, name, servings, servingsizes, calories, carbohydrates, protein, fat, calcium, potassium, iron from Foods
+where to_tsvector(Name) @@ websearch_to_tsquery($1)
+`
+
+func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([]Food, error) {
+	rows, err := q.db.Query(ctx, searchFoods, websearchToTsquery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Food
+	for rows.Next() {
+		var i Food
+		if err := rows.Scan(
+			&i.ID,
+			&i.Lastmodified,
+			&i.Name,
+			&i.Servings,
+			&i.Servingsizes,
+			&i.Calories,
+			&i.Carbohydrates,
+			&i.Protein,
+			&i.Fat,
+			&i.Calcium,
+			&i.Potassium,
+			&i.Iron,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

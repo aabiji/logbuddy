@@ -66,6 +66,16 @@ func parseRequest[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
 	return value, true
 }
 
+func getQueryParam(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
+	params := r.URL.Query()
+	param := params.Get(name)
+	if len(param) == 0 {
+		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: missing %s", name))
+		return "", false
+	}
+	return param, true
+}
+
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -90,6 +100,9 @@ func main() {
 	mux.HandleFunc("/auth/login", api.Login)
 	mux.HandleFunc("/auth/new", api.CreateAccount)
 	mux.HandleFunc("/auth/issue", api.IssueToken)
+
+	mux.HandleFunc("/food/new", api.CreateFood)
+	mux.HandleFunc("/food/search", api.SearchFood)
 
 	handler := corsMiddleware(mux)
 	log.Println("Server starting at localhost:8080")
