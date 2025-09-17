@@ -8,3 +8,10 @@ sql:
         package: "database"
         out: "database"
         sql_package: "pgx/v5"
+        overrides:
+          - db_type: "pg_catalog.timestamp"
+            go_type:
+              type: "time.Time"
+          - db_type: "pg_catalog.timestampz"
+            go_type:
+              type: "time.Time"

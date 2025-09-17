@@ -5,12 +5,12 @@
 package database
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 type Food struct {
 	ID            int32
-	Lastmodified  pgtype.Timestamp
+	Lastmodified  time.Time
 	Name          string
 	Servings      []int32
 	Servingsizes  []string
@@ -21,4 +21,11 @@ type Food struct {
 	Calcium       float64
 	Potassium     float64
 	Iron          float64
+}
+
+type User struct {
+	ID           int32
+	Lastmodified time.Time
+	Email        string
+	Password     string
 }

@@ -1,4 +1,12 @@
 
+create table if not exists Users (
+    ID serial primary key,
+    LastModified timestamp not null,
+
+    Email text not null,
+    Password text not null
+);
+
 create table if not exists Foods (
     ID serial primary key,
     LastModified timestamp not null,

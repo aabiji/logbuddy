@@ -7,8 +7,7 @@ package database
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createFood = `-- name: CreateFood :exec
@@ -16,11 +15,11 @@ insert into Foods
 (LastModified, Name, Servings, ServingSizes, Calories,
 Carbohydrates, Protein, Fat, Calcium, Potassium, Iron)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-returning id
+returning ID
 `
 
 type CreateFoodParams struct {
-	Lastmodified  pgtype.Timestamp
+	Lastmodified  time.Time
 	Name          string
 	Servings      []int32
 	Servingsizes  []string
@@ -50,6 +49,24 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) error {
 	return err
 }
 
+const createUser = `-- name: CreateUser :one
+insert into Users (LastModified, Email, Password)
+values ($1, $2, $3) returning id
+`
+
+type CreateUserParams struct {
+	Lastmodified time.Time
+	Email        string
+	Password     string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createUser, arg.Lastmodified, arg.Email, arg.Password)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const findByID = `-- name: FindByID :one
 select id, lastmodified, name, servings, servingsizes, calories, carbohydrates, protein, fat, calcium, potassium, iron from Foods where ID = $1
 `
@@ -72,4 +89,31 @@ func (q *Queries) FindByID(ctx context.Context, id int32) (Food, error) {
 		&i.Iron,
 	)
 	return i, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+select ID, Email, Password from Users where Email = $1
+`
+
+type GetUserByEmailRow struct {
+	ID       int32
+	Email    string
+	Password string
+}
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i GetUserByEmailRow
+	err := row.Scan(&i.ID, &i.Email, &i.Password)
+	return i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+select ID from Users where ID = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	err := row.Scan(&id)
+	return id, err
 }
