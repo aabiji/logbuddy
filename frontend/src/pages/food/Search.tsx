@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 
 import { Food } from "../../lib/state";
 import { request } from "../../lib/utils";
+import { useAppState } from "../../lib/storage";
 
 import {
   IonContent, IonHeader, IonPage, IonTitle,
@@ -19,16 +20,20 @@ export default function FoodSearchPage() {
   const [results, setResults] = useState<Food[]>([]);
   const [filterOption, setFilterOption] = useState("all");
 
+  const foods = useAppState(state => state.foods);
+
   const searchFood = async () => {
-    try {
-      const params = new URLSearchParams();
-      params.append("query", query);
-      const endpoint = `/food/search?${params.toString()}`;
-      const response = await request("GET", endpoint, undefined, undefined);
-      setResults(response.results);
-    } catch (err: any) {
-      console.log(err);
-    }
+    console.log(foods);
+
+    //try {
+    //  const params = new URLSearchParams();
+    //  params.append("query", query);
+    //  const endpoint = `/food/search?${params.toString()}`;
+    //  const response = await request("GET", endpoint, undefined, undefined);
+    //  setResults(response.results);
+    //} catch (err: any) {
+    //  console.log(err);
+    //}
   }
 
   return (
