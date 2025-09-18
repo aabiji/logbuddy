@@ -14,6 +14,18 @@ import (
 	"github.com/aabiji/lobbuddy/database"
 )
 
+type LoggingResponseWriter struct {
+	w          http.ResponseWriter
+	statusCode int
+}
+
+func (l LoggingResponseWriter) Header() http.Header            { return l.w.Header() }
+func (l LoggingResponseWriter) Write(data []byte) (int, error) { return l.w.Write(data) }
+func (l LoggingResponseWriter) WriteHeader(statusCode int) {
+	l.statusCode = statusCode
+	l.w.WriteHeader(statusCode)
+}
+
 type API struct {
 	ctx     context.Context
 	conn    *pgxpool.Pool
@@ -99,6 +111,14 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		writer := LoggingResponseWriter{w: w, statusCode: 0}
+		next.ServeHTTP(writer, r)
+		log.Printf("%d %s %s\n", writer.statusCode, r.Method, r.URL.Path)
+	})
+}
+
 func main() {
 	api, err := NewAPI()
 	if err != nil {
@@ -116,7 +136,9 @@ func main() {
 	mux.HandleFunc("POST /food/new", api.CreateFood)
 	mux.HandleFunc("GET /food/search", api.SearchFood)
 
-	handler := corsMiddleware(mux)
+	mux.HandleFunc("POST /user/info", api.UserInfo)
+
+	handler := loggingMiddleware(corsMiddleware(mux))
 	log.Println("Server starting at localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }

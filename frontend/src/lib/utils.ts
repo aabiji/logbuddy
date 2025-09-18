@@ -14,8 +14,11 @@ export async function request(
 
   const response = await fetch(url, body);
   const json = await response.json();
-  if (response.status != 200)
-    throw new Error(json["error"]);
+  if (response.status != 200) {
+    const err = new Error(json["error"]);
+    err.statusCode = response.status;
+    throw err;
+  }
   return json;
 }
 
