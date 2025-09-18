@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useHistory } from "react-router";
 
 import { Food } from "../../lib/state";
 import { request } from "../../lib/utils";
@@ -11,6 +12,9 @@ import {
 import { add, remove } from "ionicons/icons";
 
 export default function FoodEditPage() {
+  const history = useHistory();
+
+  const [error, setError] = useState<undefined | string>(undefined);
   const [food, setFood] = useState<Food>({
     name: "", servings: [], units: [],
     calories: 0, carbohydrate: 0, protein: 0,
@@ -18,11 +22,18 @@ export default function FoodEditPage() {
   });
 
   const createFood = async () => {
-    try {
-      const response = await request("POST", "/food/new", food, undefined);
-      console.log("FOOD ID:", response.id)
-    } catch (err: any) {
-      console.log(err);
+    if (food.name.length == 0) {
+      setError("Food must have a name");
+    } else if (food.servings.length == 0) {
+      setError("Food must have a serving size")
+    } else {
+      try {
+        const response = await request("POST", "/food/new", food, undefined);
+        console.log("FOOD ID:", response.id)
+        history.goBack();
+      } catch (err: any) {
+        console.log(err);
+      }
     }
   }
 
@@ -46,11 +57,13 @@ export default function FoodEditPage() {
         <IonInput
           value={food.name}
           placeholder="Food name"
-          onIonChange={(event) => {
-            const value = event.detail.value ?? "";
+          onChange={(event) => {
+            const value = event.currentTarget.value ?? "";
             setFood(prev => ({ ...prev, name: value }));
           }}
         />
+        {error !== undefined &&
+          <p style={{ color: "red", fontSize: "0.9rem" }}>{error}</p>}
 
         <IonItemDivider>
           <h4>Serving sizes</h4>
@@ -133,6 +146,7 @@ export default function FoodEditPage() {
                 slot="end"
                 type="number"
                 placeholder="0"
+                required={key == "calories"}
                 value={food[key] as number}
                 onIonChange={(event) => {
                   const value = Number(event.detail.value);

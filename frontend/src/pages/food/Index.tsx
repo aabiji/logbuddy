@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory } from "react-router";
 
 import { formatDate } from "../../lib/utils";
 

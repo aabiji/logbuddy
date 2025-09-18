@@ -8,8 +8,7 @@ import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
   IonLabel, IonBackButton, IonIcon, IonInput,
-  IonButton,
-  IonText
+  IonButton, IonSelect, IonSelectOption, IonText
 } from "@ionic/react";
 import { add, search } from "ionicons/icons";
 
@@ -18,6 +17,7 @@ export default function FoodSearchPage() {
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Food[]>([]);
+  const [filterOption, setFilterOption] = useState("all");
 
   const searchFood = async () => {
     try {
@@ -54,9 +54,25 @@ export default function FoodSearchPage() {
           </IonButton>
         </IonItem>
 
-        <IonButton size="default" onClick={() => history.push("/food/edit")}>
-          Create food
-        </IonButton>
+        <IonItem>
+          <IonButton size="default" onClick={() => history.push("/food/edit")}>
+            Create food
+          </IonButton>
+
+          <IonButton size="default" onClick={() => history.push("/food/edit")}>
+            Create meal
+          </IonButton>
+
+          <IonSelect
+            slot="end"
+            aria-label="Serving unit"
+            value={filterOption}
+            onIonChange={(event) => setFilterOption(event.detail.value)}>
+            <IonSelectOption value="all">All</IonSelectOption>
+            <IonSelectOption value="user-meals">Your meals</IonSelectOption>
+            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
+          </IonSelect>
+        </IonItem>
 
         {results.length == 0
           ? <IonText>No results</IonText>
@@ -65,7 +81,7 @@ export default function FoodSearchPage() {
               <IonItem key={i}>
                 <IonLabel>
                   <h2>{r.name}</h2>
-                  <p>{r.calories}</p>
+                  <p>{r.servings[0]} {r.units[0]} • {r.calories * r.servings[0]} calories</p>
                 </IonLabel>
 
                 <IonButton shape="round" size="large" fill="clear">
