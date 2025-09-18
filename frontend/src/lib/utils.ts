@@ -6,16 +6,19 @@ export async function request(
   token: string | undefined
 ) {
   const url = `http://localhost:8080${endpoint}`;
-  const body = {method, headers: { "Content-Type": "application/json" }};
-  if (payload !== undefined)
-    body.body = JSON.stringify(payload);
-  if (token !== undefined)
-    body.headers["Authorization"] = `Bearer ${token}`;
-
+  const body = {
+    method,
+    body: payload ? JSON.stringify(payload) : "",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token ? `Bearer ${token}` : "",
+    }
+  };
   const response = await fetch(url, body);
   const json = await response.json();
-  if (response.status != 200) {
-    const err = new Error(json["error"]);
+
+  if (!response.ok) {
+    const err = new Error(json["error"] || "Unknown error");
     err.statusCode = response.status;
     throw err;
   }

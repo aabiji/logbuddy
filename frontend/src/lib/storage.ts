@@ -1,10 +1,9 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-
-class AppStorage {
+// Serves as the storage backend for the zustand state
+// Uses IndexexdDB to set, get and delete key/value pairs
+export class AppStorage {
   private db: IDBDatabase;
 
-  async init() {
+  public async init() {
     const request = indexedDB.open("logbuddy-storage");
     request.onupgradeneeded = (event: Event) => {
       const db = (event.target as IDBRequest).result;
@@ -20,7 +19,7 @@ class AppStorage {
     }
   }
 
-  async setItem(key: string, value: string): Promise<void> {
+  public async setItem(key: string, value: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction("keyValue", "readwrite");
       const store = tx.objectStore("keyValue");
@@ -31,7 +30,7 @@ class AppStorage {
     });
   }
 
-  async getItem(key: string): Promise<any | null> {
+  public async getItem(key: string): Promise<any | null> {
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction("keyValue", "readwrite");
       const store = tx.objectStore("keyValue");
@@ -43,7 +42,7 @@ class AppStorage {
     });
   }
 
-  async removeItem(key: string): Promise<void> {
+  public async removeItem(key: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction("keyValue", "readwrite");
       const store = tx.objectStore("keyValue");
@@ -54,15 +53,3 @@ class AppStorage {
     });
   }
 }
-
-const state = (set, _get) => ({
-  foods: [],
-});
-
-const storage = new AppStorage();
-await storage.init();
-
-export const useAppState = create(persist(state, {
-  name: "app-state",
-  storage: storage,
-}));

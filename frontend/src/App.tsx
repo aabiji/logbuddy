@@ -1,4 +1,4 @@
-import { Route } from "react-router-dom";
+import { Route, useLocation } from "react-router";
 import {
   IonApp, IonIcon, IonLabel, IonRouterOutlet,
   IonTabBar, IonTabButton, IonTabs, setupIonicReact
@@ -6,6 +6,7 @@ import {
 import { IonReactRouter } from "@ionic/react-router";
 import { barbell, fastFood } from "ionicons/icons";
 
+import AuthPage from "./pages/Auth";
 import FoodPage from "./pages/food/Index"
 import FoodSearchPage from "./pages/food/Search";
 import FoodEditPage from "./pages/food/Edit";
@@ -20,30 +21,42 @@ import "./theme/variables.css";
 
 setupIonicReact();
 
+function TabsWrapper() {
+  const location = useLocation();
+  const showTabBar = !["/auth"].includes(location.pathname);
+
+  return (
+    <IonTabs>
+      <IonRouterOutlet animated={false}>
+        <Route exact path="/"><IndexPage /></Route>
+        <Route exact path="/auth"><AuthPage /></Route>
+        <Route exact path="/food"><FoodPage /></Route>
+        <Route exact path="/food/search"><FoodSearchPage /></Route>
+        <Route exact path="/food/edit"><FoodEditPage /></Route>
+      </IonRouterOutlet>
+
+      {showTabBar && (
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="index" href="/">
+            <IonIcon aria-hidden="true" icon={barbell} />
+            <IonLabel>Exercise</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="food" href="/food">
+            <IonIcon aria-hidden="true" icon={fastFood} />
+            <IonLabel>Food</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      )}
+    </IonTabs>
+  );
+}
+
 export default function App() {
   return (
     <IonApp>
       <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet animated={false}>
-            <Route exact path="/"><IndexPage /></Route>
-            <Route exact path="/food"><FoodPage /></Route>
-            <Route exact path="/food/search"><FoodSearchPage /></Route>
-            <Route exact path="/food/edit"><FoodEditPage /></Route>
-          </IonRouterOutlet>
-
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="index" href="/">
-              <IonIcon aria-hidden="true" icon={barbell} />
-              <IonLabel>Exercise</IonLabel>
-            </IonTabButton>
-
-            <IonTabButton tab="food" href="/food">
-              <IonIcon aria-hidden="true" icon={fastFood} />
-              <IonLabel>Food</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
+        <TabsWrapper />
       </IonReactRouter>
     </IonApp>
   );
