@@ -20,16 +20,22 @@ export interface Food {
 interface AppState {
   mainToken: string;
   refreshToken: string;
+  lastSyncTime: number;
 
+  updateUserData: (json: object) => void;
   updateTokens: (main: string, refresh: string) => void;
 }
 
 const state: StateCreator<AppState> = (set, _) => ({
   mainToken: "",
   refreshToken: "",
+  lastSyncTime: 0,
 
-  updateTokens: (state: AppState, main: string, refresh: string) =>
-    set({ ...state, mainToken: main, refreshToken: refresh }),
+  updateTokens: (main: string, refresh: string) =>
+    set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
+
+  updateUserData: (json: object) =>
+    set((state: AppState) => ({...state}))
 });
 
 const storage = new AppStorage();

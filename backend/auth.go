@@ -124,19 +124,19 @@ func parseJWT(w http.ResponseWriter, r *http.Request) (int32, bool) {
 			return -1, false
 		}
 
-		respond(w, http.StatusInternalServerError, "invalid token")
+		respond(w, http.StatusUnauthorized, "invalid token")
 		return -1, false
 	}
 
 	subject, err := token.Claims.GetSubject()
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "invalid token")
+		respond(w, http.StatusUnauthorized, "invalid token")
 		return -1, false
 	}
 
 	id, err := strconv.ParseInt(subject, 10, 32)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "invalid token")
+		respond(w, http.StatusUnauthorized, "invalid token")
 		return -1, false
 	}
 

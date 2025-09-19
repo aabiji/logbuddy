@@ -1,9 +1,10 @@
 import { Route, useLocation } from "react-router";
+import { IonReactRouter } from "@ionic/react-router";
+
 import {
   IonApp, IonIcon, IonLabel, IonRouterOutlet,
   IonTabBar, IonTabButton, IonTabs, setupIonicReact
 } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
 import { barbell, fastFood } from "ionicons/icons";
 
 import AuthPage from "./pages/Auth";

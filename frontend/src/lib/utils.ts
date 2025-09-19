@@ -6,17 +6,15 @@ export async function request(
   token: string | undefined
 ) {
   const url = `http://localhost:8080${endpoint}`;
-  const body = {
+  let body = {
     method,
     body: payload ? JSON.stringify(payload) : "",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token ? `Bearer ${token}` : "",
-    }
+    headers: { "Content-Type": "application/json" }
   };
+  if (token) body.headers["Authorization"] = `Bearer ${token}`;
+
   const response = await fetch(url, body);
   const json = await response.json();
-
   if (!response.ok) {
     const err = new Error(json["error"] || "Unknown error");
     err.statusCode = response.status;

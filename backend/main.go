@@ -19,9 +19,9 @@ type LoggingResponseWriter struct {
 	statusCode int
 }
 
-func (l LoggingResponseWriter) Header() http.Header            { return l.w.Header() }
-func (l LoggingResponseWriter) Write(data []byte) (int, error) { return l.w.Write(data) }
-func (l LoggingResponseWriter) WriteHeader(statusCode int) {
+func (l *LoggingResponseWriter) Header() http.Header            { return l.w.Header() }
+func (l *LoggingResponseWriter) Write(data []byte) (int, error) { return l.w.Write(data) }
+func (l *LoggingResponseWriter) WriteHeader(statusCode int) {
 	l.statusCode = statusCode
 	l.w.WriteHeader(statusCode)
 }
@@ -113,7 +113,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		writer := LoggingResponseWriter{w: w, statusCode: 0}
+		writer := &LoggingResponseWriter{w: w, statusCode: 0}
 		next.ServeHTTP(writer, r)
 		log.Printf("%d %s %s\n", writer.statusCode, r.Method, r.URL.Path)
 	})
@@ -136,7 +136,7 @@ func main() {
 	mux.HandleFunc("POST /food/new", api.CreateFood)
 	mux.HandleFunc("GET /food/search", api.SearchFood)
 
-	mux.HandleFunc("POST /user/info", api.UserInfo)
+	mux.HandleFunc("POST /user/data", api.UserData)
 
 	handler := loggingMiddleware(corsMiddleware(mux))
 	log.Println("Server starting at localhost:8080")

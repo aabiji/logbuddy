@@ -3,7 +3,7 @@ create table if not exists Users (
     id serial primary key,
     lastModified timestamp not null,
 
-    email text not null,
+    email text not null unique,
     password text not null
 );
 
