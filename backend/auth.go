@@ -214,6 +214,33 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func newUser(a *API, email string, hashedPassword string) (int32, error) {
+	tx, err := a.conn.Begin(a.ctx)
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback(a.ctx)
+	qtx := a.queries.WithTx(tx)
+
+	id, err := qtx.CreateUser(a.ctx, database.CreateUserParams{
+		Lastmodified: time.Now(),
+		Email:        email,
+		Password:     hashedPassword,
+	})
+	if err != nil {
+		return -1, err
+	}
+
+	if err := qtx.CreateDefaultPreferences(a.ctx, database.CreateDefaultPreferencesParams{
+		Userid:       id,
+		Lastmodified: time.Now(),
+	}); err != nil {
+		return -1, err
+	}
+
+	return id, tx.Commit(a.ctx)
+}
+
 // Create a new account if there isn't an existing account
 // using the same email. Then, return a "refresh" token, which
 // is needed for refreshing the main token, which is used to
@@ -235,11 +262,7 @@ func (a *API) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := a.queries.CreateUser(a.ctx, database.CreateUserParams{
-		Lastmodified: time.Now(),
-		Email:        req.Email,
-		Password:     hashed,
-	})
+	id, err := newUser(a, req.Email, hashed)
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "couldn't create user")
 		return

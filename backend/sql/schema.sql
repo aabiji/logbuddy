@@ -7,8 +7,17 @@ create table if not exists Users (
     password text not null
 );
 
+create table if not exists UserPreferences (
+    id serial primary key,
+    userID int not null,
+    lastModified timestamp not null,
+
+    mealTags text[] not null
+);
+
 create table if not exists Foods (
     id serial primary key,
+    userid int, -- only not null if a specific user created it
     lastModified timestamp not null,
 
     name text not null,
@@ -23,4 +32,17 @@ create table if not exists Foods (
     calcium float not null,
     potassium float not null,
     iron float not null
+);
+
+create table if not exists Meals (
+    id serial primary key,
+    lastModified timestamp not null,
+    deleted boolean not null,
+
+    userID int not null,
+    foodID int not null,
+    date text not null,
+    mealTag text not null,
+    servings int not null,
+    unit text not null
 );

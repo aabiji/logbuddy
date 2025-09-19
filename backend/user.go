@@ -9,13 +9,11 @@ type UserDataRequest struct {
 	Timestamp int `json:"startTime"`
 }
 
+// TODO!
 func (a *API) UserData(w http.ResponseWriter, r *http.Request) {
-	req, ok := parseRequest[UserDataRequest](w, r)
-	if !ok {
-		return
-	}
-	userID, ok := parseJWT(w, r)
-	if !ok {
+	req, okReq := parseRequest[UserDataRequest](w, r)
+	userID, okID := parseJWT(w, r)
+	if !okReq || !okID {
 		return
 	}
 

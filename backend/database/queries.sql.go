@@ -10,6 +10,21 @@ import (
 	"time"
 )
 
+const createDefaultPreferences = `-- name: CreateDefaultPreferences :exec
+insert into userpreferences (userID, lastModified, mealTags)
+values ($1, $2, ARRAY['breakfast','lunch','dinner','snacks'])
+`
+
+type CreateDefaultPreferencesParams struct {
+	Userid       int32
+	Lastmodified time.Time
+}
+
+func (q *Queries) CreateDefaultPreferences(ctx context.Context, arg CreateDefaultPreferencesParams) error {
+	_, err := q.db.Exec(ctx, createDefaultPreferences, arg.Userid, arg.Lastmodified)
+	return err
+}
+
 const createFood = `-- name: CreateFood :one
 insert into foods
 (lastModified, name, servings, servingSizes, calories,
@@ -51,6 +66,39 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 	return id, err
 }
 
+const createMeal = `-- name: CreateMeal :one
+insert into meals
+(userID, lastModified, deleted, foodID, date, mealTag, servings, unit)
+values ($1, $2, $3, $4, $5, $6, $7, $8) returning id
+`
+
+type CreateMealParams struct {
+	Userid       int32
+	Lastmodified time.Time
+	Deleted      bool
+	Foodid       int32
+	Date         string
+	Mealtag      string
+	Servings     int32
+	Unit         string
+}
+
+func (q *Queries) CreateMeal(ctx context.Context, arg CreateMealParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createMeal,
+		arg.Userid,
+		arg.Lastmodified,
+		arg.Deleted,
+		arg.Foodid,
+		arg.Date,
+		arg.Mealtag,
+		arg.Servings,
+		arg.Unit,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createUser = `-- name: CreateUser :one
 insert into users (lastModified, email, password)
 values ($1, $2, $3) returning id
@@ -69,8 +117,24 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, 
 	return id, err
 }
 
+const deleteMeal = `-- name: DeleteMeal :exec
+update meals set deleted = true, lastModified = $1
+where userID = $2 and id = $3
+`
+
+type DeleteMealParams struct {
+	Lastmodified time.Time
+	Userid       int32
+	ID           int32
+}
+
+func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
+	_, err := q.db.Exec(ctx, deleteMeal, arg.Lastmodified, arg.Userid, arg.ID)
+	return err
+}
+
 const getFoodByID = `-- name: GetFoodByID :one
-select id, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
+select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
 
 func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
@@ -78,6 +142,7 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 	var i Food
 	err := row.Scan(
 		&i.ID,
+		&i.Userid,
 		&i.Lastmodified,
 		&i.Name,
 		&i.Servings,
@@ -91,6 +156,52 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 		&i.Iron,
 	)
 	return i, err
+}
+
+const getMealsForDay = `-- name: GetMealsForDay :many
+select id, foodID, date, mealTag, servings, unit
+from meals where date = $1 and userID = $2 and deleted = false
+`
+
+type GetMealsForDayParams struct {
+	Date   string
+	Userid int32
+}
+
+type GetMealsForDayRow struct {
+	ID       int32
+	Foodid   int32
+	Date     string
+	Mealtag  string
+	Servings int32
+	Unit     string
+}
+
+func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) ([]GetMealsForDayRow, error) {
+	rows, err := q.db.Query(ctx, getMealsForDay, arg.Date, arg.Userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMealsForDayRow
+	for rows.Next() {
+		var i GetMealsForDayRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Foodid,
+			&i.Date,
+			&i.Mealtag,
+			&i.Servings,
+			&i.Unit,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
@@ -121,7 +232,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const searchFoods = `-- name: SearchFoods :many
-select id, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1)
 `
 
@@ -136,6 +247,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 		var i Food
 		if err := rows.Scan(
 			&i.ID,
+			&i.Userid,
 			&i.Lastmodified,
 			&i.Name,
 			&i.Servings,
@@ -156,4 +268,29 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateMeal = `-- name: UpdateMeal :exec
+update meals
+set lastModified = $1, mealTag = $2, servings = $3, unit = $4
+where ID = $5
+`
+
+type UpdateMealParams struct {
+	Lastmodified time.Time
+	Mealtag      string
+	Servings     int32
+	Unit         string
+	ID           int32
+}
+
+func (q *Queries) UpdateMeal(ctx context.Context, arg UpdateMealParams) error {
+	_, err := q.db.Exec(ctx, updateMeal,
+		arg.Lastmodified,
+		arg.Mealtag,
+		arg.Servings,
+		arg.Unit,
+		arg.ID,
+	)
+	return err
 }
