@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
-import { Food } from "../../lib/state";
+import { Food, useAppState } from "../../lib/state";
 import { request } from "../../lib/utils";
 
 import {
@@ -14,10 +14,31 @@ import { add, search } from "ionicons/icons";
 
 export default function FoodSearchPage() {
   const history = useHistory();
+  const { mealTag, date } = useParams<{ mealTag: string; date: string; }>();
+  const { foods, mainToken, meals, upsertMeals } = useAppState();
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Food[]>([]);
+  const [results, setResults] = useState<Food[]>(Object.values(foods));
   const [filterOption, setFilterOption] = useState("all");
+
+  const createMeal = async (food: Food) => {
+    try {
+      const mealInfo = {
+        id: -1,
+        mealTag,
+        servings: 1,
+        foodID: food.id,
+        servingsUnit: food.units[0]
+      };
+      const body = { ...mealInfo, updating: false };
+      const json = await request("POST", "/meal/set", body, mainToken);
+
+      const meal = { ...mealInfo, id: json.mealID };
+      upsertMeals(date, [...meals[date], meal]);
+    } catch (err: any) {
+      console.log("ERROR", err.message);
+    }
+  }
 
   const searchFood = async () => {
     try {
@@ -25,7 +46,7 @@ export default function FoodSearchPage() {
       params.append("query", query);
       params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
       const endpoint = `/food/search?${params.toString()}`;
-      const response = await request("GET", endpoint, undefined, undefined);
+      const response = await request("GET", endpoint, undefined, mainToken);
       setResults(response.results);
     } catch (err: any) {
       console.log(err);
@@ -53,15 +74,9 @@ export default function FoodSearchPage() {
           <IonButton size="default" fill="clear" onClick={searchFood}>
             <IonIcon item-right slot="icon-only" color="blue" icon={search}></IonIcon>
           </IonButton>
-        </IonItem>
 
-        <IonItem>
           <IonButton size="default" onClick={() => history.push("/food/edit")}>
             Create food
-          </IonButton>
-
-          <IonButton size="default" onClick={() => history.push("/food/edit")}>
-            Create meal
           </IonButton>
 
           <IonSelect
@@ -70,7 +85,7 @@ export default function FoodSearchPage() {
             value={filterOption}
             onIonChange={(event) => setFilterOption(event.detail.value)}>
             <IonSelectOption value="all">All</IonSelectOption>
-             <IonSelectOption value="user-foods">Your foods</IonSelectOption>
+            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
           </IonSelect>
         </IonItem>
 
@@ -84,7 +99,9 @@ export default function FoodSearchPage() {
                   <p>{r.servings[0]} {r.units[0]} • {r.calories * r.servings[0]} calories</p>
                 </IonLabel>
 
-                <IonButton shape="round" size="large" fill="clear">
+                <IonButton
+                  onClick={() => createMeal(r)}
+                  shape="round" size="large" fill="clear">
                   <IonIcon slot="icon-only" color="success" icon={add}></IonIcon>
                 </IonButton>
               </IonItem>

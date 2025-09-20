@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory } from "react-router";
 
-import { Food } from "../../lib/state";
+import { Food, useAppState } from "../../lib/state";
 import { request } from "../../lib/utils";
 
 import {
@@ -13,10 +13,11 @@ import { add, remove } from "ionicons/icons";
 
 export default function FoodEditPage() {
   const history = useHistory();
+  const { mainToken, upsertFood } = useAppState();
 
   const [error, setError] = useState<undefined | string>(undefined);
   const [food, setFood] = useState<Food>({
-    name: "", servings: [], units: [],
+    id: -1, name: "", servings: [], units: [],
     calories: 0, carbohydrate: 0, protein: 0,
     fat: 0, calcium: 0, potassium: 0, iron: 0
   });
@@ -28,8 +29,9 @@ export default function FoodEditPage() {
       setError("Food must have a serving size")
     } else {
       try {
-        const response = await request("POST", "/food/new", food, undefined);
-        console.log("FOOD ID:", response.id)
+        const json = await request("POST", "/food/new", food, mainToken);
+        setFood((prev: Food) => ({ ...prev, id: json.id }));
+        upsertFood({ ...food, id: json.id });
         history.goBack();
       } catch (err: any) {
         console.log(err);
@@ -58,8 +60,8 @@ export default function FoodEditPage() {
           value={food.name}
           placeholder="Food name"
           onChange={(event) => {
-            const value = event.currentTarget.value ?? "";
-            setFood(prev => ({ ...prev, name: value }));
+            const value = event.currentTarget.value as string ?? "";
+            setFood((prev: Food) => ({ ...prev, name: value }));
           }}
         />
         {error !== undefined &&
@@ -136,7 +138,7 @@ export default function FoodEditPage() {
         <IonItemDivider><h4>Nutrients</h4></IonItemDivider>
 
         {(Object.keys(food) as (keyof Food)[]).map((key, i) => {
-          if (["servings", "units", "name"].includes(key)) return null;
+          if (["servings", "units", "name", "id"].includes(key)) return null;
           return (
             <IonItem key={i}>
               <IonLabel position="fixed" slot="start">

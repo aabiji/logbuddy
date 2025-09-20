@@ -6,11 +6,8 @@ export async function request(
   token: string | undefined
 ) {
   const url = `http://localhost:8080${endpoint}`;
-  let body = {
-    method,
-    body: payload ? JSON.stringify(payload) : "",
-    headers: { "Content-Type": "application/json" }
-  };
+  let body = {method, headers: { "Content-Type": "application/json" }};
+  if (payload) body.body = JSON.stringify(payload);
   if (token) body.headers["Authorization"] = `Bearer ${token}`;
 
   const response = await fetch(url, body);

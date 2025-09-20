@@ -32,8 +32,8 @@ function TabsWrapper() {
         <Route exact path="/"><IndexPage /></Route>
         <Route exact path="/auth"><AuthPage /></Route>
         <Route exact path="/food"><FoodPage /></Route>
-        <Route exact path="/food/search"><FoodSearchPage /></Route>
         <Route exact path="/food/edit"><FoodEditPage /></Route>
+        <Route exact path="/food/search/:mealTag/:date"><FoodSearchPage /></Route>
       </IonRouterOutlet>
 
       {showTabBar && (

@@ -69,6 +69,7 @@ export default function IndexPage() {
     updateUserData(json);
   }
 
+  // TODO: extend this (same pattern) to all api requests
   const sync = async () => {
     if (mainToken.length == 0 || refreshToken.length == 0)
       history.replace("/auth"); // first time opening app...

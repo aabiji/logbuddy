@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Food, Meal, useAppState } from "../../lib/state";
 import { formatDate, request } from "../../lib/utils";
@@ -13,12 +13,13 @@ import "./Index.css";
 
 export default function FoodPage() {
   const history = useHistory();
-  const { foods, mainToken, meals, mealTags, setDayMeals, upsertFood } = useAppState();
+  const { foods, mainToken, meals, mealTags, upsertMeals, upsertFood } = useAppState();
 
   const [date, setDate] = useState(new Date());
-  const [groupedMeals, setGroupedMeals] = useState<Record<string, Meal[]>>(
-    Object.fromEntries(mealTags.map((t: string) => [t, []]))
-  );
+  const [previousMealTag, setPreviousMealTag] = useState(mealTags[0]);
+  const [groupedMeals, setGroupedMeals] = useState<Record<string, Meal[]>>({});
+
+  useEffect(() => { changeDate(0); }, []);
 
   const fetchFood = async (id: number) => {
     try {
@@ -29,24 +30,29 @@ export default function FoodPage() {
     }
   }
 
-  const fetchMeals = async (dateLabel: string) => {
-    try {
-      // fetch all the meals for this day
-      const params = new URLSearchParams();
-      params.append("date", dateLabel);
-      const endpoint = `/meal/day?${params.toString()}`;
-      const json = await request("GET", endpoint, undefined, mainToken);
-      setDayMeals(dateLabel, json.meals as Meal[]);
+  const fetchMeals = async (dateLabel: string): Promise<Meal[]> => {
+    return new Promise(async (resolve, _) => {
+      try {
+        // fetch all the meals for this day
+        const params = new URLSearchParams();
+        params.append("date", dateLabel);
+        const endpoint = `/meal/day?${params.toString()}`;
+        const json = await request("GET", endpoint, undefined, mainToken);
+        upsertMeals(dateLabel, json.meals as Meal[]);
 
-      // fetch foods that we don't have cached as well
-      for (const meal of json.meals) {
-        if (foods[meal.foodID] === undefined) {
-          fetchFood(meal.foodId);
+        // fetch foods that we don't have cached as well
+        for (const meal of json.meals) {
+          if (foods[meal.foodID] === undefined) {
+            fetchFood(meal.foodId);
+          }
         }
+
+        resolve(json.meals);
+      } catch (err: any) {
+        console.log("ERROR", err.message);
+        resolve([]);
       }
-    } catch (err: any) {
-      console.log("ERROR", err.message);
-    }
+    });
   }
 
   const changeDate = async (delta: number) => {
@@ -56,14 +62,20 @@ export default function FoodPage() {
 
     // fetch on demand
     const label = formatDate(copy);
-    if (meals[label] === undefined)
-      await fetchMeals(label);
+    let dayMeals = meals[label];
+    if (dayMeals === undefined)
+      dayMeals = await fetchMeals(label);
 
     let groups = Object.fromEntries(mealTags.map((t: string) => [t, []]));
-    for (const meal of meals[label])
+    for (const meal of dayMeals)
       groups[meal.mealTag].push(meal);
     setGroupedMeals(groups);
   };
+
+  const addMeal = () => {
+    const label = formatDate(date);
+    history.push(`/food/search/${previousMealTag}/${label}`);
+  }
 
   return (
     <IonPage>
@@ -84,9 +96,9 @@ export default function FoodPage() {
           <div key={i}>
             <h1>{tag}</h1>
 
-            {Object.values(groupedMeals[tag]).map((meal: Meal, j: number) => {
+            {Object.values(groupedMeals[tag] ?? {}).map((meal: Meal, j: number) => {
               const food = foods[meal.foodID];
-              const servingIndex = food.servingUnits.findIndex(meal.servingsUnit);
+              const servingIndex = food.units.indexOf(meal.servingsUnit);
               return (
                 <IonItem key={j}>
                   <IonLabel>
@@ -104,7 +116,7 @@ export default function FoodPage() {
         ))}
 
         <IonFab slot="fixed" vertical="bottom" horizontal="end">
-          <IonFabButton onClick={() => history.push("/food/search")}>
+          <IonFabButton onClick={addMeal}>
             <IonIcon icon={add}></IonIcon>
           </IonFabButton>
         </IonFab>
