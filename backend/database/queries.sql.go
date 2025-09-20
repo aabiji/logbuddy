@@ -27,14 +27,15 @@ func (q *Queries) CreateDefaultPreferences(ctx context.Context, arg CreateDefaul
 
 const createFood = `-- name: CreateFood :one
 insert into foods
-(lastModified, name, servings, servingSizes, calories,
-carbohydrate, protein, fat, calcium, potassium, iron)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+(lastModified, userid, name, servings, servingSizes,
+calories, carbohydrate, protein, fat, calcium, potassium, iron)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 returning id
 `
 
 type CreateFoodParams struct {
 	Lastmodified time.Time
+	Userid       int32
 	Name         string
 	Servings     []int32
 	Servingsizes []string
@@ -50,6 +51,7 @@ type CreateFoodParams struct {
 func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createFood,
 		arg.Lastmodified,
+		arg.Userid,
 		arg.Name,
 		arg.Servings,
 		arg.Servingsizes,
@@ -233,11 +235,56 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 
 const searchFoods = `-- name: SearchFoods :many
 select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1)
+where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
 `
 
 func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([]Food, error) {
 	rows, err := q.db.Query(ctx, searchFoods, websearchToTsquery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Food
+	for rows.Next() {
+		var i Food
+		if err := rows.Scan(
+			&i.ID,
+			&i.Userid,
+			&i.Lastmodified,
+			&i.Name,
+			&i.Servings,
+			&i.Servingsizes,
+			&i.Calories,
+			&i.Carbohydrate,
+			&i.Protein,
+			&i.Fat,
+			&i.Calcium,
+			&i.Potassium,
+			&i.Iron,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchUserFoods = `-- name: SearchUserFoods :many
+select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+where to_tsvector(name) @@ websearch_to_tsquery($1) and userid = $2
+limit 100
+`
+
+type SearchUserFoodsParams struct {
+	WebsearchToTsquery string
+	Userid             int32
+}
+
+func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams) ([]Food, error) {
+	rows, err := q.db.Query(ctx, searchUserFoods, arg.WebsearchToTsquery, arg.Userid)
 	if err != nil {
 		return nil, err
 	}

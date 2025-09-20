@@ -6,13 +6,11 @@ package database
 
 import (
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Food struct {
 	ID           int32
-	Userid       pgtype.Int4
+	Userid       int32
 	Lastmodified time.Time
 	Name         string
 	Servings     []int32

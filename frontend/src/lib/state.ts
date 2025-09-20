@@ -4,7 +4,7 @@ import { AppStorage } from "./storage";
 
 // macro and micr nutrients are per 1 g
 export interface Food {
-  id?: string;
+  id: string;
   name: string;
   servings: number[];
   units: string[];
@@ -17,10 +17,25 @@ export interface Food {
   iron: number;
 }
 
+export interface Meal {
+  id: number;
+  foodID: number;
+  mealTag: string;
+  servings: number;
+  servingsUnit: string;
+}
+
 interface AppState {
   mainToken: string;
   refreshToken: string;
   lastSyncTime: number;
+
+  foods: Record<number, Food>; // map food ids to foods
+  meals: Record<string, Meal>; // map date to its meals
+  mealTags: string[];
+
+  upsertFood: (food: Food) => void;
+  setDayMeals: (dateStr: string, meals: Meal[]) => void;
 
   updateUserData: (json: object) => void;
   updateTokens: (main: string, refresh: string) => void;
@@ -31,11 +46,30 @@ const state: StateCreator<AppState> = (set, _) => ({
   refreshToken: "",
   lastSyncTime: 0,
 
+  foods: {},
+  meals: {},
+  mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"], // TODO: get from /user/data
+
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
 
+  upsertFood: (food: Food) =>
+    set((state: AppState) => ({
+      ...state,
+      foods: {...state.foods, [food.id]: food }
+    })),
+
+  setDayMeals: (dateStr: string, meals: Meal[]) =>
+    set((state: AppState) => ({
+        ...state,
+        meals: { ...state.meals, [dateStr]: meals },
+    })),
+
   updateUserData: (json: object) =>
-    set((state: AppState) => ({...state}))
+    set((state: AppState) => ({
+      ...state,
+      lastSyncTime: new Date().getTime()
+    }))
 });
 
 const storage = new AppStorage();

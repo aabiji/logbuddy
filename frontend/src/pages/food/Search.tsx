@@ -23,6 +23,7 @@ export default function FoodSearchPage() {
     try {
       const params = new URLSearchParams();
       params.append("query", query);
+      params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
       const endpoint = `/food/search?${params.toString()}`;
       const response = await request("GET", endpoint, undefined, undefined);
       setResults(response.results);
@@ -69,8 +70,7 @@ export default function FoodSearchPage() {
             value={filterOption}
             onIonChange={(event) => setFilterOption(event.detail.value)}>
             <IonSelectOption value="all">All</IonSelectOption>
-            <IonSelectOption value="user-meals">Your meals</IonSelectOption>
-            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
+             <IonSelectOption value="user-foods">Your foods</IonSelectOption>
           </IonSelect>
         </IonItem>
 

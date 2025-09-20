@@ -17,7 +17,7 @@ create table if not exists UserPreferences (
 
 create table if not exists Foods (
     id serial primary key,
-    userid int, -- only not null if a specific user created it
+    userid int not null,
     lastModified timestamp not null,
 
     name text not null,

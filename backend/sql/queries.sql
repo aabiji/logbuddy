@@ -1,11 +1,10 @@
-
 -- name: CreateUser :one
 insert into users (lastModified, email, password)
 values ($1, $2, $3) returning id;
 
 -- name: CreateDefaultPreferences :exec
 insert into userpreferences (userID, lastModified, mealTags)
-values ($1, $2, ARRAY['breakfast','lunch','dinner','snacks']);
+values ($1, $2, ARRAY['Breakfast','Lunch','Dinner','Snacks']);
 
 -- name: GetUserByID :one
 select id from users where id = $1;
@@ -15,9 +14,9 @@ select id, email, Password from users where email = $1;
 
 -- name: CreateFood :one
 insert into foods
-(lastModified, name, servings, servingSizes, calories,
-carbohydrate, protein, fat, calcium, potassium, iron)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+(lastModified, userid, name, servings, servingSizes,
+calories, carbohydrate, protein, fat, calcium, potassium, iron)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 returning id;
 
 -- name: GetFoodByID :one
@@ -25,7 +24,12 @@ select * from foods where id = $1;
 
 -- name: SearchFoods :many
 select * from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1);
+where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100;
+
+-- name: SearchUserFoods :many
+select * from foods
+where to_tsvector(name) @@ websearch_to_tsquery($1) and userid = $2
+limit 100;
 
 -- name: CreateMeal :one
 insert into meals
