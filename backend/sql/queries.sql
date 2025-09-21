@@ -14,9 +14,9 @@ select id, email, Password from users where email = $1;
 
 -- name: CreateFood :one
 insert into foods
-(lastModified, userid, name, servings, servingSizes,
+(lastModified, userid, name, servings, servingSizes, defaultServingIndex,
 calories, carbohydrate, protein, fat, calcium, potassium, iron)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 returning id;
 
 -- name: GetFoodByID :one

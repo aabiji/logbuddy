@@ -8,6 +8,7 @@ export interface Food {
   name: string;
   servings: number[];
   units: string[];
+  defaultServingIndex: number;
   calories: number;
   carbohydrate: number;
   protein: number;

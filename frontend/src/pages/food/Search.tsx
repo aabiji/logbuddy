@@ -15,7 +15,7 @@ import { add, search } from "ionicons/icons";
 export default function FoodSearchPage() {
   const history = useHistory();
   const { mealTag, date } = useParams<{ mealTag: string; date: string; }>();
-  const { foods, mainToken, meals, upsertMeals } = useAppState();
+  const { foods, mainToken, meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Food[]>(Object.values(foods));
@@ -47,7 +47,10 @@ export default function FoodSearchPage() {
       params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
       const endpoint = `/food/search?${params.toString()}`;
       const response = await request("GET", endpoint, undefined, mainToken);
+
       setResults(response.results);
+      for (const food of response.results)
+        upsertFood(food);
     } catch (err: any) {
       console.log(err);
     }
@@ -66,6 +69,13 @@ export default function FoodSearchPage() {
 
       <IonContent>
         <IonItem>
+          <IonSelect
+            slot="start" aria-label="Serving unit" value={filterOption}
+            onIonChange={(event) => setFilterOption(event.detail.value)}>
+            <IonSelectOption value="all">All</IonSelectOption>
+            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
+          </IonSelect>
+
           <IonInput
             value={query}
             placeholder="Search food"
@@ -75,26 +85,21 @@ export default function FoodSearchPage() {
             <IonIcon item-right slot="icon-only" color="blue" icon={search}></IonIcon>
           </IonButton>
 
-          <IonButton size="default" onClick={() => history.push("/food/edit")}>
-            Create food
+          <IonButton
+            size="large" shape="round" fill="clear"
+            onClick={() => history.push("/food/view/-1")}>
+            <IonIcon slot="icon-only" color="success" icon={add}></IonIcon>
           </IonButton>
-
-          <IonSelect
-            slot="end"
-            aria-label="Serving unit"
-            value={filterOption}
-            onIonChange={(event) => setFilterOption(event.detail.value)}>
-            <IonSelectOption value="all">All</IonSelectOption>
-            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
-          </IonSelect>
         </IonItem>
 
         {results.length == 0
           ? <IonText>No results</IonText>
           : <IonList>
-            {results.map((r, i) => (
+            {results.map((r: Food, i: number) => (
               <IonItem key={i}>
-                <IonLabel>
+                <IonLabel
+                  style={{ cursor: "pointer" }}
+                  onClick={() => history.push(`/food/view/${r.id}`)}>
                   <h2>{r.name}</h2>
                   <p>{r.servings[0]} {r.units[0]} • {r.calories * r.servings[0]} calories</p>
                 </IonLabel>

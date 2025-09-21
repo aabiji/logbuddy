@@ -21,6 +21,7 @@ create table if not exists Foods (
     lastModified timestamp not null,
 
     name text not null,
+    defaultServingIndex int not null,
     servings int[] not null,
     servingSizes text[] not null,
 

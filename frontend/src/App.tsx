@@ -10,7 +10,7 @@ import { barbell, fastFood } from "ionicons/icons";
 import AuthPage from "./pages/Auth";
 import FoodPage from "./pages/food/Index"
 import FoodSearchPage from "./pages/food/Search";
-import FoodEditPage from "./pages/food/Edit";
+import FoodViewPage from "./pages/food/View";
 import IndexPage from "./pages/Index";
 
 import "@ionic/react/css/core.css";
@@ -32,7 +32,7 @@ function TabsWrapper() {
         <Route exact path="/"><IndexPage /></Route>
         <Route exact path="/auth"><AuthPage /></Route>
         <Route exact path="/food"><FoodPage /></Route>
-        <Route exact path="/food/edit"><FoodEditPage /></Route>
+        <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
         <Route exact path="/food/search/:mealTag/:date"><FoodSearchPage /></Route>
       </IonRouterOutlet>
 

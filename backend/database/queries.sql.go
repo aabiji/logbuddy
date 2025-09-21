@@ -12,7 +12,7 @@ import (
 
 const createDefaultPreferences = `-- name: CreateDefaultPreferences :exec
 insert into userpreferences (userID, lastModified, mealTags)
-values ($1, $2, ARRAY['breakfast','lunch','dinner','snacks'])
+values ($1, $2, ARRAY['Breakfast','Lunch','Dinner','Snacks'])
 `
 
 type CreateDefaultPreferencesParams struct {
@@ -27,25 +27,26 @@ func (q *Queries) CreateDefaultPreferences(ctx context.Context, arg CreateDefaul
 
 const createFood = `-- name: CreateFood :one
 insert into foods
-(lastModified, userid, name, servings, servingSizes,
+(lastModified, userid, name, servings, servingSizes, defaultServingIndex,
 calories, carbohydrate, protein, fat, calcium, potassium, iron)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 returning id
 `
 
 type CreateFoodParams struct {
-	Lastmodified time.Time
-	Userid       int32
-	Name         string
-	Servings     []int32
-	Servingsizes []string
-	Calories     float64
-	Carbohydrate float64
-	Protein      float64
-	Fat          float64
-	Calcium      float64
-	Potassium    float64
-	Iron         float64
+	Lastmodified        time.Time
+	Userid              int32
+	Name                string
+	Servings            []int32
+	Servingsizes        []string
+	Defaultservingindex int32
+	Calories            float64
+	Carbohydrate        float64
+	Protein             float64
+	Fat                 float64
+	Calcium             float64
+	Potassium           float64
+	Iron                float64
 }
 
 func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, error) {
@@ -55,6 +56,7 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 		arg.Name,
 		arg.Servings,
 		arg.Servingsizes,
+		arg.Defaultservingindex,
 		arg.Calories,
 		arg.Carbohydrate,
 		arg.Protein,
@@ -136,7 +138,7 @@ func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 }
 
 const getFoodByID = `-- name: GetFoodByID :one
-select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
+select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
 
 func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
@@ -147,6 +149,7 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 		&i.Userid,
 		&i.Lastmodified,
 		&i.Name,
+		&i.Defaultservingindex,
 		&i.Servings,
 		&i.Servingsizes,
 		&i.Calories,
@@ -234,7 +237,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const searchFoods = `-- name: SearchFoods :many
-select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
 `
 
@@ -252,6 +255,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 			&i.Userid,
 			&i.Lastmodified,
 			&i.Name,
+			&i.Defaultservingindex,
 			&i.Servings,
 			&i.Servingsizes,
 			&i.Calories,
@@ -273,7 +277,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 }
 
 const searchUserFoods = `-- name: SearchUserFoods :many
-select id, userid, lastmodified, name, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) and userid = $2
 limit 100
 `
@@ -297,6 +301,7 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 			&i.Userid,
 			&i.Lastmodified,
 			&i.Name,
+			&i.Defaultservingindex,
 			&i.Servings,
 			&i.Servingsizes,
 			&i.Calories,

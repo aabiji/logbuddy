@@ -9,19 +9,20 @@ import (
 )
 
 type Food struct {
-	ID           int32
-	Userid       int32
-	Lastmodified time.Time
-	Name         string
-	Servings     []int32
-	Servingsizes []string
-	Calories     float64
-	Carbohydrate float64
-	Protein      float64
-	Fat          float64
-	Calcium      float64
-	Potassium    float64
-	Iron         float64
+	ID                  int32
+	Userid              int32
+	Lastmodified        time.Time
+	Name                string
+	Defaultservingindex int32
+	Servings            []int32
+	Servingsizes        []string
+	Calories            float64
+	Carbohydrate        float64
+	Protein             float64
+	Fat                 float64
+	Calcium             float64
+	Potassium           float64
+	Iron                float64
 }
 
 type Meal struct {
