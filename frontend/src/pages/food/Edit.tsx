@@ -11,6 +11,7 @@ import {
 } from "@ionic/react";
 import { add, remove } from "ionicons/icons";
 
+// TODO: fix the way we calculate serving sizes...
 export default function FoodEditPage() {
   const history = useHistory();
   const { mainToken, upsertFood } = useAppState();

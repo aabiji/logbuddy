@@ -35,6 +35,8 @@ interface AppState {
   mealTags: string[];
 
   upsertFood: (food: Food) => void;
+  removeMeal: (dateStr: string, index: number) => void;
+  upsertMeal: (dateStr: string, newMeal: Meal, index: number) => void;
   upsertMeals: (dateStr: string, meals: Meal[]) => void;
 
   updateUserData: (json: object) => void;
@@ -56,13 +58,38 @@ const state: StateCreator<AppState> = (set, _) => ({
   upsertFood: (food: Food) =>
     set((state: AppState) => ({
       ...state,
-      foods: {...state.foods, [food.id]: food }
+      foods: { ...state.foods, [food.id]: food }
+    })),
+
+  upsertMeal: (dateStr: string, newMeal: Meal, index: number) =>
+    set((state: AppState) => ({
+      ...state,
+      meals: {
+        ...state.meals,
+        [dateStr]: [
+          ...state.meals[dateStr].slice(0, index),
+          newMeal,
+          ...state.meals[dateStr].slice(index + 1)
+        ],
+      }
+    })),
+
+  removeMeal: (dateStr: string, index: number) =>
+    set((state: AppState) => ({
+      ...state,
+      meals: {
+        ...state.meals,
+        [dateStr]: [
+          ...state.meals[dateStr].slice(0, index),
+          ...state.meals[dateStr].slice(index + 1)
+        ],
+      }
     })),
 
   upsertMeals: (dateStr: string, meals: Meal[]) =>
     set((state: AppState) => ({
-        ...state,
-        meals: { ...state.meals, [dateStr]: meals },
+      ...state,
+      meals: { ...state.meals, [dateStr]: meals },
     })),
 
   updateUserData: (json: object) =>
