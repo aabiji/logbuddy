@@ -24,14 +24,14 @@ export default function AuthPage() {
       setError("Invalid email");
     else if (!passwordRegex.test(password) && !isLogin)
       setError("Password must contain at least 1 number and special character");
-    else  {
+    else {
       setError(undefined);
 
       try {
         const endpoint = isLogin ? "/auth/login" : "/auth/new";
         const json = await request("POST", endpoint, { email, password }, undefined);
         updateTokens(json.mainToken, json.refreshToken);
-        history.replace("/");
+        history.replace("/exercise");
       } catch (err: any) {
         const msg = err.message[0].toUpperCase() + err.message.slice(1);
         setError(err.statusCode !== 500 ? msg : "Failed to connect to server");

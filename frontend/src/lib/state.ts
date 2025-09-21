@@ -26,6 +26,19 @@ export interface Meal {
   servingsUnit: string;
 }
 
+export interface Exercise {
+  name: string;
+  weight: number;
+  reps: number[];
+}
+
+export interface Workout {
+  name: string;
+  date: string;
+  isTemplate: boolean;
+  exercises: Exercise[];
+}
+
 interface AppState {
   mainToken: string;
   refreshToken: string;
