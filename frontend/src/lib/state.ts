@@ -27,12 +27,16 @@ export interface Meal {
 }
 
 export interface Exercise {
+  id: number;
+  workoutID: number;
   name: string;
   weight: number;
   reps: number[];
 }
 
+// TODO: what if we held exercise ids instead of actual exercises?
 export interface Workout {
+  id: number;
   name: string;
   date: string;
   isTemplate: boolean;

@@ -25,6 +25,35 @@ func (q *Queries) CreateDefaultPreferences(ctx context.Context, arg CreateDefaul
 	return err
 }
 
+const createExercise = `-- name: CreateExercise :one
+insert into exercises
+(lastModified, deleted, workoutID, name, weight, reps)
+values ($1, $2, $3, $4, $5, $6) returning id
+`
+
+type CreateExerciseParams struct {
+	Lastmodified time.Time
+	Deleted      bool
+	Workoutid    int32
+	Name         string
+	Weight       string
+	Reps         []int32
+}
+
+func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createExercise,
+		arg.Lastmodified,
+		arg.Deleted,
+		arg.Workoutid,
+		arg.Name,
+		arg.Weight,
+		arg.Reps,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createFood = `-- name: CreateFood :one
 insert into foods
 (lastModified, userid, name, servings, servingSizes, defaultServingIndex,
@@ -121,6 +150,33 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, 
 	return id, err
 }
 
+const createWorkout = `-- name: CreateWorkout :one
+insert into workouts
+(lastModified, deleted, name, date, isTemplate)
+values ($1, $2, $3, $4, $5) returning id
+`
+
+type CreateWorkoutParams struct {
+	Lastmodified time.Time
+	Deleted      bool
+	Name         string
+	Date         time.Time
+	Istemplate   bool
+}
+
+func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createWorkout,
+		arg.Lastmodified,
+		arg.Deleted,
+		arg.Name,
+		arg.Date,
+		arg.Istemplate,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const deleteMeal = `-- name: DeleteMeal :exec
 update meals set deleted = true, lastModified = $1
 where userID = $2 and id = $3
@@ -134,6 +190,22 @@ type DeleteMealParams struct {
 
 func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 	_, err := q.db.Exec(ctx, deleteMeal, arg.Lastmodified, arg.Userid, arg.ID)
+	return err
+}
+
+const deleteWorkout = `-- name: DeleteWorkout :exec
+update workouts set deleted = true, lastModified = $1
+where userID = $2 and id = $3
+`
+
+type DeleteWorkoutParams struct {
+	Lastmodified time.Time
+	Userid       int32
+	ID           int32
+}
+
+func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) error {
+	_, err := q.db.Exec(ctx, deleteWorkout, arg.Lastmodified, arg.Userid, arg.ID)
 	return err
 }
 
@@ -236,6 +308,76 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 	return id, err
 }
 
+const getWorkouts = `-- name: GetWorkouts :many
+select w.id, w.lastmodified, w.deleted, userid, w.name, date, istemplate, e.id, e.lastmodified, e.deleted, workoutid, e.name, weight, reps from workouts w
+join exercises e on e.workoutID = w.id
+where w.id = $1 and w.userID = $2 and w.date >= $3 and w.date <= $4
+`
+
+type GetWorkoutsParams struct {
+	ID     int32
+	Userid int32
+	Date   time.Time
+	Date_2 time.Time
+}
+
+type GetWorkoutsRow struct {
+	ID             int32
+	Lastmodified   time.Time
+	Deleted        bool
+	Userid         int32
+	Name           string
+	Date           time.Time
+	Istemplate     bool
+	ID_2           int32
+	Lastmodified_2 time.Time
+	Deleted_2      bool
+	Workoutid      int32
+	Name_2         string
+	Weight         string
+	Reps           []int32
+}
+
+func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]GetWorkoutsRow, error) {
+	rows, err := q.db.Query(ctx, getWorkouts,
+		arg.ID,
+		arg.Userid,
+		arg.Date,
+		arg.Date_2,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetWorkoutsRow
+	for rows.Next() {
+		var i GetWorkoutsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.Userid,
+			&i.Name,
+			&i.Date,
+			&i.Istemplate,
+			&i.ID_2,
+			&i.Lastmodified_2,
+			&i.Deleted_2,
+			&i.Workoutid,
+			&i.Name_2,
+			&i.Weight,
+			&i.Reps,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const searchFoods = `-- name: SearchFoods :many
 select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
@@ -320,6 +462,33 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateExercise = `-- name: UpdateExercise :exec
+update exercises
+set lastModified = $1, deleted = $2, name = $3, weight = $4, reps = $5
+where ID = $6
+`
+
+type UpdateExerciseParams struct {
+	Lastmodified time.Time
+	Deleted      bool
+	Name         string
+	Weight       string
+	Reps         []int32
+	ID           int32
+}
+
+func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) error {
+	_, err := q.db.Exec(ctx, updateExercise,
+		arg.Lastmodified,
+		arg.Deleted,
+		arg.Name,
+		arg.Weight,
+		arg.Reps,
+		arg.ID,
+	)
+	return err
 }
 
 const updateMeal = `-- name: UpdateMeal :exec

@@ -48,3 +48,27 @@ where ID = $5;
 -- name: GetMealsForDay :many
 select id, foodID, date, mealTag, servings, unit
 from meals where date = $1 and userID = $2 and deleted = false;
+
+-- name: CreateWorkout :one
+insert into workouts
+(lastModified, deleted, name, date, isTemplate)
+values ($1, $2, $3, $4, $5) returning id;
+
+-- name: CreateExercise :one
+insert into exercises
+(lastModified, deleted, workoutID, name, weight, reps)
+values ($1, $2, $3, $4, $5, $6) returning id;
+
+-- name: UpdateExercise :exec
+update exercises
+set lastModified = $1, deleted = $2, name = $3, weight = $4, reps = $5
+where ID = $6;
+
+-- name: DeleteWorkout :exec
+update workouts set deleted = true, lastModified = $1
+where userID = $2 and id = $3;
+
+-- name: GetWorkouts :many
+select * from workouts w
+join exercises e on e.workoutID = w.id
+where w.id = $1 and w.userID = $2 and w.date >= $3 and w.date <= $4;

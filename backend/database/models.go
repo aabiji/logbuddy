@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+type Exercise struct {
+	ID           int32
+	Lastmodified time.Time
+	Deleted      bool
+	Workoutid    int32
+	Name         string
+	Weight       string
+	Reps         []int32
+}
+
 type Food struct {
 	ID                  int32
 	Userid              int32
@@ -49,4 +59,14 @@ type Userpreference struct {
 	Userid       int32
 	Lastmodified time.Time
 	Mealtags     []string
+}
+
+type Workout struct {
+	ID           int32
+	Lastmodified time.Time
+	Deleted      bool
+	Userid       int32
+	Name         string
+	Date         time.Time
+	Istemplate   bool
 }

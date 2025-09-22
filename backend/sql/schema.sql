@@ -47,3 +47,25 @@ create table if not exists Meals (
     servings int not null,
     unit text not null
 );
+
+create table if not exists Exercises (
+    id serial primary key,
+    lastModified timestamp not null,
+    deleted boolean not null,
+
+    workoutID int not null,
+    name text not null,
+    weight text not null,
+    reps int[] not null
+);
+
+create table if not exists Workouts (
+    id serial primary key,
+    lastModified timestamp not null,
+    deleted boolean not null,
+
+    userid int not null,
+    name text not null,
+    date timestamp not null,
+    isTemplate boolean not null
+);

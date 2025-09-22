@@ -143,6 +143,11 @@ func main() {
 	mux.HandleFunc("GET /meal/day", api.GetMeals)
 	mux.HandleFunc("DELETE /meal/delete", api.DeleteMeal)
 
+	mux.HandleFunc("POST /workout/create", api.CreateWorkout)
+	mux.HandleFunc("POST /workout/exercise", api.UpdateExercise)
+	mux.HandleFunc("DELETE /workout/delete", api.DeleteWorkout)
+	mux.HandleFunc("GET /workout/entries", api.GetWorkouts)
+
 	handler := loggingMiddleware(corsMiddleware(mux))
 	log.Println("Server starting at localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", handler))

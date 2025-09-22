@@ -52,7 +52,7 @@ export function Entry({ workout }: { workout: Workout; }) {
 
 export function Template() {
   const [workout, setWorkout] = useState<Workout>({
-    name: "", date: "", isTemplate: true, exercises: []
+    id: -1, name: "", date: "", isTemplate: true, exercises: []
   });
 
   return (
@@ -140,7 +140,7 @@ export function Template() {
             ...prev,
             exercises: [
               ...prev.exercises,
-              { name: "", weight: 0, duration: 0, isCardio: false, reps: [] }
+              { id: -1, workoutID: -1, name: "", weight: 0, reps: [] }
             ]
           }));
         }}>
