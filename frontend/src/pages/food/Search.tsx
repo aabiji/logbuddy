@@ -14,7 +14,9 @@ import { add, search } from "ionicons/icons";
 
 export default function FoodSearchPage() {
   const history = useHistory();
-  const { mealTag, date } = useParams<{ mealTag: string; date: string; }>();
+  const { mealTag, timestampStr } = useParams<{ mealTag: string; timestampStr: string; }>();
+  const date = Number(timestampStr);
+
   const { foods, mainToken, meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");

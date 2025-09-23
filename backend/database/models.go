@@ -5,23 +5,24 @@
 package database
 
 import (
-	"time"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Exercise struct {
-	ID           int32
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Deleted      bool
+	ID           int32
+	Userid       int32
 	Workoutid    int32
 	Name         string
-	Weight       string
+	Weight       int32
 	Reps         []int32
 }
 
 type Food struct {
+	Lastmodified        pgtype.Int8
 	ID                  int32
 	Userid              int32
-	Lastmodified        time.Time
 	Name                string
 	Defaultservingindex int32
 	Servings            []int32
@@ -36,37 +37,37 @@ type Food struct {
 }
 
 type Meal struct {
-	ID           int32
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Deleted      bool
+	ID           int32
 	Userid       int32
 	Foodid       int32
-	Date         string
+	Date         int64
 	Mealtag      string
 	Servings     int32
 	Unit         string
 }
 
 type User struct {
+	Lastmodified pgtype.Int8
 	ID           int32
-	Lastmodified time.Time
 	Email        string
 	Password     string
 }
 
 type Userpreference struct {
+	Lastmodified pgtype.Int8
 	ID           int32
 	Userid       int32
-	Lastmodified time.Time
 	Mealtags     []string
 }
 
 type Workout struct {
-	ID           int32
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Deleted      bool
+	ID           int32
 	Userid       int32
 	Name         string
-	Date         time.Time
+	Date         int64
 	Istemplate   bool
 }

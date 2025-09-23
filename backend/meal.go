@@ -2,10 +2,10 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/aabiji/lobbuddy/database"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type FoodJSON struct {
@@ -24,14 +24,16 @@ type FoodJSON struct {
 }
 
 func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
-	userID, okID := parseJWT(w, r)
+	userID, ok := parseJWT(w, r)
+	if !ok {
+		return
+	}
 	req, ok := parseRequest[FoodJSON](w, r)
-	if !ok || !okID {
+	if !ok {
 		return
 	}
 
 	id, err := a.queries.CreateFood(a.ctx, database.CreateFoodParams{
-		Lastmodified:        time.Now(),
 		Userid:              userID,
 		Name:                req.Name,
 		Servings:            req.Servings,
@@ -72,8 +74,8 @@ func foodRowToJson(row database.Food) FoodJSON {
 
 func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 	userID, ok := parseJWT(w, r)
-	query, okQuery := getQueryParam(w, r, "query")
-	filterUser, okFilter := getQueryParam(w, r, "onlyUser")
+	query, okQuery := getQueryString(w, r, "query")
+	filterUser, okFilter := getQueryString(w, r, "onlyUser")
 	if !ok || !okQuery || !okFilter {
 		return
 	}
@@ -107,14 +109,8 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
-	idStr, ok := getQueryParam(w, r, "id")
+	foodID, ok := getQueryInt(w, r, "id")
 	if !ok {
-		return
-	}
-
-	foodID, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		respond(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
@@ -131,7 +127,7 @@ func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
 type MealInfo struct {
 	Updating bool   `json:"updating"`
 	ID       int32  `json:"id,omitempty"`
-	Date     string `json:"date,omitempty"`
+	Date     int64  `json:"date,omitempty"`
 	FoodID   int32  `json:"foodID,omitempty"`
 	MealTag  string `json:"mealTag"`
 	Servings int32  `json:"servings"`
@@ -139,16 +135,18 @@ type MealInfo struct {
 }
 
 func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
-	req, okReq := parseRequest[MealInfo](w, r)
-	userID, okID := parseJWT(w, r)
-	if !okID || !okReq {
-		respond(w, http.StatusBadRequest, "invalid request")
+	req, ok := parseRequest[MealInfo](w, r)
+	if !ok {
+		return
+	}
+	userID, ok := parseJWT(w, r)
+	if !ok {
 		return
 	}
 
 	if req.Updating {
 		if err := a.queries.UpdateMeal(a.ctx, database.UpdateMealParams{
-			Lastmodified: time.Now(),
+			Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 			Mealtag:      req.MealTag,
 			Servings:     req.Servings,
 			Unit:         req.Unit,
@@ -162,14 +160,12 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := a.queries.CreateMeal(a.ctx, database.CreateMealParams{
-		Userid:       userID,
-		Lastmodified: time.Now(),
-		Deleted:      false,
-		Foodid:       req.FoodID,
-		Date:         req.Date,
-		Mealtag:      req.MealTag,
-		Servings:     req.Servings,
-		Unit:         req.Unit,
+		Userid:   userID,
+		Foodid:   req.FoodID,
+		Date:     req.Date,
+		Mealtag:  req.MealTag,
+		Servings: req.Servings,
+		Unit:     req.Unit,
 	})
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "couldn't create meal")
@@ -179,21 +175,18 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
-	idStr, exists := getQueryParam(w, r, "mealID")
-	userID, okID := parseJWT(w, r)
-	if !okID || !exists {
-		respond(w, http.StatusBadRequest, "invalid request")
+	mealID, ok := getQueryInt(w, r, "mealID")
+	if !ok {
 		return
 	}
 
-	mealID, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		respond(w, http.StatusBadRequest, "invalid id")
+	userID, ok := parseJWT(w, r)
+	if !ok {
 		return
 	}
 
 	if err := a.queries.DeleteMeal(a.ctx, database.DeleteMealParams{
-		Lastmodified: time.Now(),
+		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 		Userid:       userID,
 		ID:           int32(mealID),
 	}); err != nil {
@@ -204,10 +197,13 @@ func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) GetMeals(w http.ResponseWriter, r *http.Request) {
-	date, dateExists := getQueryParam(w, r, "date")
-	userID, okID := parseJWT(w, r)
-	if !okID || !dateExists {
-		respond(w, http.StatusBadRequest, "invalid request")
+	date, ok := getQueryInt(w, r, "dateTimestamp")
+	if !ok {
+		return
+	}
+
+	userID, ok := parseJWT(w, r)
+	if !ok {
 		return
 	}
 

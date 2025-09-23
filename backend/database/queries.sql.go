@@ -7,43 +7,36 @@ package database
 
 import (
 	"context"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createDefaultPreferences = `-- name: CreateDefaultPreferences :exec
-insert into userpreferences (userID, lastModified, mealTags)
-values ($1, $2, ARRAY['Breakfast','Lunch','Dinner','Snacks'])
+insert into userpreferences (userID, mealTags)
+values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks'])
 `
 
-type CreateDefaultPreferencesParams struct {
-	Userid       int32
-	Lastmodified time.Time
-}
-
-func (q *Queries) CreateDefaultPreferences(ctx context.Context, arg CreateDefaultPreferencesParams) error {
-	_, err := q.db.Exec(ctx, createDefaultPreferences, arg.Userid, arg.Lastmodified)
+func (q *Queries) CreateDefaultPreferences(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, createDefaultPreferences, userid)
 	return err
 }
 
 const createExercise = `-- name: CreateExercise :one
-insert into exercises
-(lastModified, deleted, workoutID, name, weight, reps)
-values ($1, $2, $3, $4, $5, $6) returning id
+insert into exercises (userID, workoutID, name, weight, reps)
+values ($1, $2, $3, $4, $5) returning id
 `
 
 type CreateExerciseParams struct {
-	Lastmodified time.Time
-	Deleted      bool
-	Workoutid    int32
-	Name         string
-	Weight       string
-	Reps         []int32
+	Userid    int32
+	Workoutid int32
+	Name      string
+	Weight    int32
+	Reps      []int32
 }
 
 func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createExercise,
-		arg.Lastmodified,
-		arg.Deleted,
+		arg.Userid,
 		arg.Workoutid,
 		arg.Name,
 		arg.Weight,
@@ -56,14 +49,13 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 
 const createFood = `-- name: CreateFood :one
 insert into foods
-(lastModified, userid, name, servings, servingSizes, defaultServingIndex,
+(userID, name, servings, servingSizes, defaultServingIndex,
 calories, carbohydrate, protein, fat, calcium, potassium, iron)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 returning id
 `
 
 type CreateFoodParams struct {
-	Lastmodified        time.Time
 	Userid              int32
 	Name                string
 	Servings            []int32
@@ -80,7 +72,6 @@ type CreateFoodParams struct {
 
 func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createFood,
-		arg.Lastmodified,
 		arg.Userid,
 		arg.Name,
 		arg.Servings,
@@ -101,26 +92,22 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 
 const createMeal = `-- name: CreateMeal :one
 insert into meals
-(userID, lastModified, deleted, foodID, date, mealTag, servings, unit)
-values ($1, $2, $3, $4, $5, $6, $7, $8) returning id
+(userID, foodID, date, mealTag, servings, unit)
+values ($1, $2, $3, $4, $5, $6) returning id
 `
 
 type CreateMealParams struct {
-	Userid       int32
-	Lastmodified time.Time
-	Deleted      bool
-	Foodid       int32
-	Date         string
-	Mealtag      string
-	Servings     int32
-	Unit         string
+	Userid   int32
+	Foodid   int32
+	Date     int64
+	Mealtag  string
+	Servings int32
+	Unit     string
 }
 
 func (q *Queries) CreateMeal(ctx context.Context, arg CreateMealParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createMeal,
 		arg.Userid,
-		arg.Lastmodified,
-		arg.Deleted,
 		arg.Foodid,
 		arg.Date,
 		arg.Mealtag,
@@ -133,41 +120,36 @@ func (q *Queries) CreateMeal(ctx context.Context, arg CreateMealParams) (int32, 
 }
 
 const createUser = `-- name: CreateUser :one
-insert into users (lastModified, email, password)
-values ($1, $2, $3) returning id
+insert into users (email, password) values ($1, $2) returning id
 `
 
 type CreateUserParams struct {
-	Lastmodified time.Time
-	Email        string
-	Password     string
+	Email    string
+	Password string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Lastmodified, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Password)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createWorkout = `-- name: CreateWorkout :one
-insert into workouts
-(lastModified, deleted, name, date, isTemplate)
-values ($1, $2, $3, $4, $5) returning id
+insert into workouts (userID, name, date, isTemplate)
+values ($1, $2, $3, $4) returning id
 `
 
 type CreateWorkoutParams struct {
-	Lastmodified time.Time
-	Deleted      bool
-	Name         string
-	Date         time.Time
-	Istemplate   bool
+	Userid     int32
+	Name       string
+	Date       int64
+	Istemplate bool
 }
 
 func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createWorkout,
-		arg.Lastmodified,
-		arg.Deleted,
+		arg.Userid,
 		arg.Name,
 		arg.Date,
 		arg.Istemplate,
@@ -177,13 +159,28 @@ func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (i
 	return id, err
 }
 
+const deleteExercise = `-- name: DeleteExercise :exec
+update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3
+`
+
+type DeleteExerciseParams struct {
+	Lastmodified pgtype.Int8
+	Workoutid    int32
+	Userid       int32
+}
+
+func (q *Queries) DeleteExercise(ctx context.Context, arg DeleteExerciseParams) error {
+	_, err := q.db.Exec(ctx, deleteExercise, arg.Lastmodified, arg.Workoutid, arg.Userid)
+	return err
+}
+
 const deleteMeal = `-- name: DeleteMeal :exec
 update meals set deleted = true, lastModified = $1
 where userID = $2 and id = $3
 `
 
 type DeleteMealParams struct {
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Userid       int32
 	ID           int32
 }
@@ -199,7 +196,7 @@ where userID = $2 and id = $3
 `
 
 type DeleteWorkoutParams struct {
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Userid       int32
 	ID           int32
 }
@@ -209,17 +206,55 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 	return err
 }
 
+const getExercises = `-- name: GetExercises :many
+select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where workoutID = $1 and userID = $2
+`
+
+type GetExercisesParams struct {
+	Workoutid int32
+	Userid    int32
+}
+
+func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, getExercises, arg.Workoutid, arg.Userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.ID,
+			&i.Userid,
+			&i.Workoutid,
+			&i.Name,
+			&i.Weight,
+			&i.Reps,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFoodByID = `-- name: GetFoodByID :one
-select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
+select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
 
 func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 	row := q.db.QueryRow(ctx, getFoodByID, id)
 	var i Food
 	err := row.Scan(
+		&i.Lastmodified,
 		&i.ID,
 		&i.Userid,
-		&i.Lastmodified,
 		&i.Name,
 		&i.Defaultservingindex,
 		&i.Servings,
@@ -241,14 +276,14 @@ from meals where date = $1 and userID = $2 and deleted = false
 `
 
 type GetMealsForDayParams struct {
-	Date   string
+	Date   int64
 	Userid int32
 }
 
 type GetMealsForDayRow struct {
 	ID       int32
 	Foodid   int32
-	Date     string
+	Date     int64
 	Mealtag  string
 	Servings int32
 	Unit     string
@@ -309,36 +344,18 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const getWorkouts = `-- name: GetWorkouts :many
-select w.id, w.lastmodified, w.deleted, userid, w.name, date, istemplate, e.id, e.lastmodified, e.deleted, workoutid, e.name, weight, reps from workouts w
-join exercises e on e.workoutID = w.id
-where w.id = $1 and w.userID = $2 and w.date >= $3 and w.date <= $4
+select lastmodified, deleted, id, userid, name, date, istemplate from workouts
+where id = $1 and userID = $2 and date >= $3 and date <= $4
 `
 
 type GetWorkoutsParams struct {
 	ID     int32
 	Userid int32
-	Date   time.Time
-	Date_2 time.Time
+	Date   int64
+	Date_2 int64
 }
 
-type GetWorkoutsRow struct {
-	ID             int32
-	Lastmodified   time.Time
-	Deleted        bool
-	Userid         int32
-	Name           string
-	Date           time.Time
-	Istemplate     bool
-	ID_2           int32
-	Lastmodified_2 time.Time
-	Deleted_2      bool
-	Workoutid      int32
-	Name_2         string
-	Weight         string
-	Reps           []int32
-}
-
-func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]GetWorkoutsRow, error) {
+func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Workout, error) {
 	rows, err := q.db.Query(ctx, getWorkouts,
 		arg.ID,
 		arg.Userid,
@@ -349,24 +366,17 @@ func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Get
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetWorkoutsRow
+	var items []Workout
 	for rows.Next() {
-		var i GetWorkoutsRow
+		var i Workout
 		if err := rows.Scan(
-			&i.ID,
 			&i.Lastmodified,
 			&i.Deleted,
+			&i.ID,
 			&i.Userid,
 			&i.Name,
 			&i.Date,
 			&i.Istemplate,
-			&i.ID_2,
-			&i.Lastmodified_2,
-			&i.Deleted_2,
-			&i.Workoutid,
-			&i.Name_2,
-			&i.Weight,
-			&i.Reps,
 		); err != nil {
 			return nil, err
 		}
@@ -379,7 +389,7 @@ func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Get
 }
 
 const searchFoods = `-- name: SearchFoods :many
-select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
 `
 
@@ -393,9 +403,9 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 	for rows.Next() {
 		var i Food
 		if err := rows.Scan(
+			&i.Lastmodified,
 			&i.ID,
 			&i.Userid,
-			&i.Lastmodified,
 			&i.Name,
 			&i.Defaultservingindex,
 			&i.Servings,
@@ -419,8 +429,8 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 }
 
 const searchUserFoods = `-- name: SearchUserFoods :many
-select id, userid, lastmodified, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) and userid = $2
+select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2
 limit 100
 `
 
@@ -439,9 +449,9 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 	for rows.Next() {
 		var i Food
 		if err := rows.Scan(
+			&i.Lastmodified,
 			&i.ID,
 			&i.Userid,
-			&i.Lastmodified,
 			&i.Name,
 			&i.Defaultservingindex,
 			&i.Servings,
@@ -467,16 +477,17 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 const updateExercise = `-- name: UpdateExercise :exec
 update exercises
 set lastModified = $1, deleted = $2, name = $3, weight = $4, reps = $5
-where ID = $6
+where id = $6 and userID = $7
 `
 
 type UpdateExerciseParams struct {
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Deleted      bool
 	Name         string
-	Weight       string
+	Weight       int32
 	Reps         []int32
 	ID           int32
+	Userid       int32
 }
 
 func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) error {
@@ -487,6 +498,7 @@ func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) 
 		arg.Weight,
 		arg.Reps,
 		arg.ID,
+		arg.Userid,
 	)
 	return err
 }
@@ -498,7 +510,7 @@ where ID = $5
 `
 
 type UpdateMealParams struct {
-	Lastmodified time.Time
+	Lastmodified pgtype.Int8
 	Mealtag      string
 	Servings     int32
 	Unit         string

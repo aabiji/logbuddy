@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Workout } from "../../lib/state";
+import { formatDate } from "../../lib/utils";
 
 import {
   IonCard, IonCardHeader, IonItem, IonCardTitle,
@@ -14,7 +15,9 @@ export function Entry({ workout }: { workout: Workout; }) {
   return (
     <IonCard>
       <IonCardHeader>
-        <IonCardSubtitle>{workout.date}</IonCardSubtitle>
+        <IonCardSubtitle>{
+          formatDate(new Date(workout.date))}
+        </IonCardSubtitle>
         <IonCardTitle>{workout.name}</IonCardTitle>
       </IonCardHeader>
 
@@ -52,7 +55,7 @@ export function Entry({ workout }: { workout: Workout; }) {
 
 export function Template() {
   const [workout, setWorkout] = useState<Workout>({
-    id: -1, name: "", date: "", isTemplate: true, exercises: []
+    id: -1, name: "", date: new Date().getTime(), isTemplate: true, exercises: []
   });
 
   return (

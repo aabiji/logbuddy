@@ -20,6 +20,7 @@ export interface Food {
 
 export interface Meal {
   id: number;
+  date: number;
   foodID: number;
   mealTag: string;
   servings: number;
@@ -34,11 +35,11 @@ export interface Exercise {
   reps: number[];
 }
 
-// TODO: what if we held exercise ids instead of actual exercises?
+// TODO: what if we held exercise ids instead of actual exercises? (exercises hashmap??)
 export interface Workout {
   id: number;
   name: string;
-  date: string;
+  date: number;
   isTemplate: boolean;
   exercises: Exercise[];
 }
@@ -49,13 +50,13 @@ interface AppState {
   lastSyncTime: number;
 
   foods: Record<number, Food>; // map food ids to foods
-  meals: Record<string, Meal[]>; // map date to its meals
+  meals: Record<number, Meal[]>; // map dates (unix timestamp) to meals
   mealTags: string[];
 
   upsertFood: (food: Food) => void;
-  removeMeal: (dateStr: string, index: number) => void;
-  upsertMeal: (dateStr: string, newMeal: Meal, index: number) => void;
-  upsertMeals: (dateStr: string, meals: Meal[]) => void;
+  removeMeal: (date: number, index: number) => void;
+  upsertMeal: (date: number, newMeal: Meal, index: number) => void;
+  upsertMeals: (date: number, meals: Meal[]) => void;
 
   updateUserData: (json: object) => void;
   updateTokens: (main: string, refresh: string) => void;
@@ -79,35 +80,35 @@ const state: StateCreator<AppState> = (set, _) => ({
       foods: { ...state.foods, [food.id]: food }
     })),
 
-  upsertMeal: (dateStr: string, newMeal: Meal, index: number) =>
+  upsertMeal: (date: number, newMeal: Meal, index: number) =>
     set((state: AppState) => ({
       ...state,
       meals: {
         ...state.meals,
-        [dateStr]: [
-          ...state.meals[dateStr].slice(0, index),
+        [date]: [
+          ...state.meals[date].slice(0, index),
           newMeal,
-          ...state.meals[dateStr].slice(index + 1)
+          ...state.meals[date].slice(index + 1)
         ],
       }
     })),
 
-  removeMeal: (dateStr: string, index: number) =>
+  removeMeal: (date: number, index: number) =>
     set((state: AppState) => ({
       ...state,
       meals: {
         ...state.meals,
-        [dateStr]: [
-          ...state.meals[dateStr].slice(0, index),
-          ...state.meals[dateStr].slice(index + 1)
+        [date]: [
+          ...state.meals[date].slice(0, index),
+          ...state.meals[date].slice(index + 1)
         ],
       }
     })),
 
-  upsertMeals: (dateStr: string, meals: Meal[]) =>
+  upsertMeals: (date: number, meals: Meal[]) =>
     set((state: AppState) => ({
       ...state,
-      meals: { ...state.meals, [dateStr]: meals },
+      meals: { ...state.meals, [date]: meals },
     })),
 
   updateUserData: (json: object) =>

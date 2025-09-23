@@ -222,19 +222,13 @@ func newUser(a *API, email string, hashedPassword string) (int32, error) {
 	defer tx.Rollback(a.ctx)
 	qtx := a.queries.WithTx(tx)
 
-	id, err := qtx.CreateUser(a.ctx, database.CreateUserParams{
-		Lastmodified: time.Now(),
-		Email:        email,
-		Password:     hashedPassword,
-	})
+	params := database.CreateUserParams{Email: email, Password: hashedPassword}
+	id, err := qtx.CreateUser(a.ctx, params)
 	if err != nil {
 		return -1, err
 	}
 
-	if err := qtx.CreateDefaultPreferences(a.ctx, database.CreateDefaultPreferencesParams{
-		Userid:       id,
-		Lastmodified: time.Now(),
-	}); err != nil {
+	if err := qtx.CreateDefaultPreferences(a.ctx, id); err != nil {
 		return -1, err
 	}
 

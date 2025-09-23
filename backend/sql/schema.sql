@@ -1,24 +1,24 @@
 
 create table if not exists Users (
+    lastModified bigint default (extract(epoch from now())),
     id serial primary key,
-    lastModified timestamp not null,
 
     email text not null unique,
     password text not null
 );
 
 create table if not exists UserPreferences (
+    lastModified bigint default (extract(epoch from now())),
     id serial primary key,
     userID int not null,
-    lastModified timestamp not null,
 
     mealTags text[] not null
 );
 
 create table if not exists Foods (
+    lastModified bigint default (extract(epoch from now())),
     id serial primary key,
-    userid int not null,
-    lastModified timestamp not null,
+    userID int not null,
 
     name text not null,
     defaultServingIndex int not null,
@@ -36,36 +36,38 @@ create table if not exists Foods (
 );
 
 create table if not exists Meals (
+    lastModified bigint default (extract(epoch from now())),
+    deleted boolean default false not null,
     id serial primary key,
-    lastModified timestamp not null,
-    deleted boolean not null,
 
     userID int not null,
     foodID int not null,
-    date text not null,
+    date bigint not null,
     mealTag text not null,
     servings int not null,
     unit text not null
 );
 
 create table if not exists Exercises (
-    id serial primary key,
-    lastModified timestamp not null,
-    deleted boolean not null,
+    lastModified bigint default (extract(epoch from now())),
+    deleted boolean default false not null,
 
+    id serial primary key,
+    userID int not null,
     workoutID int not null,
+
     name text not null,
-    weight text not null,
+    weight int not null,
     reps int[] not null
 );
 
 create table if not exists Workouts (
+    lastModified bigint default (extract(epoch from now())),
+    deleted boolean default false not null,
     id serial primary key,
-    lastModified timestamp not null,
-    deleted boolean not null,
 
-    userid int not null,
+    userID int not null,
     name text not null,
-    date timestamp not null,
+    date bigint not null,
     isTemplate boolean not null
 );

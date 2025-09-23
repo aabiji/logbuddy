@@ -12,8 +12,8 @@ import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 
 import "./Index.css";
 
-function EditMeal({ label, index, close, setPreviousMealTag }: {
-  label: string; index: number;
+function EditMeal({ date, index, close, setPreviousMealTag }: {
+  date: number; index: number;
   close: () => void; setPreviousMealTag: (tag: string) => void;
 }) {
   const { foods, mainToken, meals, mealTags, upsertMeal, removeMeal } = useAppState();
@@ -21,7 +21,7 @@ function EditMeal({ label, index, close, setPreviousMealTag }: {
   const update = async (m: Meal) => {
     try {
       await request("POST", "/meal/set", { ...m, updating: true }, mainToken);
-      upsertMeal(label, m, index);
+      upsertMeal(date, m, index);
     } catch (err: any) {
       console.log("ERROR", err.message);
     }
@@ -29,9 +29,9 @@ function EditMeal({ label, index, close, setPreviousMealTag }: {
 
   const remove = async () => {
     try {
-      const id = meals[label][index].id;
+      const id = meals[date][index].id;
       await request("DELETE", `/meal/delete?mealID=${id}`, undefined, mainToken);
-      removeMeal(label, index);
+      removeMeal(date, index);
       close();
     } catch (err: any) {
       console.log("ERROR", err.message);
@@ -50,10 +50,10 @@ function EditMeal({ label, index, close, setPreviousMealTag }: {
           <IonSelect
             label="Move to"
             aria-label="Move to meal"
-            value={meals[label][index].mealTag}
+            value={meals[date][index].mealTag}
             onIonChange={(event) => {
               update({
-                ...meals[label][index],
+                ...meals[date][index],
                 mealTag: event.detail.value,
               });
               setPreviousMealTag(event.detail.value);
@@ -73,10 +73,10 @@ function EditMeal({ label, index, close, setPreviousMealTag }: {
             labelPlacement="end"
             label="Servings"
             min={0.1}
-            value={meals[label][index].servings}
+            value={meals[date][index].servings}
             onIonChange={(event) => {
               update({
-                ...meals[label][index],
+                ...meals[date][index],
                 servings: Number(event.detail.value)
               });
             }}
@@ -84,14 +84,14 @@ function EditMeal({ label, index, close, setPreviousMealTag }: {
 
           <IonSelect
             aria-label="Serving unit"
-            value={meals[label][index].servingsUnit}
+            value={meals[date][index].servingsUnit}
             onIonChange={(event) => {
               update({
-                ...meals[label][index],
+                ...meals[date][index],
                 servingsUnit: event.detail.value,
               });
             }}>
-            {foods[meals[label][index].foodID]
+            {foods[meals[date][index].foodID]
               .units.map((u: string, i: number) =>
                 <IonSelectOption value={u} key={i}>{u}</IonSelectOption>
               )}
@@ -119,7 +119,7 @@ export default function FoodPage() {
   useEffect(() => { changeDate(0); }, []);
 
   useEffect(() => {
-    const dayMeals = meals[label] ?? [];
+    const dayMeals = meals[date.getTime()] ?? [];
     let groups = Object.fromEntries(mealTags.map((t: string) => [t, []]));
 
     for (const meal of dayMeals)
@@ -136,14 +136,14 @@ export default function FoodPage() {
     }
   }
 
-  const fetchMeals = async (dateLabel: string) => {
+  const fetchMeals = async (dateTimestamp: number) => {
     try {
       // fetch all the meals for this day
       const params = new URLSearchParams();
-      params.append("date", dateLabel);
+      params.append("dateTimestamp", `${date.getTime()}`);
       const endpoint = `/meal/day?${params.toString()}`;
       const json = await request("GET", endpoint, undefined, mainToken);
-      upsertMeals(dateLabel, json.meals as Meal[]);
+      upsertMeals(dateTimestamp, json.meals as Meal[]);
 
       // fetch foods that we don't have cached as well
       for (const meal of json.meals) {
@@ -163,13 +163,12 @@ export default function FoodPage() {
     setDate(copy);
 
     // fetch on demand
-    const label = formatDate(copy);
-    if (meals[label] === undefined)
-      await fetchMeals(label);
-    setLabel(label);
+    if (meals[copy.getTime()] === undefined)
+      await fetchMeals(copy.getTime());
+    setLabel(formatDate(copy));
   };
 
-  const addMeal = () => history.push(`/food/search/${previousMealTag}/${label}`);
+  const addMeal = () => history.push(`/food/search/${previousMealTag}/${date.getTime()}`);
 
   return (
     <IonPage>
@@ -188,7 +187,7 @@ export default function FoodPage() {
 
         {index != -1 &&
           <EditMeal
-            label={label} index={index}
+            date={date.getTime()} index={index}
             setPreviousMealTag={setPreviousMealTag}
             close={() => setCurrentMealIndex(-1)}
           />}

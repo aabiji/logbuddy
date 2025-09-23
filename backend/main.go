@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -88,7 +89,7 @@ func parseRequest[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
 	return value, true
 }
 
-func getQueryParam(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
+func getQueryString(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
 	params := r.URL.Query()
 	param := params.Get(name)
 	if len(param) == 0 {
@@ -96,6 +97,21 @@ func getQueryParam(w http.ResponseWriter, r *http.Request, name string) (string,
 		return "", false
 	}
 	return param, true
+}
+
+func getQueryInt(w http.ResponseWriter, r *http.Request, name string) (int64, bool) {
+	str, ok := getQueryString(w, r, name)
+	if !ok {
+		return 0, false
+	}
+
+	value, err := strconv.ParseInt(str, 10, 32)
+	if err != nil {
+		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: %s is not int", name))
+		return 0, false
+	}
+
+	return int32(value), true
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
