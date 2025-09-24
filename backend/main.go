@@ -111,7 +111,7 @@ func getQueryInt(w http.ResponseWriter, r *http.Request, name string) (int64, bo
 		return 0, false
 	}
 
-	return int32(value), true
+	return value, true
 }
 
 func corsMiddleware(next http.Handler) http.Handler {

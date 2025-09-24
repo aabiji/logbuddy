@@ -1,5 +1,7 @@
-import { Route, useLocation } from "react-router";
+import { useEffect } from "react";
+import { Route, useHistory, useLocation } from "react-router";
 import { IonReactRouter } from "@ionic/react-router";
+import { useAppState } from "./lib/state";
 
 import {
   IonApp, IonIcon, IonLabel, IonRouterOutlet,
@@ -26,6 +28,16 @@ setupIonicReact();
 function TabsWrapper() {
   const location = useLocation();
   const showTabBar = !["/auth"].includes(location.pathname);
+
+  // automatically redirect to auth page the first time we launch the app
+  const history = useHistory();
+  const { mainToken, refreshToken } = useAppState();
+
+  useEffect(() => {
+    const firstLaunch = mainToken.length == 0 || refreshToken.length == 0;
+    if (firstLaunch && location.pathname != "/auth")
+      history.replace("/auth");
+  }, []);
 
   return (
     <IonTabs>

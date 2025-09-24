@@ -44,7 +44,7 @@ export interface Workout {
   exercises: Exercise[];
 }
 
-interface AppState {
+export interface AppState {
   mainToken: string;
   refreshToken: string;
   lastSyncTime: number;
