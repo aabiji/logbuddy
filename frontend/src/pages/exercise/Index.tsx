@@ -1,15 +1,25 @@
+import { useHistory } from "react-router";
+
 import {
-  IonContent, IonPage,
+  IonContent, IonPage, IonButton,
 } from "@ionic/react";
 
-import { Entry, Template } from "./Workout";
+export default function WorkoutsPage() {
+  const history = useHistory();
 
-export default function ExercisesPage() {
   return (
     <IonPage>
       <IonContent>
 
-        <Template />
+      <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+        <IonButton fill="clear" onClick={() => history.push("/exercise/progress")}>
+          <p>View progress</p>
+        </IonButton>
+
+        <IonButton fill="clear" onClick={() => history.push("/exercise/templates")}>
+          <p>Edit templates</p>
+        </IonButton>
+      </div>
 
       </IonContent>
     </IonPage>

@@ -13,8 +13,11 @@ import FoodPage from "./pages/food/Index"
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
 
+import WorkoutsPage from "./pages/exercise/Index";
+import TemplatesPage from "./pages/exercise/Templates";
+import ProgressPage from "./pages/exercise/Progress";
+
 import AuthPage from "./pages/Auth";
-import IndexPage from "./pages/exercise/Index";
 
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -42,9 +45,11 @@ function TabsWrapper() {
   return (
     <IonTabs>
       <IonRouterOutlet animated={false}>
-        <Route exact path="/exercise"><IndexPage /></Route>
-
         <Route exact path="/auth"><AuthPage /></Route>
+
+        <Route exact path="/exercise"><WorkoutsPage /></Route>
+        <Route exact path="/exercise/templates"><TemplatesPage /></Route>
+        <Route exact path="/exercise/progress"><ProgressPage /></Route>
 
         <Route exact path="/food"><FoodPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
@@ -53,7 +58,7 @@ function TabsWrapper() {
 
       {showTabBar && (
         <IonTabBar slot="bottom">
-          <IonTabButton tab="index" href="/">
+          <IonTabButton tab="index" href="/exercise">
             <IonIcon aria-hidden="true" icon={barbell} />
             <IonLabel>Exercise</IonLabel>
           </IonTabButton>

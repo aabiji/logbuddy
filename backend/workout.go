@@ -50,8 +50,12 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		Date:       req.Date,
 		Istemplate: req.IsTemplate,
 	})
+	if err != nil {
+		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		return
+	}
 
-	for i, _ := range response.Exercises {
+	for i := range response.Exercises {
 		var err error
 		response.Exercises[i].ID, err = qtx.CreateExercise(a.ctx,
 			database.CreateExerciseParams{
