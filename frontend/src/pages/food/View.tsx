@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHistory, useParams } from "react-router";
 
 import { Food, useAppState } from "../../lib/state";
-import { request } from "../../lib/utils";
+import { request, useAuthRequest } from "../../lib/request";
 
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
@@ -14,8 +14,9 @@ import { add, remove, star } from "ionicons/icons";
 
 export default function FoodViewPage() {
   const history = useHistory();
+  const authRequest = useAuthRequest();
   const { foodID } = useParams<{ foodID: string; }>();
-  const { foods, mainToken, upsertFood } = useAppState();
+  const { foods, upsertFood } = useAppState();
 
   const edit = foodID == "-1";
   const defaultFood = {
@@ -38,7 +39,8 @@ export default function FoodViewPage() {
       setError("Food must have a serving size")
     } else {
       try {
-        const json = await request("POST", "/food/new", food, mainToken);
+        const json = await authRequest((jwt: string) =>
+          request("POST", "/food/new", food, jwt));
         setFood((prev: Food) => {
           let copy = { ...prev, id: json.id };
           // normalize the nutrient values down to per 1 g

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router';
-import { request } from '../lib/utils';
+import { request } from '../lib/request';
 
 import {
   IonButton, IonContent, IonPage, IonInput, IonInputPasswordToggle,

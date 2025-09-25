@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
 import { Food, useAppState } from "../../lib/state";
-import { request } from "../../lib/utils";
+import { request, useAuthRequest } from "../../lib/request";
 
 import {
   IonContent, IonHeader, IonPage, IonTitle,
@@ -14,10 +14,12 @@ import { add, search } from "ionicons/icons";
 
 export default function FoodSearchPage() {
   const history = useHistory();
+  const authRequest = useAuthRequest();
+
   const { mealTag, timestampStr } = useParams<{ mealTag: string; timestampStr: string; }>();
   const date = Number(timestampStr);
 
-  const { foods, mainToken, meals, upsertMeals, upsertFood } = useAppState();
+  const { foods, meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Food[]>(Object.values(foods));
@@ -33,7 +35,7 @@ export default function FoodSearchPage() {
         servingsUnit: food.units[0]
       };
       const body = { ...mealInfo, updating: false };
-      const json = await request("POST", "/meal/set", body, mainToken);
+      const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
 
       const meal = { ...mealInfo, id: json.mealID };
       upsertMeals(date, [...meals[date], meal]);
@@ -48,7 +50,7 @@ export default function FoodSearchPage() {
       params.append("query", query);
       params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
       const endpoint = `/food/search?${params.toString()}`;
-      const response = await request("GET", endpoint, undefined, mainToken);
+      const response = await authRequest((jwt: string) => request("GET", endpoint, undefined, jwt));
 
       setResults(response.results);
       for (const food of response.results)

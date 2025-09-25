@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Food, Meal, useAppState } from "../../lib/state";
-import { formatDate, request } from "../../lib/utils";
+import { request, useAuthRequest } from "../../lib/request";
+import { formatDate } from "../../lib/utils";
 
 import {
   IonContent, IonPage, IonIcon, IonFabButton,
@@ -16,11 +17,13 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
   date: number; index: number;
   close: () => void; setPreviousMealTag: (tag: string) => void;
 }) {
-  const { foods, mainToken, meals, mealTags, upsertMeal, removeMeal } = useAppState();
+  const authRequest = useAuthRequest();
+  const { foods, meals, mealTags, upsertMeal, removeMeal } = useAppState();
 
   const update = async (m: Meal) => {
     try {
-      await request("POST", "/meal/set", { ...m, updating: true }, mainToken);
+      await authRequest((jwt: string) =>
+        request("POST", "/meal/set", { ...m, updating: true }, jwt));
       upsertMeal(date, m, index);
     } catch (err: any) {
       console.log("ERROR", err.message);
@@ -30,7 +33,8 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
   const remove = async () => {
     try {
       const id = meals[date][index].id;
-      await request("DELETE", `/meal/delete?mealID=${id}`, undefined, mainToken);
+      await authRequest((jwt: string) =>
+        request("DELETE", `/meal/delete?mealID=${id}`, undefined, jwt));
       removeMeal(date, index);
       close();
     } catch (err: any) {
@@ -104,8 +108,9 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
 
 export default function FoodPage() {
   const history = useHistory();
+  const authRequest = useAuthRequest();
   const {
-    foods, mainToken, meals, mealTags, upsertMeals, upsertFood
+    foods, meals, mealTags, upsertMeals, upsertFood
   } = useAppState();
 
   const [date, setDate] = useState(new Date());
@@ -129,7 +134,8 @@ export default function FoodPage() {
 
   const fetchFood = async (id: number) => {
     try {
-      const json = await request("GET", `/food/get?id=${id}`, undefined, undefined);
+      await authRequest((_jwt: string) =>
+        request("GET", `/food/get?id=${id}`, undefined, undefined));
       upsertFood(json.food as Food);
     } catch (err: any) {
       console.log("ERROR", err.message);
@@ -142,7 +148,9 @@ export default function FoodPage() {
       const params = new URLSearchParams();
       params.append("dateTimestamp", `${date.getTime()}`);
       const endpoint = `/meal/day?${params.toString()}`;
-      const json = await request("GET", endpoint, undefined, mainToken);
+
+      const json = await authRequest((jwt: string) =>
+        request("GET", endpoint, undefined, jwt));
       upsertMeals(dateTimestamp, json.meals as Meal[]);
 
       // fetch foods that we don't have cached as well

@@ -105,7 +105,7 @@ func getQueryInt(w http.ResponseWriter, r *http.Request, name string) (int64, bo
 		return 0, false
 	}
 
-	value, err := strconv.ParseInt(str, 10, 32)
+	value, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
 		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: %s is not int", name))
 		return 0, false
