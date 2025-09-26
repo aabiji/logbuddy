@@ -35,7 +35,6 @@ export interface Exercise {
   reps: number[];
 }
 
-// TODO: what if we held exercise ids instead of actual exercises? (exercises hashmap??)
 export interface Workout {
   id: number;
   name: string;
@@ -53,6 +52,12 @@ export interface AppState {
   meals: Map<number, Meal[]>; // map dates (unix timestamp) to meals
   mealTags: string[];
 
+  // List of workout ids that are templates
+  // A separate list is kept so that workouts don't
+  // have to be filtered every time templates need to be found
+  templates: number[],
+  workouts: Map<number, Workout> // map id to workout
+
   // these are stored seperately because there should be
   // way less templates than there are workout entries
   workoutEntries: Map<number, Workout>; // map id to Workout
@@ -62,6 +67,9 @@ export interface AppState {
   removeMeal: (date: number, index: number) => void;
   upsertMeal: (date: number, newMeal: Meal, index: number) => void;
   upsertMeals: (date: number, meals: Meal[]) => void;
+
+  upsertWorkout: (value: Workout) => void;
+  removeWorkout: (id: number) => void;
 
   updateTokens: (main: string, refresh: string) => void;
 }
@@ -75,8 +83,8 @@ const state: StateCreator<AppState> = (set, _) => ({
   meals: new Map(),
   mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"], // TODO: get from /user/data
 
-  workoutEntries: new Map(),
-  workoutTemplates: new Map(),
+  templates: [],
+  workouts: new Map(),
 
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
@@ -113,6 +121,28 @@ const state: StateCreator<AppState> = (set, _) => ({
       const copy = new Map(state.meals);
       copy.set(date, meals);
       return { ...state, meals: copy };
+    }),
+
+  upsertWorkout: (w: Workout) =>
+    set((state: AppState) => {
+      let templates = [...state.templates];
+      if (w.isTemplate && !templates.includes(w.id))
+        templates.push(w.id);
+
+      const workouts = new Map(state.workouts);
+      workouts.set(w.id, w);
+      return { ...state,  workouts, templates };
+    }),
+
+  removeWorkout: (id: number) =>
+    set((state: AppState) => {
+      const workouts = new Map(state.workouts);
+      workouts.delete(id)
+
+      let templates = [...state.templates];
+      if (state.workouts.get(id)!.isTemplate)
+        templates.splice(templates.indexOf(id), 1);
+      return { ...state,  workouts, templates };
     }),
 });
 

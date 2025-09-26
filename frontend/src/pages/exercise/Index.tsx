@@ -1,21 +1,26 @@
 import { useMemo } from "react";
 import { useHistory } from "react-router";
 import { Workout, useAppState } from "../../lib/state";
+import { Entry } from "./workout";
 
 import {
   IonContent, IonPage, IonButton, IonList, IonText,
+  IonFab, IonFabButton, IonIcon
 } from "@ionic/react";
-import { Entry } from "./workout";
+import { add } from "ionicons/icons";
 
 export default function WorkoutsPage() {
   const history = useHistory();
-  const { workoutEntries } = useAppState();
+  const { workouts } = useAppState();
 
   const entries = useMemo(() => {
-    const values = Array.from(workoutEntries.values()) as Workout[] ?? [];
-    values.sort((a: Workout, b: Workout) => b.date - a.date);
-    return values; // in reverse chronological order
-  }, [workoutEntries]);
+    const values = Array.from(workouts.values()) as Workout[] ?? [];
+    const entries = values.filter((w: Workout) => !w.isTemplate);
+    entries.sort((a: Workout, b: Workout) => b.date - a.date);
+    return entries; // in reverse chronological order
+  }, [workouts]);
+
+  const addWorkout = () => {}
 
   return (
     <IonPage>
@@ -36,6 +41,12 @@ export default function WorkoutsPage() {
             {entries.map((w: Workout, i: number) => <Entry workout={w} key={i} />)}
           </IonList>
         }
+
+        <IonFab slot="fixed" vertical="bottom" horizontal="end">
+          <IonFabButton onClick={addWorkout}>
+            <IonIcon icon={add}></IonIcon>
+          </IonFabButton>
+        </IonFab>
       </IonContent>
     </IonPage>
   );

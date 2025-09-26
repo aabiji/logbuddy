@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { Food, Meal, useAppState } from "../../lib/state";
 import { request, useAuthRequest } from "../../lib/request";
-import { dayUnixTimestamp, formatDate } from "../../lib/utils";
+import { dayUnixTimestamp, formatDate } from "../../lib/date";
 
 import {
   IonContent, IonPage, IonIcon, IonFabButton,
@@ -10,8 +10,6 @@ import {
   IonModal, IonInput, IonSelect, IonSelectOption,
 } from "@ionic/react";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
-
-import "./Index.css";
 
 function EditMeal({ date, index, close, setPreviousMealTag }: {
   date: number; index: number;
@@ -183,10 +181,17 @@ export default function FoodPage() {
     history.push(`/food/search/${previousMealTag}/${timestamp}`);
   }
 
+  const row = {
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between"
+  };
+
   return (
     <IonPage>
       <IonContent>
-        <div className="top-bar">
+        <div style={row}>
           <IonButton size="default" fill="clear" onClick={() => changeDate(-1)}>
             <IonIcon slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
