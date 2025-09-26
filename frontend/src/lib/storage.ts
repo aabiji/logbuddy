@@ -35,7 +35,11 @@ export class AppStorage {
     return new Promise((resolve, reject) => {
       const tx = this.db!.transaction("keyValue", "readwrite");
       const store = tx.objectStore("keyValue");
-      const request = store.put({ key, value: JSON.stringify(value) });
+
+      // JSON.stringify Map correctly
+      const replacer = (_: string, value: any) =>
+        value instanceof Map ? { __type: "Map", value: [...value.entries()] } : value;
+      const request = store.put({ key, value: JSON.stringify(value, replacer) });
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
@@ -53,7 +57,10 @@ export class AppStorage {
         const res = request.result;
         if (!res) return resolve(null);
         try {
-          resolve(JSON.parse(res.value));
+          const reviver = (_: string, value: any) =>
+            value && value.__type === "Map" ? new Map(value.value) : value;
+
+          resolve(JSON.parse(res.value, reviver));
         } catch {
           resolve(res.value); // fallback if not JSON
         }

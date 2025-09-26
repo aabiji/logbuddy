@@ -49,16 +49,20 @@ export interface AppState {
   refreshToken: string;
   lastSyncTime: number;
 
-  foods: Record<number, Food>; // map food ids to foods
-  meals: Record<number, Meal[]>; // map dates (unix timestamp) to meals
+  foods: Map<number, Food>; // map food ids to foods
+  meals: Map<number, Meal[]>; // map dates (unix timestamp) to meals
   mealTags: string[];
+
+  // these are stored seperately because there should be
+  // way less templates than there are workout entries
+  workoutEntries: Map<number, Workout>; // map id to Workout
+  workoutTemplates: Map<number, Workout>; // map id to Workout
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
   upsertMeal: (date: number, newMeal: Meal, index: number) => void;
   upsertMeals: (date: number, meals: Meal[]) => void;
 
-  updateUserData: (json: object) => void;
   updateTokens: (main: string, refresh: string) => void;
 }
 
@@ -67,55 +71,49 @@ const state: StateCreator<AppState> = (set, _) => ({
   refreshToken: "",
   lastSyncTime: 0,
 
-  foods: {},
-  meals: {},
+  foods: new Map(),
+  meals: new Map(),
   mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"], // TODO: get from /user/data
+
+  workoutEntries: new Map(),
+  workoutTemplates: new Map(),
 
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
 
   upsertFood: (food: Food) =>
-    set((state: AppState) => ({
-      ...state,
-      foods: { ...state.foods, [food.id]: food }
-    })),
+    set((state: AppState) => {
+      const foods = new Map(state.foods);
+      foods.set(food.id, food);
+      return { ...state, foods };
+    }),
 
   upsertMeal: (date: number, newMeal: Meal, index: number) =>
-    set((state: AppState) => ({
-      ...state,
-      meals: {
-        ...state.meals,
-        [date]: [
-          ...state.meals[date].slice(0, index),
-          newMeal,
-          ...state.meals[date].slice(index + 1)
-        ],
-      }
-    })),
+    set((state: AppState) => {
+      const meals = new Map(state.meals);
+      const existing = meals.get(date) ?? [] as Meal[];
+      meals.set(date, [
+        ...existing.slice(0, index),
+        newMeal,
+        ...existing.slice(index + 1),
+      ]);
+      return { ...state, meals };
+    }),
 
   removeMeal: (date: number, index: number) =>
-    set((state: AppState) => ({
-      ...state,
-      meals: {
-        ...state.meals,
-        [date]: [
-          ...state.meals[date].slice(0, index),
-          ...state.meals[date].slice(index + 1)
-        ],
-      }
-    })),
+    set((state: AppState) => {
+      const meals = new Map(state.meals);
+      const existing = meals.get(date) ?? [] as Meal[];
+      meals.set(date, [...existing.slice(0, index), ...existing.slice(index + 1)]);
+      return { ...state, meals };
+    }),
 
   upsertMeals: (date: number, meals: Meal[]) =>
-    set((state: AppState) => ({
-      ...state,
-      meals: { ...state.meals, [date]: meals },
-    })),
-
-  updateUserData: (json: object) =>
-    set((state: AppState) => ({
-      ...state,
-      lastSyncTime: new Date().getTime()
-    }))
+    set((state: AppState) => {
+      const copy = new Map(state.meals);
+      copy.set(date, meals);
+      return { ...state, meals: copy };
+    }),
 });
 
 const storage = new AppStorage();

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Workout } from "../../lib/state";
-import { formatDate } from "../../lib/utils";
+import { dayUnixTimestamp, formatDate } from "../../lib/utils";
 
 import {
   IonCard, IonCardHeader, IonItem, IonCardTitle,
   IonLabel, IonCardSubtitle, IonCardContent,
   IonTextarea, IonItemOptions, IonItemSliding,
-  IonInput, IonButton, IonAccordionGroup,
-  IonAccordion, IonItemOption, IonIcon
+  IonInput, IonAccordionGroup, IonAccordion,
+  IonItemOption, IonIcon
 } from "@ionic/react";
 import { trash } from "ionicons/icons";
 
@@ -55,14 +55,16 @@ export function Entry({ workout }: { workout: Workout; }) {
 
 export function Template() {
   const [workout, setWorkout] = useState<Workout>({
-    id: -1, name: "", date: new Date().getTime(), isTemplate: true, exercises: []
+    id: -1, name: "",
+    date: dayUnixTimestamp(new Date()),
+    isTemplate: true, exercises: []
   });
 
   return (
     <IonCard>
       <IonInput
         placeholder="Template name" fill="outline" value={workout.name}
-        onIonChange={(event) => setWorkout((prev: Workout) =>
+        onIonInput={(event) => setWorkout((prev: Workout) =>
           ({ ...prev, name: event.detail.value as string }))}
       />
 
@@ -75,7 +77,7 @@ export function Template() {
                 <IonItem>
                   <IonInput
                     placeholder="Name" value={e.name}
-                    onIonChange={(event) => setWorkout((prev: Workout) => ({
+                    onIonInput={(event) => setWorkout((prev: Workout) => ({
                       ...prev,
                       exercises: [
                         ...prev.exercises.slice(0, i),
@@ -90,7 +92,7 @@ export function Template() {
                   <IonLabel slot="start">Number of sets</IonLabel>
                   <IonInput
                     value={0} placeholder="0" type="number" slot="end"
-                    onIonChange={(event) => setWorkout((prev: Workout) => ({
+                    onIonInput={(event) => setWorkout((prev: Workout) => ({
                       ...prev,
                       exercises: [
                         ...prev.exercises.slice(0, i),
@@ -109,7 +111,7 @@ export function Template() {
                   <IonInput
                     placeholder="0" type="number"
                     slot="end" value={0} label="lbs" labelPlacement="end"
-                    onIonChange={(event) => setWorkout((prev: Workout) => ({
+                    onIonInput={(event) => setWorkout((prev: Workout) => ({
                       ...prev,
                       exercises: [
                         ...prev.exercises.slice(0, i),

@@ -150,6 +150,15 @@ func (a *API) UpdateExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := a.queries.UpdateWorkout(a.ctx, database.UpdateWorkoutParams{
+		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
+		ID:           req.WorkoutID,
+		Userid:       userID,
+	}); err != nil {
+		respond(w, http.StatusInternalServerError, "couldn't update exercise")
+		return
+	}
+
 	respond(w, http.StatusOK, nil)
 }
 

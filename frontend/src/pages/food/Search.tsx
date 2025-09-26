@@ -22,7 +22,7 @@ export default function FoodSearchPage() {
   const { foods, meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Food[]>(Object.values(foods));
+  const [results, setResults] = useState<Food[]>(Array.from(foods.values()));
   const [filterOption, setFilterOption] = useState("all");
 
   const createMeal = async (food: Food) => {
@@ -38,13 +38,14 @@ export default function FoodSearchPage() {
       const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
 
       const meal = { ...mealInfo, id: json.mealID };
-      upsertMeals(date, [...meals[date], meal]);
+      upsertMeals(date, [...meals.get(date), meal]);
     } catch (err: any) {
       console.log("ERROR", err.message);
     }
   }
 
   const searchFood = async () => {
+    if (query.length == 0) return;
     try {
       const params = new URLSearchParams();
       params.append("query", query);

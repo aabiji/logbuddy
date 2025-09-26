@@ -430,8 +430,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 
 const searchUserFoods = `-- name: SearchUserFoods :many
 select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2
-limit 100
+where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2 limit 100
 `
 
 type SearchUserFoodsParams struct {
@@ -525,5 +524,20 @@ func (q *Queries) UpdateMeal(ctx context.Context, arg UpdateMealParams) error {
 		arg.Unit,
 		arg.ID,
 	)
+	return err
+}
+
+const updateWorkout = `-- name: UpdateWorkout :exec
+update workouts set lastModified = $1 where id = $2 and userID = $3
+`
+
+type UpdateWorkoutParams struct {
+	Lastmodified pgtype.Int8
+	ID           int32
+	Userid       int32
+}
+
+func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) error {
+	_, err := q.db.Exec(ctx, updateWorkout, arg.Lastmodified, arg.ID, arg.Userid)
 	return err
 }

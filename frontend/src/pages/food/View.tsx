@@ -29,7 +29,7 @@ export default function FoodViewPage() {
   const excludedKeys = ["servings", "units", "name", "id", "defaultServingIndex"];
 
   const [error, setError] = useState<undefined | string>(undefined);
-  const [food, setFood] = useState<Food>(edit ? defaultFood : foods[Number(foodID)]);
+  const [food, setFood] = useState<Food>(edit ? defaultFood : foods.get(Number(foodID)));
   const [currentServing, setCurrentServing] = useState(food.defaultServingIndex);
 
   const createFood = async () => {
@@ -41,18 +41,18 @@ export default function FoodViewPage() {
       try {
         const json = await authRequest((jwt: string) =>
           request("POST", "/food/new", food, jwt));
-        setFood((prev: Food) => {
-          let copy = { ...prev, id: json.id };
+
           // normalize the nutrient values down to per 1 g
           // (or whatever the default serving unit is)
-          const servingSize = prev.servings[prev.defaultServingIndex];
-          for (const key of Object.keys(copy)) {
+          const servingSize = food.servings[food.defaultServingIndex];
+          let normalizedFood = { ...food, id: json.id } as Food;
+          for (const key of Object.keys(food)) {
             if (!excludedKeys.includes(key))
-              copy[key] /= servingSize;
+              normalizedFood[key] /= servingSize;
           }
-          upsertFood(copy);
-          return copy;
-        });
+
+          upsertFood(normalizedFood);
+          setFood(normalizedFood);
         history.goBack();
       } catch (err: any) {
         console.log(err);
@@ -116,7 +116,7 @@ export default function FoodViewPage() {
               type="number"
               placeholder="0"
               value={food.servings[i]}
-              onIonChange={(event) => {
+              onIonInput={(event) => {
                 const value = Number(event.detail.value);
                 setFood((prev) => {
                   const newServings = [...prev.servings];
@@ -199,7 +199,7 @@ export default function FoodViewPage() {
                   placeholder="0"
                   required={key == "calories"}
                   value={food[key] as number}
-                  onIonChange={(event) => {
+                  onIonInput={(event) => {
                     const value = Number(event.detail.value);
                     setFood(prev => ({ ...prev, [key]: value }));
                   }}

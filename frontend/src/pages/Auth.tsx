@@ -49,14 +49,14 @@ export default function AuthPage() {
             type="email"
             placeholder="Email"
             value={email}
-            onIonChange={(event) => setEmail(event.detail.value as string)}
+            onIonInput={(event) => setEmail(event.detail.value as string)}
           />
 
           <IonInput
             type="password"
             placeholder="Password"
             value={password}
-            onIonChange={(event) => setPassword(event.detail.value as string)}>
+            onIonInput={(event) => setPassword(event.detail.value as string)}>
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
 
