@@ -29,7 +29,9 @@
   --ion-color-light-contrast-rgb: 26, 26, 26;
 
   --ion-color-tertiary: #3399FF; /* hover/active blue */
+  --ion-color-tertiary-contrast: #fff;
   --ion-color-success: #28a745;
+  --ion-color-success-contrast: #fff;
   --ion-color-warning: #ffc107;
   --ion-color-danger: #dc3545;
   --ion-color-info: #17a2b8;

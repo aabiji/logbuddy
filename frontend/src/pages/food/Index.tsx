@@ -5,11 +5,10 @@ import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp, formatDate } from "../../lib/date";
 
 import {
-  IonContent, IonPage, IonIcon, IonFabButton,
-  IonFab, IonButton, IonItem, IonLabel,
+  IonContent, IonPage, IonIcon, IonButton, IonItem, IonLabel,
   IonModal, IonInput, IonSelect, IonSelectOption,
 } from "@ionic/react";
-import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
+import { add, chevronForward, chevronBack, pencil, pieChart } from "ionicons/icons";
 
 function EditMeal({ date, index, close, setPreviousMealTag }: {
   date: number; index: number;
@@ -133,7 +132,7 @@ export default function FoodPage() {
 
   const fetchFood = async (id: number) => {
     try {
-      await authRequest((_jwt: string) =>
+      const json = await authRequest((_jwt: string) =>
         request("GET", `/food/get?id=${id}`, undefined, undefined));
       upsertFood(json.food as Food);
     } catch (err: any) {
@@ -192,14 +191,22 @@ export default function FoodPage() {
     <IonPage>
       <IonContent>
         <div style={row}>
+          <h3>{label}</h3>
+
           <IonButton size="default" fill="clear" onClick={() => changeDate(-1)}>
             <IonIcon slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
 
-          <h3>{label}</h3>
+          <IonButton size="default" fill="clear" onClick={() => console.log("view breakdown")}>
+            <IonIcon slot="icon-only" color="white" icon={pieChart} />
+          </IonButton>
 
           <IonButton size="default" fill="clear" onClick={() => changeDate(1)}>
             <IonIcon slot="icon-only" color="white" icon={chevronForward} />
+          </IonButton>
+
+          <IonButton size="large" fill="clear" onClick={addMeal}>
+            <IonIcon slot="icon-only" icon={add} color="success" />
           </IonButton>
         </div>
 
@@ -234,12 +241,6 @@ export default function FoodPage() {
             })}
           </div>
         ))}
-
-        <IonFab slot="fixed" vertical="bottom" horizontal="end">
-          <IonFabButton onClick={addMeal}>
-            <IonIcon icon={add}></IonIcon>
-          </IonFabButton>
-        </IonFab>
       </IonContent>
     </IonPage>
   );

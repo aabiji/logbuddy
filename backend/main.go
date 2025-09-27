@@ -127,11 +127,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
+func loggingMiddleware(logger *log.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		writer := &LoggingResponseWriter{w: w, statusCode: 0}
 		next.ServeHTTP(writer, r)
-		log.Printf("%d %s %s\n", writer.statusCode, r.Method, r.URL.Path)
+		logger.Printf("%d %s %s\n", writer.statusCode, r.Method, r.URL.Path)
 	})
 }
 
@@ -141,8 +141,6 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	defer api.Cleanup()
-
-	// TODO: log endpoints as they're being requested
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /auth/login", api.Login)
@@ -160,11 +158,12 @@ func main() {
 	mux.HandleFunc("DELETE /meal/delete", api.DeleteMeal)
 
 	mux.HandleFunc("POST /workout/create", api.CreateWorkout)
-	mux.HandleFunc("POST /workout/exercise", api.UpdateExercise)
 	mux.HandleFunc("DELETE /workout/delete", api.DeleteWorkout)
 	mux.HandleFunc("GET /workout/entries", api.GetWorkouts)
 
-	handler := loggingMiddleware(corsMiddleware(mux))
-	log.Println("Server starting at localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	logger := log.New(os.Stdout, "", log.Ltime)
+	handler := loggingMiddleware(logger, corsMiddleware(mux))
+
+	logger.Println("Server starting at localhost:8080")
+	logger.Fatal(http.ListenAndServe(":8080", handler))
 }

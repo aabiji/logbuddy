@@ -9,15 +9,17 @@ import {
 } from "@ionic/react";
 import { barbell, fastFood } from "ionicons/icons";
 
+import AuthPage from "./pages/Auth";
+
+import ExercisePage from "./pages/exercise/Index";
+import HistoryPage  from "./pages/exercise/History";
+import ProgressPage from "./pages/exercise/Progress";
+import TemplatePage from "./pages/exercise/Template";
+import WorkoutPage from "./pages/exercise/Workout";
+
 import FoodPage from "./pages/food/Index"
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
-
-import WorkoutsPage from "./pages/exercise/Index";
-import TemplatesPage from "./pages/exercise/Templates";
-import ProgressPage from "./pages/exercise/Progress";
-
-import AuthPage from "./pages/Auth";
 
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -47,9 +49,11 @@ function TabsWrapper() {
       <IonRouterOutlet animated={false}>
         <Route exact path="/auth"><AuthPage /></Route>
 
-        <Route exact path="/exercise"><WorkoutsPage /></Route>
-        <Route exact path="/exercise/templates"><TemplatesPage /></Route>
+        <Route exact path="/exercise"><ExercisePage /></Route>
+        <Route exact path="/exercise/history"><HistoryPage /></Route>
         <Route exact path="/exercise/progress"><ProgressPage /></Route>
+        <Route exact path="/exercise/template/:id"><TemplatePage /></Route>
+        <Route exact path="/exercise/workout/:id"><WorkoutPage /></Route>
 
         <Route exact path="/food"><FoodPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>

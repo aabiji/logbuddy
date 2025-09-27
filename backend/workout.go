@@ -83,7 +83,7 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	workoutID, ok := getQueryInt(w, r, "workoutID")
+	workoutID, ok := getQueryInt(w, r, "id")
 	if !ok {
 		return
 	}
@@ -118,47 +118,6 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		respond(w, http.StatusInternalServerError, "couldn't delete workout")
 		return
 	}
-	respond(w, http.StatusOK, nil)
-}
-
-type UpdateExerciseRequest struct {
-	Deleted bool `json:"deleted"`
-	ExerciseJSON
-}
-
-func (a *API) UpdateExercise(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
-	if !ok {
-		return
-	}
-
-	req, ok := parseRequest[UpdateExerciseRequest](w, r)
-	if !ok {
-		return
-	}
-
-	if err := a.queries.UpdateExercise(a.ctx, database.UpdateExerciseParams{
-		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
-		Deleted:      req.Deleted,
-		Name:         req.Name,
-		Weight:       req.Weight,
-		Reps:         req.Reps,
-		ID:           req.ID,
-		Userid:       userID,
-	}); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't update exercise")
-		return
-	}
-
-	if err := a.queries.UpdateWorkout(a.ctx, database.UpdateWorkoutParams{
-		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
-		ID:           req.WorkoutID,
-		Userid:       userID,
-	}); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't update exercise")
-		return
-	}
-
 	respond(w, http.StatusOK, nil)
 }
 

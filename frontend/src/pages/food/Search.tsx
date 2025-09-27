@@ -53,7 +53,7 @@ export default function FoodSearchPage() {
       const endpoint = `/food/search?${params.toString()}`;
       const response = await authRequest((jwt: string) => request("GET", endpoint, undefined, jwt));
 
-      setResults(response.results);
+      setResults(prev => [...prev, ...response.results]);
       for (const food of response.results)
         upsertFood(food);
     } catch (err: any) {

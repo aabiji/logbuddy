@@ -51,27 +51,12 @@ from meals where date = $1 and userID = $2 and deleted = false;
 insert into workouts (userID, name, date, isTemplate)
 values ($1, $2, $3, $4) returning id;
 
--- name: CreateExercise :one
-insert into exercises (userID, workoutID, name, weight, reps)
-values ($1, $2, $3, $4, $5) returning id;
-
--- name: UpdateExercise :exec
-update exercises
-set lastModified = $1, deleted = $2, name = $3, weight = $4, reps = $5
-where id = $6 and userID = $7;
-
--- name: UpdateWorkout :exec
-update workouts set lastModified = $1 where id = $2 and userID = $3;
-
 -- name: DeleteWorkout :exec
 update workouts set deleted = true, lastModified = $1
 where userID = $2 and id = $3;
 
 -- name: DeleteExercise :exec
 update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3;
-
--- name: GetExercises :many
-select * from exercises where workoutID = $1 and userID = $2;
 
 -- name: GetWorkouts :many
 select * from workouts
