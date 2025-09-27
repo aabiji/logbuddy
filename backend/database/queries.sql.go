@@ -136,13 +136,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, 
 }
 
 const createWorkout = `-- name: CreateWorkout :one
-insert into workouts (userID, name, date, isTemplate)
-values ($1, $2, $3, $4) returning id
+insert into workouts (userID, name, notes, date, isTemplate)
+values ($1, $2, $3, $4, $5) returning id
 `
 
 type CreateWorkoutParams struct {
 	Userid     int32
 	Name       string
+	Notes      string
 	Date       int64
 	Istemplate bool
 }
@@ -151,6 +152,7 @@ func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (i
 	row := q.db.QueryRow(ctx, createWorkout,
 		arg.Userid,
 		arg.Name,
+		arg.Notes,
 		arg.Date,
 		arg.Istemplate,
 	)
@@ -344,7 +346,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const getWorkouts = `-- name: GetWorkouts :many
-select lastmodified, deleted, id, userid, name, date, istemplate from workouts
+select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts
 where id = $1 and userID = $2 and date >= $3 and date <= $4
 `
 
@@ -377,6 +379,7 @@ func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Wor
 			&i.Name,
 			&i.Date,
 			&i.Istemplate,
+			&i.Notes,
 		); err != nil {
 			return nil, err
 		}
@@ -473,35 +476,6 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 	return items, nil
 }
 
-const updateExercise = `-- name: UpdateExercise :exec
-update exercises
-set lastModified = $1, deleted = $2, name = $3, weight = $4, reps = $5
-where id = $6 and userID = $7
-`
-
-type UpdateExerciseParams struct {
-	Lastmodified pgtype.Int8
-	Deleted      bool
-	Name         string
-	Weight       int32
-	Reps         []int32
-	ID           int32
-	Userid       int32
-}
-
-func (q *Queries) UpdateExercise(ctx context.Context, arg UpdateExerciseParams) error {
-	_, err := q.db.Exec(ctx, updateExercise,
-		arg.Lastmodified,
-		arg.Deleted,
-		arg.Name,
-		arg.Weight,
-		arg.Reps,
-		arg.ID,
-		arg.Userid,
-	)
-	return err
-}
-
 const updateMeal = `-- name: UpdateMeal :exec
 update meals
 set lastModified = $1, mealTag = $2, servings = $3, unit = $4
@@ -524,20 +498,5 @@ func (q *Queries) UpdateMeal(ctx context.Context, arg UpdateMealParams) error {
 		arg.Unit,
 		arg.ID,
 	)
-	return err
-}
-
-const updateWorkout = `-- name: UpdateWorkout :exec
-update workouts set lastModified = $1 where id = $2 and userID = $3
-`
-
-type UpdateWorkoutParams struct {
-	Lastmodified pgtype.Int8
-	ID           int32
-	Userid       int32
-}
-
-func (q *Queries) UpdateWorkout(ctx context.Context, arg UpdateWorkoutParams) error {
-	_, err := q.db.Exec(ctx, updateWorkout, arg.Lastmodified, arg.ID, arg.Userid)
 	return err
 }

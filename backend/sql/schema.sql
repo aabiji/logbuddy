@@ -69,5 +69,6 @@ create table if not exists Workouts (
     userID int not null,
     name text not null,
     date bigint not null,
-    isTemplate boolean not null
+    isTemplate boolean not null,
+    notes text not null
 );

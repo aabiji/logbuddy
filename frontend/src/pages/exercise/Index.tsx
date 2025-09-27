@@ -8,6 +8,9 @@ import {
 } from "@ionic/react";
 import { add, pencil } from "ionicons/icons";
 
+// TODO:implement synching updated workout info
+// TODO: work on line graphs and bar graphs
+
 export default function ExercisePage() {
   const history = useHistory();
   const authRequest = useAuthRequest();
@@ -15,13 +18,12 @@ export default function ExercisePage() {
 
   const createWorkout = async (templateID: number | undefined) => {
     let payload = {
-      id: -1, name: "New template",
+      id: -1, name: "New template", notes: "",
       date: dayUnixTimestamp(new Date()),
-      isTemplate: true, exercises: []
+      isTemplate: true, exercises: [],
     } as Workout;
 
     if (templateID !== undefined) {
-      // Create a new workout using a template as a base
       const base = workouts.get(templateID)!;
       payload = JSON.parse(JSON.stringify(base));
       payload.date = dayUnixTimestamp(new Date());
@@ -64,10 +66,7 @@ export default function ExercisePage() {
 
           <IonButton
             fill="clear"
-            onClick={async () => {
-              const id = await createWorkout(undefined);
-              history.push(`/exercise/template/${id}`);
-            }}>
+            onClick={async () => history.push(`/exercise/template/-1`)}>
             <p>New template</p>
           </IonButton>
         </div>
@@ -85,10 +84,7 @@ export default function ExercisePage() {
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <IonButton
                     color="primary"
-                    onClick={async () => {
-                      const workoutID = await createWorkout(id);
-                      history.push(`/exercise/workout/${workoutID}`);
-                    }}>
+                    onClick={async () => history.push(`/exercise/workout/${id}`)}>
                     <IonIcon aria-hidden="true" icon={add} color="light" />
                     Start
                   </IonButton>

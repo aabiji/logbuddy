@@ -70,4 +70,5 @@ type Workout struct {
 	Name         string
 	Date         int64
 	Istemplate   bool
+	Notes        string
 }

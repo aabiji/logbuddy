@@ -39,6 +39,7 @@ export interface Workout {
   id: number;
   name: string;
   date: number;
+  notes: string;
   isTemplate: boolean;
   exercises: Exercise[];
 }
@@ -137,11 +138,11 @@ const state: StateCreator<AppState> = (set, _) => ({
   removeWorkout: (id: number) =>
     set((state: AppState) => {
       const workouts = new Map(state.workouts);
+      const isTemplate = workouts.get(id)?.isTemplate;
       workouts.delete(id)
 
       let templates = [...state.templates];
-      if (state.workouts.get(id)!.isTemplate)
-        templates.splice(templates.indexOf(id), 1);
+      if (isTemplate) templates.splice(templates.indexOf(id), 1);
       return { ...state,  workouts, templates };
     }),
 });

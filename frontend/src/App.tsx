@@ -53,7 +53,7 @@ function TabsWrapper() {
         <Route exact path="/exercise/history"><HistoryPage /></Route>
         <Route exact path="/exercise/progress"><ProgressPage /></Route>
         <Route exact path="/exercise/template/:id"><TemplatePage /></Route>
-        <Route exact path="/exercise/workout/:id"><WorkoutPage /></Route>
+        <Route exact path="/exercise/workout/:templateID"><WorkoutPage /></Route>
 
         <Route exact path="/food"><FoodPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>

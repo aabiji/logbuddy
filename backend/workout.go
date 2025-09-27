@@ -19,6 +19,7 @@ type ExerciseJSON struct {
 type WorkoutJSON struct {
 	ID         int32          `json:"id"`
 	Name       string         `json:"name"`
+	Notes      string         `json:"notes"`
 	Date       int64          `json:"date"`
 	IsTemplate bool           `json:"isTemplate"`
 	Exercises  []ExerciseJSON `json:"exercises"`
@@ -47,6 +48,7 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	response.ID, err = qtx.CreateWorkout(a.ctx, database.CreateWorkoutParams{
 		Userid:     userID,
 		Name:       req.Name,
+		Notes:      req.Notes,
 		Date:       req.Date,
 		Istemplate: req.IsTemplate,
 	})
