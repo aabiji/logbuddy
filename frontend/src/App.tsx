@@ -17,7 +17,8 @@ import ProgressPage from "./pages/exercise/Progress";
 import TemplatePage from "./pages/exercise/Template";
 import WorkoutPage from "./pages/exercise/Workout";
 
-import FoodPage from "./pages/food/Index"
+import FoodPage from "./pages/food/Index";
+import FoodAnalysisPage from "./pages/food/Analysis";
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
 
@@ -56,6 +57,7 @@ function TabsWrapper() {
         <Route exact path="/exercise/workout/:templateID"><WorkoutPage /></Route>
 
         <Route exact path="/food"><FoodPage /></Route>
+        <Route exact path="/food/analysis"><FoodAnalysisPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
         <Route exact path="/food/search/:mealTag/:timestampStr"><FoodSearchPage /></Route>
       </IonRouterOutlet>

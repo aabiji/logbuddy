@@ -197,7 +197,7 @@ export default function FoodPage() {
             <IonIcon slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
 
-          <IonButton size="default" fill="clear" onClick={() => console.log("view breakdown")}>
+          <IonButton size="default" fill="clear" onClick={() => history.push("/food/analysis")}>
             <IonIcon slot="icon-only" color="white" icon={pieChart} />
           </IonButton>
 

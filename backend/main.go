@@ -164,6 +164,7 @@ func main() {
 	logger := log.New(os.Stdout, "", log.Ltime)
 	handler := loggingMiddleware(logger, corsMiddleware(mux))
 
-	logger.Println("Server starting at localhost:8080")
-	logger.Fatal(http.ListenAndServe(":8080", handler))
+	port := os.Getenv("APP_PORT")
+	logger.Printf("Server starting at localhost:%s\n", port)
+	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), handler))
 }
