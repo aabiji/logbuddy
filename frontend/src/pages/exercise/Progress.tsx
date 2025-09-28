@@ -13,6 +13,19 @@ import { Line } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement,Tooltip);
 
+// TODO: implement synching updated workout info
+// (add endpoint and function to fetch then upsert all user info that's lastmodified > lastSyncTime)
+//
+// TODO: work on line graphs
+// (
+//  generate a fake dataset,
+//  run ramer douglas peuker to simplify,
+//  auto generate the labels (dates) based off of the simplified points)
+//  change graph points based off of the currentView
+//  aggregate data points from all exercises over time
+//  show the graphs of each
+//  )
+
 export default function ProgressPage() {
   const random = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
