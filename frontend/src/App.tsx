@@ -50,7 +50,7 @@ function TabsWrapper() {
       <IonRouterOutlet animated={false}>
         <Route exact path="/auth"><AuthPage /></Route>
 
-        <Route exact path="/exercise"><ExercisePage /></Route>
+        <Route exact path="/"><ExercisePage /></Route>
         <Route exact path="/exercise/history"><HistoryPage /></Route>
         <Route exact path="/exercise/progress"><ProgressPage /></Route>
         <Route exact path="/exercise/template/:id"><TemplatePage /></Route>

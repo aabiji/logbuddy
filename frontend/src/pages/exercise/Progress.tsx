@@ -5,39 +5,28 @@ import {
   IonTitle, IonButtons, IonBackButton, IonSegment,
   IonSegmentButton, IonLabel
 } from "@ionic/react";
-import {
-  Chart as ChartJS, CategoryScale, LinearScale,
-  PointElement, LineElement, Tooltip
-} from 'chart.js';
-import { Line } from "react-chartjs-2";
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement,Tooltip);
-
-// TODO: implement synching updated workout info
-// (add endpoint and function to fetch then upsert all user info that's lastmodified > lastSyncTime)
-//
-// TODO: work on line graphs
-// (
-//  generate a fake dataset,
-//  run ramer douglas peuker to simplify,
-//  auto generate the labels (dates) based off of the simplified points)
-//  change graph points based off of the currentView
-//  aggregate data points from all exercises over time
-//  show the graphs of each
-//  )
+import { LineGraph, Point } from "./Graph";
 
 export default function ProgressPage() {
+  const [currentView, setCurrentView] = useState("weight");
+
+  // generate a random dataset
   const random = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
 
-  const [currentView, setCurrentView] = useState("weight");
-  const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const dataset = {
-    data: labels.map(() => random(0, 100)),
-    borderColor: "cyan",
-    backgroundColor: "transparent",
-  };
+  const randomDate = (year: number) => {
+    const yearStart = new Date(year, 0, 1).getTime();
+    const yearEnd = new Date(year, 11, 31, 23, 9, 59, 999).getTime();
+    return new Date(yearStart + Math.random() * (yearEnd - yearStart));
+  }
+
+  let data: Point[] = [];
+  for (let i = 2023; i <= 2025; i++) {
+    for (let j = 0; j < 100; j++) {
+      data.push({ date: randomDate(i), value: random(0, 250) });
+    }
+  }
+  data.sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
     <IonPage>
@@ -65,10 +54,7 @@ export default function ProgressPage() {
               </IonSegmentButton>
             </IonSegment>
           </div>
-          <Line
-            options={{ responsive: true, interaction: { intersect: false } }}
-            data={{ labels, datasets: [dataset] }}
-          />
+          <LineGraph data={data} />
         </div>
       </IonContent>
     </IonPage>

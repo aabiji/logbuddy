@@ -1,5 +1,5 @@
-export function formatDate(date: Date) {
-  const options = { year: "numeric", month: "long", day: "numeric" };
+export function formatDate(date: Date, shortened?: boolean) {
+  const options = { year: "numeric", month: shortened ? "short" : "long", day: "numeric" };
   const formatter = new Intl.DateTimeFormat('en-US', options);
   return formatter.format(date);
 }
