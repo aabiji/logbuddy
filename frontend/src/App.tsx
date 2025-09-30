@@ -64,7 +64,7 @@ function TabsWrapper() {
 
       {showTabBar && (
         <IonTabBar slot="bottom">
-          <IonTabButton tab="index" href="/exercise">
+          <IonTabButton tab="index" href="/">
             <IonIcon aria-hidden="true" icon={barbell} />
             <IonLabel>Exercise</IonLabel>
           </IonTabButton>

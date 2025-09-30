@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useHistory } from "react-router";
 import { useAppState } from "../../lib/state";
 import { dayUnixTimestamp } from "../../lib/date";
@@ -7,7 +8,6 @@ import {
   IonContent, IonPage, IonButton, IonList, IonText, IonIcon
 } from "@ionic/react";
 import { add, pencil } from "ionicons/icons";
-import { useEffect } from "react";
 
 export default function ExercisePage() {
   const history = useHistory();
@@ -44,7 +44,7 @@ export default function ExercisePage() {
     }
   }
 
-  useEffect(() => { updateWorkoutData() }, [])
+  //useEffect(() => { updateWorkoutData() }, [])
 
   return (
     <IonPage>

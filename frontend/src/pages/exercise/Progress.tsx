@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Workout, useAppState } from "../../lib/state";
 
 import {
   IonContent, IonPage, IonHeader, IonToolbar,
@@ -7,26 +8,54 @@ import {
 } from "@ionic/react";
 import { LineGraph, Point } from "./Graph";
 
-export default function ProgressPage() {
-  const [currentView, setCurrentView] = useState("weight");
+type ExerciseData = { weightPoints: Point[], repPoints: Point[] };
 
-  // generate a random dataset
-  const random = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1)) + min;
+function aggregateExerciseDataPoints(
+  workouts: Map<number, Workout>
+): Map<string, ExerciseData> { // map exercise name to data points
+  let plotData = new Map<string, ExerciseData>();
 
-  const randomDate = (year: number) => {
-    const yearStart = new Date(year, 0, 1).getTime();
-    const yearEnd = new Date(year, 11, 31, 23, 9, 59, 999).getTime();
-    return new Date(yearStart + Math.random() * (yearEnd - yearStart));
-  }
+  // group data points by exercises
+  for (const id of workouts.keys()) {
+    const workout = workouts.get(id)!;
 
-  let data: Point[] = [];
-  for (let i = 2023; i <= 2025; i++) {
-    for (let j = 0; j < 100; j++) {
-      data.push({ date: randomDate(i), value: random(0, 250) });
+    for (const e of workout.exercises) {
+      let existing = plotData.get(e.name);
+      let weightPoints = existing ? existing.weightPoints : [];
+      let repPoints = existing ? existing.repPoints : [];
+
+      const averageReps =
+        Math.floor(e.reps.reduce((a, b) => a + b, 0) / e.reps.length);
+      const newData = {
+        weightPoints: [
+          ...weightPoints,
+          { date: new Date(workout.date), value: e.weight }
+        ],
+        repPoints: [
+          ...repPoints,
+          { date: new Date(workout.date), value: averageReps }
+        ]
+      }
+
+      plotData.set(e.name, newData);
     }
   }
-  data.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  // sort by date
+  for (const [name, data] of plotData.entries()) {
+    plotData.set(name, {
+      weightPoints: data.weightPoints.sort((a, b) => a.date.getTime() - b.date.getTime()),
+      repPoints: data.repPoints.sort((a, b) => a.date.getTime() - b.date.getTime()),
+    });
+  }
+
+  return plotData;
+}
+
+export default function ProgressPage() {
+  const { workouts } = useAppState();
+  const [views, setViews] = useState<Record<string, string>>({});
+  const plotData = useMemo(() => aggregateExerciseDataPoints(workouts), []);
 
   return (
     <IonPage>
@@ -40,23 +69,38 @@ export default function ProgressPage() {
       </IonHeader>
 
       <IonContent>
-        <div>
-          <div>
-            <h2>Exercise name</h2>
-            <IonSegment
-              value={currentView} mode="ios"
-              onIonChange={(e) => setCurrentView(e.detail.value as string)}>
-              <IonSegmentButton value="weight">
-                <IonLabel>Weight</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="reps">
-                <IonLabel>Reps</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </div>
-          <LineGraph data={data} />
-        </div>
+        {plotData.size == 0 && <p>No exercises</p>}
+        {plotData.size > 0 && [...plotData.keys()].map((exerciseName, i) => {
+          const view = views[exerciseName] || "weight";
+          return (
+            <div key={i}>
+              <div>
+                <h2>{exerciseName}</h2>
+                <IonSegment
+                  value={view} mode="ios"
+                  onIonChange={(e) =>
+                    setViews({
+                      ...views,
+                      [exerciseName]: e.detail.value as string
+                    })
+                  }>
+                  <IonSegmentButton value="weight">
+                    <IonLabel>Weight</IonLabel>
+                  </IonSegmentButton>
+                  <IonSegmentButton value="reps">
+                    <IonLabel>Reps</IonLabel>
+                  </IonSegmentButton>
+                </IonSegment>
+              </div>
+              <LineGraph data={
+                view == "weight"
+                  ? plotData.get(exerciseName)!.weightPoints
+                  : plotData.get(exerciseName)!.repPoints}
+              />
+            </div>
+          );
+        })}
       </IonContent>
     </IonPage>
   );
-};
+}

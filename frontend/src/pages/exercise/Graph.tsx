@@ -73,22 +73,22 @@ export type Point = { date: Date, value: number };
 type Vec2 = { x: number, y: number };
 type HeapValue = { area: number, indexA: number, indexB: number, indexC: number; }
 
+// helper functions
+const toVec2 = (p: Point): Vec2 => ({ x: p.date.getTime(), y: p.value });
+const cmpHeapValues = (a: HeapValue, b: HeapValue): boolean => a.area < b.area;
+
+// get the area of the triangle formed by a, b, c
+const getArea = (a: Vec2, b: Vec2, c: Vec2) =>
+  0.5 * Math.abs(a.x * b.y + b.x * c.y + c.x * a.y - a.x * c.y - b.x * a.y - c.x * b.y);
+
+const nearestPoint = (data: (Point | null)[], index: number, direction: number) => {
+  while (data[index] === null)
+    index += direction;
+  return index;
+}
+
 // Reduce the number of points in the dataset iteratively until the target length is reached
 function visvalingamWhyattAlgorithm(data: Point[], targetLength: number) {
-  // helper function
-  const toVec2 = (p: Point): Vec2 => ({ x: p.date.getTime(), y: p.value });
-  const cmpHeapValues = (a: HeapValue, b: HeapValue): boolean => a.area < b.area;
-
-  // get the area of the triangle formed by a, b, c
-  const getArea = (a: Vec2, b: Vec2, c: Vec2) =>
-    0.5 * Math.abs(a.x * b.y + b.x * c.y + c.x * a.y - a.x * c.y - b.x * a.y - c.x * b.y);
-
-  const nearestPoint = (data: (Point | null)[], index: number, direction: number) => {
-    while (data[index] === null)
-      index += direction;
-    return index;
-  }
-
   // insert the initial triangle areas into the heap
   const heap = new MinHeap(cmpHeapValues);
   for (let i = 1; i < data.length - 1; i++) {
@@ -99,6 +99,7 @@ function visvalingamWhyattAlgorithm(data: Point[], targetLength: number) {
   let arr = [...data] as (Point | null)[];
   let removedCount = 0;
 
+  // iteratively remove the point that has the smallest triangle area
   while (!heap.empty() && removedCount < (data.length - targetLength)) {
     // only get the min area from points that still exist
     let value = heap.pop() as HeapValue;

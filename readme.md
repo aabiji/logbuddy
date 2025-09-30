@@ -14,7 +14,7 @@ APP_PORT=8080
 Run the frontend:
 ```bash
 cd path/to/logbuddy/frontend
-npm install -g @ionic/cli
+bun install -g @ionic/cli
 bun install
 ionic serve
 ```

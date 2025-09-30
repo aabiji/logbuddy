@@ -58,7 +58,7 @@ create table if not exists Exercises (
 
     name text not null,
     weight int not null,
-    reps int[] not null
+    reps int[] not null -- rep per each set
 );
 
 create table if not exists Workouts (
