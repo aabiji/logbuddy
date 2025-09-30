@@ -7,7 +7,7 @@ import {
   IonApp, IonIcon, IonLabel, IonRouterOutlet,
   IonTabBar, IonTabButton, IonTabs, setupIonicReact
 } from "@ionic/react";
-import { barbell, fastFood } from "ionicons/icons";
+import { barbell, fastFood, scale } from "ionicons/icons";
 
 import AuthPage from "./pages/Auth";
 
@@ -21,6 +21,8 @@ import FoodPage from "./pages/food/Index";
 import FoodAnalysisPage from "./pages/food/Analysis";
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
+
+import WeightPage from "./pages/weight/Index";
 
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -60,6 +62,8 @@ function TabsWrapper() {
         <Route exact path="/food/analysis"><FoodAnalysisPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
         <Route exact path="/food/search/:mealTag/:timestampStr"><FoodSearchPage /></Route>
+
+        <Route exact path="/weight"><WeightPage /></Route>
       </IonRouterOutlet>
 
       {showTabBar && (
@@ -72,6 +76,11 @@ function TabsWrapper() {
           <IonTabButton tab="food" href="/food">
             <IonIcon aria-hidden="true" icon={fastFood} />
             <IonLabel>Food</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="weight" href="/weight">
+            <IonIcon aria-hidden="true" icon={scale} />
+            <IonLabel>Weight</IonLabel>
           </IonTabButton>
         </IonTabBar>
       )}

@@ -192,6 +192,21 @@ func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 	return err
 }
 
+const deleteWeight = `-- name: DeleteWeight :exec
+update weightentries set deleted = true, lastModified = $1 where userID = $2 and date = $3
+`
+
+type DeleteWeightParams struct {
+	Lastmodified pgtype.Int8
+	Userid       int32
+	Date         int64
+}
+
+func (q *Queries) DeleteWeight(ctx context.Context, arg DeleteWeightParams) error {
+	_, err := q.db.Exec(ctx, deleteWeight, arg.Lastmodified, arg.Userid, arg.Date)
+	return err
+}
+
 const deleteWorkout = `-- name: DeleteWorkout :exec
 update workouts set deleted = true, lastModified = $1
 where userID = $2 and id = $3
@@ -506,6 +521,21 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const setWeight = `-- name: SetWeight :exec
+insert into weightentries (userID, date, weight) values ($1, $2, $3)
+`
+
+type SetWeightParams struct {
+	Userid int32
+	Date   int64
+	Weight int32
+}
+
+func (q *Queries) SetWeight(ctx context.Context, arg SetWeightParams) error {
+	_, err := q.db.Exec(ctx, setWeight, arg.Userid, arg.Date, arg.Weight)
+	return err
 }
 
 const updateMeal = `-- name: UpdateMeal :exec

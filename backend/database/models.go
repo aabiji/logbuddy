@@ -62,6 +62,14 @@ type Userpreference struct {
 	Mealtags     []string
 }
 
+type Weightentry struct {
+	Lastmodified pgtype.Int8
+	Deleted      bool
+	Userid       int32
+	Date         int64
+	Weight       int32
+}
+
 type Workout struct {
 	Lastmodified pgtype.Int8
 	Deleted      bool

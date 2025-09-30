@@ -151,7 +151,8 @@ func main() {
 	mux.HandleFunc("GET /food/search", api.SearchFood)
 	mux.HandleFunc("GET /food/get", api.GetFood)
 
-	mux.HandleFunc("POST /user/data", api.UserData)
+	mux.HandleFunc("POST /weight/set", api.SetWeightEntry)
+	mux.HandleFunc("DELETE /weight/delete", api.DeleteWeightEntry)
 
 	mux.HandleFunc("POST /meal/set", api.SetMeal)
 	mux.HandleFunc("GET /meal/day", api.GetMeals)

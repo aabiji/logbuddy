@@ -47,40 +47,35 @@ export interface Workout {
 export interface AppState {
   mainToken: string;
   refreshToken: string;
-  lastSyncTime: number;
 
+  mealTags: string[];
   foods: Map<number, Food>; // map food ids to foods
   meals: Map<number, Meal[]>; // map dates (unix timestamp) to meals
-  mealTags: string[];
-
-  // List of workout ids that are templates
-  // A separate list is kept so that workouts don't
-  // have to be filtered every time templates need to be found
-  templates: number[],
+  templates: number[], // keeping a separate list for efficiency
   workouts: Map<number, Workout> // map id to workout
+  weightLog: Map<number, number>, // map date to weight
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
   upsertMeal: (date: number, newMeal: Meal, index: number) => void;
   upsertMeals: (date: number, meals: Meal[]) => void;
-
   upsertWorkout: (value: Workout) => void;
   removeWorkout: (id: number) => void;
-
+  setWeight: (date: number, weight: number) => void;
+  removeWeight: (date: number) => void;
   updateTokens: (main: string, refresh: string) => void;
 }
 
 const state: StateCreator<AppState> = (set, _) => ({
   mainToken: "",
   refreshToken: "",
-  lastSyncTime: 0,
 
   foods: new Map(),
   meals: new Map(),
   mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"], // TODO: get from /user/data
-
   templates: [],
   workouts: new Map(),
+  weightLog: new Map(),
 
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
@@ -140,6 +135,20 @@ const state: StateCreator<AppState> = (set, _) => ({
       if (isTemplate) templates.splice(templates.indexOf(id), 1);
       return { ...state,  workouts, templates };
     }),
+
+  setWeight: (date: number, weight: number) =>
+    set((state: AppState) => {
+      const log = new Map(state.weightLog);
+      log.set(date, weight);
+      return { ...state, weightLog: log };
+    }),
+
+  removeWeight: (date: number) =>
+    set((state: AppState) => {
+      const log = new Map(state.weightLog);
+      log.delete(date);
+      return {...state, weightLog: log };
+    })
 });
 
 const storage = new AppStorage();

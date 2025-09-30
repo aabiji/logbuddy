@@ -133,11 +133,16 @@ function visvalingamWhyattAlgorithm(data: Point[], targetLength: number) {
 
 export function LineGraph({ data }: { data: Point[]; }) {
   const targetLength = 50; // TODO: make it based off the screen width?
-  const simplified = useMemo(() =>
-    visvalingamWhyattAlgorithm(data, targetLength), [data]);
+
+  const points = useMemo(() => {
+    if (data.length == 0) return [];
+    const simplified = visvalingamWhyattAlgorithm(data, targetLength);
+    simplified.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return simplified.map(p => ({x : p.date, y: p.value }));
+  }, [data]);
 
   const dataset = {
-    data: simplified.map(p => ({ x: p.date, y: p.value })),
+    data: points,
     label: "Graph",
     borderColor: "cyan",
     pointHoverRadius: 4,

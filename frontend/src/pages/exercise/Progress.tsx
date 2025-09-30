@@ -13,9 +13,8 @@ type ExerciseData = { weightPoints: Point[], repPoints: Point[] };
 function aggregateExerciseDataPoints(
   workouts: Map<number, Workout>
 ): Map<string, ExerciseData> { // map exercise name to data points
-  let plotData = new Map<string, ExerciseData>();
-
   // group data points by exercises
+  let plotData = new Map<string, ExerciseData>();
   for (const id of workouts.keys()) {
     const workout = workouts.get(id)!;
 
@@ -40,15 +39,6 @@ function aggregateExerciseDataPoints(
       plotData.set(e.name, newData);
     }
   }
-
-  // sort by date
-  for (const [name, data] of plotData.entries()) {
-    plotData.set(name, {
-      weightPoints: data.weightPoints.sort((a, b) => a.date.getTime() - b.date.getTime()),
-      repPoints: data.repPoints.sort((a, b) => a.date.getTime() - b.date.getTime()),
-    });
-  }
-
   return plotData;
 }
 

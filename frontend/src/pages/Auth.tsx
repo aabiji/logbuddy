@@ -31,7 +31,7 @@ export default function AuthPage() {
         const endpoint = isLogin ? "/auth/login" : "/auth/new";
         const json = await request("POST", endpoint, { email, password }, undefined);
         updateTokens(json.mainToken, json.refreshToken);
-        history.replace("/exercise");
+        history.replace("/");
       } catch (err: any) {
         const msg = err.message[0].toUpperCase() + err.message.slice(1);
         setError(err.statusCode !== 500 ? msg : "Failed to connect to server");

@@ -70,3 +70,9 @@ select * from workouts where userID = $1 and date >= $2 and date <= $3;
 
 -- name: GetExercises :many
 select * from exercises where workoutID = $1 and userID = $2;
+
+-- name: SetWeight :exec
+insert into weightentries (userID, date, weight) values ($1, $2, $3);
+
+-- name: DeleteWeight :exec
+update weightentries set deleted = true, lastModified = $1 where userID = $2 and date = $3;

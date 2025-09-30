@@ -72,3 +72,12 @@ create table if not exists Workouts (
     isTemplate boolean not null,
     notes text not null
 );
+
+create table if not exists WeightEntries (
+    lastModified bigint default (extract(epoch from now())),
+    deleted boolean default false not null,
+    userID int not null,
+
+    date bigint not null,
+    weight int not null
+);
