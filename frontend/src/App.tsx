@@ -4,12 +4,15 @@ import { IonReactRouter } from "@ionic/react-router";
 import { useAppState } from "./lib/state";
 
 import {
-  IonApp, IonIcon, IonLabel, IonRouterOutlet,
-  IonTabBar, IonTabButton, IonTabs, setupIonicReact
+  IonApp, IonIcon, IonRouterOutlet, IonTabBar,
+  IonTabButton, IonTabs, setupIonicReact
 } from "@ionic/react";
-import { barbell, fastFood, scale } from "ionicons/icons";
+import { barbell, fastFood, scale, settings, water } from "ionicons/icons";
 
 import AuthPage from "./pages/Auth";
+import WeightPage from "./pages/Weight";
+import PeriodPage from "./pages/Period";
+import SettingsPage from "./pages/Settings";
 
 import ExercisePage from "./pages/exercise/Index";
 import HistoryPage  from "./pages/exercise/History";
@@ -21,8 +24,6 @@ import FoodPage from "./pages/food/Index";
 import FoodAnalysisPage from "./pages/food/Analysis";
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
-
-import WeightPage from "./pages/weight/Index";
 
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -51,6 +52,9 @@ function TabsWrapper() {
     <IonTabs>
       <IonRouterOutlet animated={false}>
         <Route exact path="/auth"><AuthPage /></Route>
+        <Route exact path="/weight"><WeightPage /></Route>
+        <Route exact path="/period"><PeriodPage /></Route>
+        <Route exact path="/settings"><SettingsPage /></Route>
 
         <Route exact path="/"><ExercisePage /></Route>
         <Route exact path="/exercise/history"><HistoryPage /></Route>
@@ -62,25 +66,24 @@ function TabsWrapper() {
         <Route exact path="/food/analysis"><FoodAnalysisPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
         <Route exact path="/food/search/:mealTag/:timestampStr"><FoodSearchPage /></Route>
-
-        <Route exact path="/weight"><WeightPage /></Route>
       </IonRouterOutlet>
 
       {showTabBar && (
         <IonTabBar slot="bottom">
-          <IonTabButton tab="index" href="/">
-            <IonIcon aria-hidden="true" icon={barbell} />
-            <IonLabel>Exercise</IonLabel>
-          </IonTabButton>
-
-          <IonTabButton tab="food" href="/food">
-            <IonIcon aria-hidden="true" icon={fastFood} />
-            <IonLabel>Food</IonLabel>
-          </IonTabButton>
-
           <IonTabButton tab="weight" href="/weight">
             <IonIcon aria-hidden="true" icon={scale} />
-            <IonLabel>Weight</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="food" href="/food">
+            <IonIcon aria-hidden="true" icon={fastFood} />
+          </IonTabButton>
+          <IonTabButton tab="index" href="/">
+            <IonIcon aria-hidden="true" icon={barbell} />
+          </IonTabButton>
+          <IonTabButton tab="period" href="/period">
+            <IonIcon aria-hidden="true" icon={water} />
+          </IonTabButton>
+          <IonTabButton tab="settings" href="/settings">
+            <IonIcon aria-hidden="true" icon={settings} />
           </IonTabButton>
         </IonTabBar>
       )}

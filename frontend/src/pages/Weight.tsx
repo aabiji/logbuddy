@@ -1,13 +1,13 @@
 import { useMemo, useRef } from "react";
-import { request, useAuthRequest } from "../../lib/request";
-import { dayUnixTimestamp, formatDate } from "../../lib/date";
-import { useAppState } from "../../lib/state";
+import { request, useAuthRequest } from "./../lib/request";
+import { dayUnixTimestamp, formatDate } from "./../lib/date";
+import { useAppState } from "./../lib/state";
 
 import {
   IonContent, IonPage, IonList, IonItem, IonItemSliding,
   IonIcon, IonItemOptions, IonItemOption, IonInput
 } from "@ionic/react";
-import { LineGraph } from "../exercise/Graph";
+import { LineGraph } from "./exercise/Graph";
 import { trash } from "ionicons/icons";
 
 export default function WeightPage() {
