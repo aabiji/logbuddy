@@ -62,9 +62,11 @@ where userID = $2 and id = $3;
 -- name: DeleteExercise :exec
 update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3;
 
+-- name: GetUpdatedWorkouts :many
+select * from workouts where userID = $1 and lastModified >= $2 and lastModified <= $3;
+
 -- name: GetWorkouts :many
-select * from workouts
-where id = $1 and userID = $2 and date >= $3 and date <= $4;
+select * from workouts where userID = $1 and date >= $2 and date <= $3;
 
 -- name: GetExercises :many
 select * from exercises where workoutID = $1 and userID = $2;

@@ -19,7 +19,7 @@ export default function TemplatePage() {
   const creating = id === "-1";
   const [template, setTemplate] = useState(
     !creating
-      ? workouts.get(Number(id))
+      ? workouts.get(Number(id))!
       : {
         id: -1, name: "New template", notes: "",
         date: dayUnixTimestamp(new Date()),
@@ -63,7 +63,7 @@ export default function TemplatePage() {
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
-          <IonTitle>Edit templaet</IonTitle>
+          <IonTitle>Edit template</IonTitle>
           <IonButtons slot="end">
             <IonButton
               onClick={async () => { await update(); history.back(); }}>

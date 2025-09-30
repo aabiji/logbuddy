@@ -318,6 +318,45 @@ func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) 
 	return items, nil
 }
 
+const getUpdatedWorkouts = `-- name: GetUpdatedWorkouts :many
+select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and lastModified >= $2 and lastModified <= $3
+`
+
+type GetUpdatedWorkoutsParams struct {
+	Userid         int32
+	Lastmodified   pgtype.Int8
+	Lastmodified_2 pgtype.Int8
+}
+
+func (q *Queries) GetUpdatedWorkouts(ctx context.Context, arg GetUpdatedWorkoutsParams) ([]Workout, error) {
+	rows, err := q.db.Query(ctx, getUpdatedWorkouts, arg.Userid, arg.Lastmodified, arg.Lastmodified_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workout
+	for rows.Next() {
+		var i Workout
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.ID,
+			&i.Userid,
+			&i.Name,
+			&i.Date,
+			&i.Istemplate,
+			&i.Notes,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 select id, email, Password from users where email = $1
 `
@@ -346,24 +385,17 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 }
 
 const getWorkouts = `-- name: GetWorkouts :many
-select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts
-where id = $1 and userID = $2 and date >= $3 and date <= $4
+select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and date >= $2 and date <= $3
 `
 
 type GetWorkoutsParams struct {
-	ID     int32
 	Userid int32
 	Date   int64
 	Date_2 int64
 }
 
 func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Workout, error) {
-	rows, err := q.db.Query(ctx, getWorkouts,
-		arg.ID,
-		arg.Userid,
-		arg.Date,
-		arg.Date_2,
-	)
+	rows, err := q.db.Query(ctx, getWorkouts, arg.Userid, arg.Date, arg.Date_2)
 	if err != nil {
 		return nil, err
 	}

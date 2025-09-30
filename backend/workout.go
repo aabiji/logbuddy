@@ -17,6 +17,7 @@ type ExerciseJSON struct {
 }
 
 type WorkoutJSON struct {
+	Deleted    bool           `json:"deleted"`
 	ID         int32          `json:"id"`
 	Name       string         `json:"name"`
 	Notes      string         `json:"notes"`
@@ -128,15 +129,15 @@ func (a *API) GetWorkouts(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	workoutID, ok := getQueryInt(w, r, "workoutID")
-	if !ok {
-		return
-	}
 	startTime, ok := getQueryInt(w, r, "startTime")
 	if !ok {
 		return
 	}
 	endTime, ok := getQueryInt(w, r, "endTime")
+	if !ok {
+		return
+	}
+	filterByDate, ok := getQueryInt(w, r, "useDate")
 	if !ok {
 		return
 	}
@@ -148,21 +149,31 @@ func (a *API) GetWorkouts(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(a.ctx)
 	qtx := a.queries.WithTx(tx)
+	var rows []database.Workout
 
-	rows, err := qtx.GetWorkouts(a.ctx, database.GetWorkoutsParams{
-		ID:     int32(workoutID),
-		Userid: userID,
-		Date:   startTime,
-		Date_2: endTime,
-	})
-	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't get workouts")
-		return
+	if filterByDate == 1 {
+		rows, err = qtx.GetWorkouts(a.ctx, database.GetWorkoutsParams{
+			Userid: userID, Date: startTime, Date_2: endTime,
+		})
+		if err != nil {
+			respond(w, http.StatusInternalServerError, "couldn't get workouts")
+			return
+		}
+	} else {
+		rows, err = qtx.GetUpdatedWorkouts(a.ctx, database.GetUpdatedWorkoutsParams{
+			Lastmodified:   pgtype.Int8{Int64: startTime, Valid: true},
+			Lastmodified_2: pgtype.Int8{Int64: endTime, Valid: true},
+		})
+		if err != nil {
+			respond(w, http.StatusInternalServerError, "couldn't get workouts")
+			return
+		}
 	}
 
 	workouts := []WorkoutJSON{}
 	for _, row := range rows {
 		workout := WorkoutJSON{
+			Deleted:    row.Deleted,
 			ID:         row.ID,
 			Name:       row.Name,
 			Date:       row.Date,

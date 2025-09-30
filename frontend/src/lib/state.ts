@@ -59,11 +59,6 @@ export interface AppState {
   templates: number[],
   workouts: Map<number, Workout> // map id to workout
 
-  // these are stored seperately because there should be
-  // way less templates than there are workout entries
-  workoutEntries: Map<number, Workout>; // map id to Workout
-  workoutTemplates: Map<number, Workout>; // map id to Workout
-
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
   upsertMeal: (date: number, newMeal: Meal, index: number) => void;
