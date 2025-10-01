@@ -154,6 +154,8 @@ func main() {
 	mux.HandleFunc("POST /weight/set", api.SetWeightEntry)
 	mux.HandleFunc("DELETE /weight/delete", api.DeleteWeightEntry)
 
+	mux.HandleFunc("POST /period/toggle", api.TogglePeriodDate)
+
 	mux.HandleFunc("POST /meal/set", api.SetMeal)
 	mux.HandleFunc("GET /meal/day", api.GetMeals)
 	mux.HandleFunc("DELETE /meal/delete", api.DeleteMeal)

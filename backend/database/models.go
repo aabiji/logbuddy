@@ -48,6 +48,15 @@ type Meal struct {
 	Unit         string
 }
 
+type Record struct {
+	Lastmodified pgtype.Int8
+	Deleted      bool
+	Userid       int32
+	Recordtype   string
+	Date         int64
+	Value        int32
+}
+
 type User struct {
 	Lastmodified pgtype.Int8
 	ID           int32
@@ -60,14 +69,6 @@ type Userpreference struct {
 	ID           int32
 	Userid       int32
 	Mealtags     []string
-}
-
-type Weightentry struct {
-	Lastmodified pgtype.Int8
-	Deleted      bool
-	Userid       int32
-	Date         int64
-	Weight       int32
 }
 
 type Workout struct {

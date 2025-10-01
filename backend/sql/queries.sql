@@ -72,7 +72,13 @@ select * from workouts where userID = $1 and date >= $2 and date <= $3;
 select * from exercises where workoutID = $1 and userID = $2;
 
 -- name: SetWeight :exec
-insert into weightentries (userID, date, weight) values ($1, $2, $3);
+insert into records (userID, recordType, date, value) values ($1, 'weight', $2, $3);
 
--- name: DeleteWeight :exec
-update weightentries set deleted = true, lastModified = $1 where userID = $2 and date = $3;
+-- name: TogglePeriodDate :exec
+-- (toggles the value column between 0/1)
+insert into records (userID, recordType, date, value) values ($1, 'period', $2, $3)
+on conflict (userID, recordType, date) do update
+set value = 1 - excluded.value, lastModified = $4;
+
+-- name: DeleteRecord :exec
+update records set deleted = true, lastModified = $1 where userID = $2 and date = $3;

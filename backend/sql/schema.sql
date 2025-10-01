@@ -73,11 +73,14 @@ create table if not exists Workouts (
     notes text not null
 );
 
-create table if not exists WeightEntries (
+create table if not exists Records (
     lastModified bigint default (extract(epoch from now())),
     deleted boolean default false not null,
-    userID int not null,
 
+    userID int not null,
+    recordType text not null,
     date bigint not null,
-    weight int not null
+    value int not null,
+
+    unique (userID, recordType, date)
 );

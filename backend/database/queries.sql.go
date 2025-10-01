@@ -192,18 +192,18 @@ func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 	return err
 }
 
-const deleteWeight = `-- name: DeleteWeight :exec
-update weightentries set deleted = true, lastModified = $1 where userID = $2 and date = $3
+const deleteRecord = `-- name: DeleteRecord :exec
+update records set deleted = true, lastModified = $1 where userID = $2 and date = $3
 `
 
-type DeleteWeightParams struct {
+type DeleteRecordParams struct {
 	Lastmodified pgtype.Int8
 	Userid       int32
 	Date         int64
 }
 
-func (q *Queries) DeleteWeight(ctx context.Context, arg DeleteWeightParams) error {
-	_, err := q.db.Exec(ctx, deleteWeight, arg.Lastmodified, arg.Userid, arg.Date)
+func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) error {
+	_, err := q.db.Exec(ctx, deleteRecord, arg.Lastmodified, arg.Userid, arg.Date)
 	return err
 }
 
@@ -524,17 +524,41 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 }
 
 const setWeight = `-- name: SetWeight :exec
-insert into weightentries (userID, date, weight) values ($1, $2, $3)
+insert into records (userID, recordType, date, value) values ($1, 'weight', $2, $3)
 `
 
 type SetWeightParams struct {
 	Userid int32
 	Date   int64
-	Weight int32
+	Value  int32
 }
 
 func (q *Queries) SetWeight(ctx context.Context, arg SetWeightParams) error {
-	_, err := q.db.Exec(ctx, setWeight, arg.Userid, arg.Date, arg.Weight)
+	_, err := q.db.Exec(ctx, setWeight, arg.Userid, arg.Date, arg.Value)
+	return err
+}
+
+const togglePeriodDate = `-- name: TogglePeriodDate :exec
+insert into records (userID, recordType, date, value) values ($1, 'period', $2, $3)
+on conflict (userID, recordType, date) do update
+set value = 1 - excluded.value, lastModified = $4
+`
+
+type TogglePeriodDateParams struct {
+	Userid       int32
+	Date         int64
+	Value        int32
+	Lastmodified pgtype.Int8
+}
+
+// (toggles the value column between 0/1)
+func (q *Queries) TogglePeriodDate(ctx context.Context, arg TogglePeriodDateParams) error {
+	_, err := q.db.Exec(ctx, togglePeriodDate,
+		arg.Userid,
+		arg.Date,
+		arg.Value,
+		arg.Lastmodified,
+	)
 	return err
 }
 

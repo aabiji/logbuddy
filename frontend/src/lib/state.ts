@@ -54,6 +54,7 @@ export interface AppState {
   templates: number[], // keeping a separate list for efficiency
   workouts: Map<number, Workout> // map id to workout
   weightLog: Map<number, number>, // map date to weight
+  periodDates: Map<number, boolean>, // map date to 'true'
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
@@ -63,6 +64,7 @@ export interface AppState {
   removeWorkout: (id: number) => void;
   setWeight: (date: number, weight: number) => void;
   removeWeight: (date: number) => void;
+  togglePeriodDate: (date: number) => void;
   updateTokens: (main: string, refresh: string) => void;
 }
 
@@ -76,6 +78,7 @@ const state: StateCreator<AppState> = (set, _) => ({
   templates: [],
   workouts: new Map(),
   weightLog: new Map(),
+  periodDates: new Map(),
 
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
@@ -122,7 +125,7 @@ const state: StateCreator<AppState> = (set, _) => ({
 
       const workouts = new Map(state.workouts);
       workouts.set(w.id, w);
-      return { ...state,  workouts, templates };
+      return { ...state, workouts, templates };
     }),
 
   removeWorkout: (id: number) =>
@@ -133,7 +136,7 @@ const state: StateCreator<AppState> = (set, _) => ({
 
       let templates = [...state.templates];
       if (isTemplate) templates.splice(templates.indexOf(id), 1);
-      return { ...state,  workouts, templates };
+      return { ...state, workouts, templates };
     }),
 
   setWeight: (date: number, weight: number) =>
@@ -147,7 +150,17 @@ const state: StateCreator<AppState> = (set, _) => ({
     set((state: AppState) => {
       const log = new Map(state.weightLog);
       log.delete(date);
-      return {...state, weightLog: log };
+      return { ...state, weightLog: log };
+    }),
+
+  togglePeriodDate: (date: number) =>
+    set((state: AppState) => {
+      const dates = new Map(state.periodDates);
+      if (dates.has(date))
+        dates.delete(date);
+      else
+        dates.set(date, true);
+      return { ...state, periodDates: dates };
     })
 });
 
