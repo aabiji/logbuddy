@@ -22,8 +22,8 @@ create table if not exists Foods (
 
     name text not null,
     defaultServingIndex int not null,
-    servings int[] not null,
-    servingSizes text[] not null,
+    servingSizes int[] not null,
+    servingUnits text[] not null,
 
     -- per 1 g
     calories float not null,

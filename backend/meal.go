@@ -11,8 +11,8 @@ import (
 type FoodJSON struct {
 	ID                  int32    `json:"id,omitempty"`
 	Name                string   `json:"name"`
-	Servings            []int32  `json:"servings"`
-	ServingSizes        []string `json:"units"`
+	ServingSizes        []int32  `json:"servingSizes"`
+	ServingUnits        []string `json:"servingUnits"`
 	DefaultServingIndex int32    `json:"defaultServingIndex"`
 	Calories            float64  `json:"calories"`
 	Carbohydrate        float64  `json:"carbohydrate"`
@@ -36,8 +36,8 @@ func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
 	id, err := a.queries.CreateFood(a.ctx, database.CreateFoodParams{
 		Userid:              userID,
 		Name:                req.Name,
-		Servings:            req.Servings,
 		Servingsizes:        req.ServingSizes,
+		Servingunits:        req.ServingUnits,
 		Defaultservingindex: req.DefaultServingIndex,
 		Calories:            req.Calories,
 		Carbohydrate:        req.Carbohydrate,
@@ -59,8 +59,8 @@ func foodRowToJson(row database.Food) FoodJSON {
 	return FoodJSON{
 		ID:                  row.ID,
 		Name:                row.Name,
-		Servings:            row.Servings,
 		ServingSizes:        row.Servingsizes,
+		ServingUnits:        row.Servingunits,
 		DefaultServingIndex: row.Defaultservingindex,
 		Calories:            row.Calories,
 		Carbohydrate:        row.Carbohydrate,

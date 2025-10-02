@@ -25,8 +25,8 @@ type Food struct {
 	Userid              int32
 	Name                string
 	Defaultservingindex int32
-	Servings            []int32
-	Servingsizes        []string
+	Servingsizes        []int32
+	Servingunits        []string
 	Calories            float64
 	Carbohydrate        float64
 	Protein             float64

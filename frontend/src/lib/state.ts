@@ -6,8 +6,8 @@ import { AppStorage } from "./storage";
 export interface Food {
   id: number;
   name: string;
-  servings: number[];
-  units: string[];
+  servingSizes: number[];
+  servingUnits: string[];
   defaultServingIndex: number;
   calories: number;
   carbohydrate: number;

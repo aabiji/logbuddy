@@ -32,7 +32,7 @@ export default function FoodSearchPage() {
         mealTag,
         servings: 1,
         foodID: food.id,
-        servingsUnit: food.units[0]
+        servingsUnit: food.servingUnits[0]
       };
       const body = { ...mealInfo, updating: false };
       const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
@@ -106,7 +106,12 @@ export default function FoodSearchPage() {
                   style={{ cursor: "pointer" }}
                   onClick={() => history.push(`/food/view/${r.id}`)}>
                   <h2>{r.name}</h2>
-                  <p>{r.servings[0]} {r.units[0]} • {r.calories * r.servings[0]} calories</p>
+                  <p>
+                    {r.servingSizes[r.defaultServingIndex]}
+                    {r.servingUnits[r.defaultServingIndex]} •
+                    {r.calories * r.servingSizes[r.defaultServingIndex]}
+                    calories
+                  </p>
                 </IonLabel>
 
                 <IonButton

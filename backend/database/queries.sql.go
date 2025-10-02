@@ -49,7 +49,7 @@ func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) 
 
 const createFood = `-- name: CreateFood :one
 insert into foods
-(userID, name, servings, servingSizes, defaultServingIndex,
+(userID, name, servingSizes, servingUnits, defaultServingIndex,
 calories, carbohydrate, protein, fat, calcium, potassium, iron)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 returning id
@@ -58,8 +58,8 @@ returning id
 type CreateFoodParams struct {
 	Userid              int32
 	Name                string
-	Servings            []int32
-	Servingsizes        []string
+	Servingsizes        []int32
+	Servingunits        []string
 	Defaultservingindex int32
 	Calories            float64
 	Carbohydrate        float64
@@ -74,8 +74,8 @@ func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (int32, 
 	row := q.db.QueryRow(ctx, createFood,
 		arg.Userid,
 		arg.Name,
-		arg.Servings,
 		arg.Servingsizes,
+		arg.Servingunits,
 		arg.Defaultservingindex,
 		arg.Calories,
 		arg.Carbohydrate,
@@ -262,7 +262,7 @@ func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]E
 }
 
 const getFoodByID = `-- name: GetFoodByID :one
-select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
+select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
 
 func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
@@ -274,8 +274,8 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 		&i.Userid,
 		&i.Name,
 		&i.Defaultservingindex,
-		&i.Servings,
 		&i.Servingsizes,
+		&i.Servingunits,
 		&i.Calories,
 		&i.Carbohydrate,
 		&i.Protein,
@@ -439,7 +439,7 @@ func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Wor
 }
 
 const searchFoods = `-- name: SearchFoods :many
-select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
 `
 
@@ -458,8 +458,8 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 			&i.Userid,
 			&i.Name,
 			&i.Defaultservingindex,
-			&i.Servings,
 			&i.Servingsizes,
+			&i.Servingunits,
 			&i.Calories,
 			&i.Carbohydrate,
 			&i.Protein,
@@ -479,7 +479,7 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 }
 
 const searchUserFoods = `-- name: SearchUserFoods :many
-select lastmodified, id, userid, name, defaultservingindex, servings, servingsizes, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
+select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2 limit 100
 `
 
@@ -503,8 +503,8 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 			&i.Userid,
 			&i.Name,
 			&i.Defaultservingindex,
-			&i.Servings,
 			&i.Servingsizes,
+			&i.Servingunits,
 			&i.Calories,
 			&i.Carbohydrate,
 			&i.Protein,

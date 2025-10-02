@@ -16,6 +16,8 @@ export default function SettingsPage() {
   // change meals
   // change macro target (calories/protein)
   // send feedback
+  // macro targets
+  // auto regulate macro targets
 
   return (
     <IonPage>

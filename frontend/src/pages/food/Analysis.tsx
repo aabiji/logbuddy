@@ -1,3 +1,6 @@
+import { useAppState } from "../../lib/state";
+import { dayUnixTimestamp } from "../../lib/date";
+
 import {
   IonContent, IonPage, IonHeader, IonToolbar,
   IonTitle, IonButtons, IonBackButton
@@ -11,12 +14,40 @@ import { Bar } from "react-chartjs-2";
 ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, Tooltip);
 
 export default function FoodAnalysisPage() {
-  const random = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1)) + min;
+  const { foods, meals } = useAppState();
+
+  const weeklyMacroConsumption = (macro: string) => {
+    // start from sunday of the current week
+    const now = new Date();
+    const diff = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
+    const weekStart = new Date(now.setDate(diff));
+    const startTimestamp = dayUnixTimestamp(weekStart);
+
+    // get the consumption of a macro each day, for the entire week
+    let dailyCount = [];
+    for (let i = 0; i < 7; i++) {
+      const timestamp = startTimestamp + i * 86400000;
+      const list = meals.get(timestamp);
+
+      if (list) {
+        let sum = 0;
+        for (const m of list) {
+          const food = foods.get(m.foodID)!;
+          const i = food.servingUnits.indexOf(m.servingsUnit);
+          sum += m.servings * food.servingSizes[i] * food[macro];
+        }
+        dailyCount.push(sum);
+      } else {
+        dailyCount.push(0);
+      }
+    }
+
+    return dailyCount;
+  }
 
   const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dataset = {
-    data: labels.map(() => random(0, 100)),
+    data: weeklyMacroConsumption("calories"),
     backgroundColor: "cyan",
   };
 

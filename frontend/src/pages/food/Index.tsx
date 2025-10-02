@@ -7,6 +7,7 @@ import { dayUnixTimestamp, formatDate } from "../../lib/date";
 import {
   IonContent, IonPage, IonIcon, IonButton, IonItem, IonLabel,
   IonModal, IonInput, IonSelect, IonSelectOption,
+  IonProgressBar,
 } from "@ionic/react";
 import { add, chevronForward, chevronBack, pencil, pieChart } from "ionicons/icons";
 
@@ -29,7 +30,7 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
 
   const remove = async () => {
     try {
-      const id = meals.get(date)[index].id;
+      const id = meals.get(date)![index].id;
       await authRequest((jwt: string) =>
         request("DELETE", `/meal/delete?mealID=${id}`, undefined, jwt));
       removeMeal(date, index);
@@ -51,10 +52,10 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
           <IonSelect
             label="Move to"
             aria-label="Move to meal"
-            value={meals.get(date)[index].mealTag}
+            value={meals.get(date)![index].mealTag}
             onIonChange={(event) => {
               update({
-                ...meals.get(date)[index],
+                ...meals.get(date)![index],
                 mealTag: event.detail.value,
               });
               setPreviousMealTag(event.detail.value);
@@ -74,10 +75,10 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
             labelPlacement="end"
             label="Servings"
             min={0.1}
-            value={meals.get(date)[index].servings}
+            value={meals.get(date)![index].servings}
             onIonInput={(event) => {
               update({
-                ...meals.get(date)[index],
+                ...meals.get(date)![index],
                 servings: Number(event.detail.value)
               });
             }}
@@ -85,15 +86,15 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
 
           <IonSelect
             aria-label="Serving unit"
-            value={meals.get(date)[index].servingsUnit}
+            value={meals.get(date)![index].servingsUnit}
             onIonChange={(event) => {
               update({
-                ...meals.get(date)[index],
+                ...meals.get(date)![index],
                 servingsUnit: event.detail.value,
               });
             }}>
-            {foods.get(meals.get(date)[index].foodID)
-              .units.map((u: string, i: number) =>
+            {foods.get(meals.get(date)![index].foodID)!
+              .servingUnits.map((u: string, i: number) =>
                 <IonSelectOption value={u} key={i}>{u}</IonSelectOption>
               )}
           </IonSelect>
@@ -118,6 +119,19 @@ export default function FoodPage() {
   const [previousMealTag, setPreviousMealTag] = useState(mealTags[0]);
   const [index, setCurrentMealIndex] = useState(-1);
 
+  const [calorieCount, setCalorieCount] = useState(0);
+  const calorieTarget = 2000;
+
+  const countMacro = (meals: Meal[], macro: string): number => {
+    let sum = 0;
+    for (const m of meals) {
+      const food = foods.get(m.foodID)!;
+      const i = food.servingUnits.indexOf(m.servingsUnit);
+      sum +=  m.servings * food.servingSizes[i] * food[macro];
+    }
+    return sum;
+  }
+
   useEffect(() => { changeDate(0); }, []);
 
   useEffect(() => {
@@ -128,6 +142,8 @@ export default function FoodPage() {
     for (const meal of dayMeals)
       groups[meal.mealTag].push(meal);
     setGroupedMeals(groups);
+
+    setCalorieCount(countMacro(dayMeals, "calories"));
   }, [label, meals]);
 
   const fetchFood = async (id: number) => {
@@ -210,6 +226,11 @@ export default function FoodPage() {
           </IonButton>
         </div>
 
+        <IonItem>
+          <IonProgressBar value={(calorieCount / calorieTarget) * 100} />
+          <p><b>{calorieTarget - calorieCount}</b> calories left</p>
+        </IonItem>
+
         {index != -1 &&
           <EditMeal
             date={dayUnixTimestamp(date)} index={index}
@@ -222,13 +243,13 @@ export default function FoodPage() {
             <h1>{tag}</h1>
 
             {Object.values(groupedMeals[tag] ?? {}).map((meal: Meal, j: number) => {
-              const food = foods.get(meal.foodID);
-              const servingIndex = food.units.indexOf(meal.servingsUnit);
+              const food = foods.get(meal.foodID)!;
+              const servingIndex = food.servingUnits.indexOf(meal.servingsUnit);
               return (
                 <IonItem key={j}>
                   <IonLabel>
                     <h2>{food.name}</h2>
-                    <p>{meal.servings * food.servings[servingIndex]} {meal.servingsUnit}</p>
+                    <p>{meal.servings * food.servingSizes[servingIndex]} {meal.servingsUnit}</p>
                   </IonLabel>
 
                   <IonButton

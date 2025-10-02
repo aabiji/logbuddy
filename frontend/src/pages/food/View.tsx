@@ -23,19 +23,20 @@ export default function FoodViewPage() {
     id: -1, name: "",
     calories: 0, carbohydrate: 0, protein: 0,
     fat: 0, calcium: 0, potassium: 0, iron: 0,
-    servings: [], units: [], defaultServingIndex: 0
+    servingSizes: [], servingUnits: [],
+    defaultServingIndex: 0
   };
   // when we just want nutrients
-  const excludedKeys = ["servings", "units", "name", "id", "defaultServingIndex"];
+  const excludedKeys = ["servingSizes", "servingUnits", "name", "id", "defaultServingIndex"];
 
   const [error, setError] = useState<undefined | string>(undefined);
-  const [food, setFood] = useState<Food>(edit ? defaultFood : foods.get(Number(foodID)));
+  const [food, setFood] = useState<Food>(edit ? defaultFood : foods.get(Number(foodID))!);
   const [currentServing, setCurrentServing] = useState(food.defaultServingIndex);
 
   const createFood = async () => {
     if (food.name.length == 0) {
       setError("Food must have a name");
-    } else if (food.servings.length == 0) {
+    } else if (food.servingSizes.length == 0) {
       setError("Food must have a serving size")
     } else {
       try {
@@ -44,7 +45,7 @@ export default function FoodViewPage() {
 
           // normalize the nutrient values down to per 1 g
           // (or whatever the default serving unit is)
-          const servingSize = food.servings[food.defaultServingIndex];
+          const servingSize = food.servingSizes[food.defaultServingIndex];
           let normalizedFood = { ...food, id: json.id } as Food;
           for (const key of Object.keys(food)) {
             if (!excludedKeys.includes(key))
@@ -100,8 +101,8 @@ export default function FoodViewPage() {
               onClick={() => {
                 setFood(prev => ({
                   ...prev,
-                  servings: [...prev.servings, 0],
-                  units: [...prev.units, "g"]
+                  servingSizes: [...prev.servingSizes, 0],
+                  servingUnits: [...prev.servingUnits, "g"]
                 }));
               }}
             >
@@ -109,19 +110,19 @@ export default function FoodViewPage() {
             </IonButton>}
         </IonItemDivider>
 
-        {edit && food.servings.map((_, i) => (
+        {edit && food.servingSizes.map((_, i) => (
           <IonItem key={i}>
             <IonInput
               slot="start"
               type="number"
               placeholder="0"
-              value={food.servings[i]}
+              value={food.servingSizes[i]}
               onIonInput={(event) => {
                 const value = Number(event.detail.value);
                 setFood((prev) => {
-                  const newServings = [...prev.servings];
+                  const newServings = [...prev.servingSizes];
                   newServings[i] = value;
-                  return { ...prev, servings: newServings };
+                  return { ...prev, servingSizes: newServings };
                 });
               }}
             />
@@ -129,13 +130,13 @@ export default function FoodViewPage() {
             <IonSelect
               slot="start"
               aria-label="Serving unit"
-              value={food.units[i]}
+              value={food.servingUnits[i]}
               onIonChange={(event) => {
                 const value = event.detail.value;
                 setFood((prev) => {
-                  const newUnits = [...prev.units];
+                  const newUnits = [...prev.servingUnits];
                   newUnits[i] = value;
-                  return { ...prev, units: newUnits };
+                  return { ...prev, servingUnits: newUnits };
                 });
               }}>
               <IonSelectOption value="g">g</IonSelectOption>
@@ -158,8 +159,8 @@ export default function FoodViewPage() {
               onClick={() => {
                 setFood((prev) => ({
                   ...prev,
-                  servings: prev.servings.filter((_, index) => index !== i),
-                  units: prev.units.filter((_, index) => index !== i),
+                  servingSizes: prev.servingSizes.filter((_, index) => index !== i),
+                  servingUnits: prev.servingUnits.filter((_, index) => index !== i),
                 }));
               }}
             >
@@ -173,9 +174,9 @@ export default function FoodViewPage() {
             aria-label="Serving size"
             value={currentServing}
             onIonChange={(event) => setCurrentServing(Number(event.detail.value))}>
-            {food.servings.map((_, i: number) => (
+            {food.servingSizes.map((_, i: number) => (
               <IonSelectOption value={currentServing} key={i}>
-                {food.servings[i]} {food.units[i]}
+                {food.servingSizes[i]} {food.servingUnits[i]}
               </IonSelectOption>
             ))}
           </IonSelect>
@@ -204,7 +205,7 @@ export default function FoodViewPage() {
                     setFood(prev => ({ ...prev, [key]: value }));
                   }}
                 />
-                : <IonText><h4>{food[key] * food.servings[currentServing]}</h4></IonText>
+                : <IonText><h4>{food[key] * food.servingSizes[currentServing]}</h4></IonText>
               }
             </IonItem>
           );
