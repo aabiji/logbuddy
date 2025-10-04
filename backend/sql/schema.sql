@@ -1,4 +1,3 @@
-
 create table if not exists Users (
     lastModified bigint default (extract(epoch from now())),
     id serial primary key,
@@ -7,7 +6,7 @@ create table if not exists Users (
     password text not null
 );
 
-create table if not exists UserPreferences (
+create table if not exists Settings (
     lastModified bigint default (extract(epoch from now())),
     id serial primary key,
     userID int not null,

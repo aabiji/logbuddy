@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -122,4 +123,24 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respond(w, http.StatusOK, nil)
+}
+
+func getWorkout(ctx context.Context, q *database.Queries,
+	w database.Workout) (WorkoutJSON, error) {
+	rows, err := q.GetExercises(ctx,
+		database.GetExercisesParams{Userid: w.Userid, Workoutid: w.ID})
+	if err != nil {
+		return WorkoutJSON{}, err
+	}
+	workout := WorkoutJSON{
+		Deleted: w.Deleted, ID: w.ID, Name: w.Name, Notes: w.Notes,
+		Date: w.Date, IsTemplate: w.Istemplate, Exercises: []ExerciseJSON{},
+	}
+	for _, row := range rows {
+		workout.Exercises = append(workout.Exercises, ExerciseJSON{
+			ID: row.ID, WorkoutID: w.ID, Name: row.Name,
+			Weight: row.Weight, Reps: row.Reps,
+		})
+	}
+	return workout, nil
 }

@@ -9,14 +9,14 @@ import {
   IonModal, IonInput, IonSelect, IonSelectOption,
   IonProgressBar,
 } from "@ionic/react";
-import { add, chevronForward, chevronBack, pencil, pieChart } from "ionicons/icons";
+import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 
 function EditMeal({ date, index, close, setPreviousMealTag }: {
   date: number; index: number;
   close: () => void; setPreviousMealTag: (tag: string) => void;
 }) {
   const authRequest = useAuthRequest();
-  const { foods, meals, mealTags, upsertMeal, removeMeal } = useAppState();
+  const { foods, meals, settings, upsertMeal, removeMeal } = useAppState();
 
   const update = async (m: Meal) => {
     try {
@@ -60,7 +60,7 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
               });
               setPreviousMealTag(event.detail.value);
             }}>
-            {mealTags.map((t: string, i: number) =>
+            {settings.mealTags.map((t: string, i: number) =>
               <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
           </IonSelect>
           <IonButton size="default" color="danger" onClick={remove}>
@@ -107,16 +107,14 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
 export default function FoodPage() {
   const history = useHistory();
   const authRequest = useAuthRequest();
-  const {
-    foods, meals, mealTags, upsertMeals, upsertFood
-  } = useAppState();
+  const { foods, meals, settings, upsertMeals, upsertFood } = useAppState();
 
   const [date, setDate] = useState(new Date());
   const [label, setLabel] = useState(formatDate(new Date()));
 
   const [groupedMeals, setGroupedMeals] = useState<Record<string, Meal[]>>({});
 
-  const [previousMealTag, setPreviousMealTag] = useState(mealTags[0]);
+  const [previousMealTag, setPreviousMealTag] = useState(settings.mealTags[0]);
   const [index, setCurrentMealIndex] = useState(-1);
 
   const [calorieCount, setCalorieCount] = useState(0);
@@ -137,7 +135,7 @@ export default function FoodPage() {
   useEffect(() => {
     const timestamp = dayUnixTimestamp(date);
     const dayMeals = meals.get(timestamp) ?? [];
-    let groups = Object.fromEntries(mealTags.map((t: string) => [t, []]));
+    let groups = Object.fromEntries(settings.mealTags.map((t: string) => [t, []]));
 
     for (const meal of dayMeals)
       groups[meal.mealTag].push(meal);
@@ -213,10 +211,6 @@ export default function FoodPage() {
             <IonIcon slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
 
-          <IonButton size="default" fill="clear" onClick={() => history.push("/food/analysis")}>
-            <IonIcon slot="icon-only" color="white" icon={pieChart} />
-          </IonButton>
-
           <IonButton size="default" fill="clear" onClick={() => changeDate(1)}>
             <IonIcon slot="icon-only" color="white" icon={chevronForward} />
           </IonButton>
@@ -238,7 +232,7 @@ export default function FoodPage() {
             close={() => setCurrentMealIndex(-1)}
           />}
 
-        {mealTags.map((tag: string, i: number) => (
+        {settings.mealTags.map((tag: string, i: number) => (
           <div key={i}>
             <h1>{tag}</h1>
 

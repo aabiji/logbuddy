@@ -124,8 +124,9 @@ func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
 	respond(w, http.StatusOK, data)
 }
 
-type MealInfo struct {
+type MealJSON struct {
 	Updating bool   `json:"updating"`
+	Deleted  bool   `json:"deleted"`
 	ID       int32  `json:"id,omitempty"`
 	Date     int64  `json:"date,omitempty"`
 	FoodID   int32  `json:"foodID,omitempty"`
@@ -135,7 +136,7 @@ type MealInfo struct {
 }
 
 func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
-	req, ok := parseRequest[MealInfo](w, r)
+	req, ok := parseRequest[MealJSON](w, r)
 	if !ok {
 		return
 	}
@@ -214,9 +215,9 @@ func (a *API) GetMeals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	meals := []MealInfo{}
+	meals := []MealJSON{}
 	for _, row := range rows {
-		meals = append(meals, MealInfo{
+		meals = append(meals, MealJSON{
 			ID:       row.ID,
 			Date:     row.Date,
 			FoodID:   row.Foodid,

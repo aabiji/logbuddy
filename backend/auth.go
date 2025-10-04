@@ -228,7 +228,7 @@ func newUser(a *API, email string, hashedPassword string) (int32, error) {
 		return -1, err
 	}
 
-	if err := qtx.CreateDefaultPreferences(a.ctx, id); err != nil {
+	if err := qtx.CreateDefaultSettings(a.ctx, id); err != nil {
 		return -1, err
 	}
 

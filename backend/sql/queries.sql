@@ -1,12 +1,12 @@
 -- name: CreateUser :one
 insert into users (email, password) values ($1, $2) returning id;
 
--- name: CreateDefaultPreferences :exec
-insert into userpreferences (userID, mealTags)
+-- name: CreateDefaultSettings :exec
+insert into settings (userID, mealTags)
 values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks']);
 
--- nmae: GetUserPreferences :one
-select * from userpreferences where userID = $1;
+-- name: GetUserSettings :one
+select * from settings where userID = $1;
 
 -- name: GetUserByID :one
 select id from users where id = $1;
@@ -47,8 +47,7 @@ set lastModified = $1, mealTag = $2, servings = $3, unit = $4
 where ID = $5;
 
 -- name: GetMealsForDay :many
-select id, foodID, date, mealTag, servings, unit
-from meals where date = $1 and userID = $2 and deleted = false;
+select * from meals where date = $1 and userID = $2 and deleted = false;
 
 -- name: CreateWorkout :one
 insert into workouts (userID, name, notes, date, isTemplate)
@@ -80,8 +79,8 @@ update records set deleted = true, lastModified = $1 where userID = $2 and date 
 -- name: GetUpdatedWorkouts :many
 select * from workouts where userID = $1 and lastModified = $2;
 
--- name: GetUpdatedExercises :many
-select * from exercises where userID = $1 and workoutID = $2 and lastModified >= $3;
+-- name: GetExercises :many
+select * from exercises where userID = $1 and workoutID = $2;
 
 -- name: GetUpdatedMeals :many
 select * from meals where userID = $1 and lastModified >= $2;

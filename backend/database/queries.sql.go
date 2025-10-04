@@ -11,13 +11,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createDefaultPreferences = `-- name: CreateDefaultPreferences :exec
-insert into userpreferences (userID, mealTags)
+const createDefaultSettings = `-- name: CreateDefaultSettings :exec
+insert into settings (userID, mealTags)
 values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks'])
 `
 
-func (q *Queries) CreateDefaultPreferences(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, createDefaultPreferences, userid)
+func (q *Queries) CreateDefaultSettings(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, createDefaultSettings, userid)
 	return err
 }
 
@@ -223,6 +223,44 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 	return err
 }
 
+const getExercises = `-- name: GetExercises :many
+select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where userID = $1 and workoutID = $2
+`
+
+type GetExercisesParams struct {
+	Userid    int32
+	Workoutid int32
+}
+
+func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, getExercises, arg.Userid, arg.Workoutid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.ID,
+			&i.Userid,
+			&i.Workoutid,
+			&i.Name,
+			&i.Weight,
+			&i.Reps,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFoodByID = `-- name: GetFoodByID :one
 select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
@@ -250,8 +288,7 @@ func (q *Queries) GetFoodByID(ctx context.Context, id int32) (Food, error) {
 }
 
 const getMealsForDay = `-- name: GetMealsForDay :many
-select id, foodID, date, mealTag, servings, unit
-from meals where date = $1 and userID = $2 and deleted = false
+select lastmodified, deleted, id, userid, foodid, date, mealtag, servings, unit from meals where date = $1 and userID = $2 and deleted = false
 `
 
 type GetMealsForDayParams struct {
@@ -259,70 +296,25 @@ type GetMealsForDayParams struct {
 	Userid int32
 }
 
-type GetMealsForDayRow struct {
-	ID       int32
-	Foodid   int32
-	Date     int64
-	Mealtag  string
-	Servings int32
-	Unit     string
-}
-
-func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) ([]GetMealsForDayRow, error) {
+func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) ([]Meal, error) {
 	rows, err := q.db.Query(ctx, getMealsForDay, arg.Date, arg.Userid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetMealsForDayRow
+	var items []Meal
 	for rows.Next() {
-		var i GetMealsForDayRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Foodid,
-			&i.Date,
-			&i.Mealtag,
-			&i.Servings,
-			&i.Unit,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUpdatedExercises = `-- name: GetUpdatedExercises :many
-select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where userID = $1 and workoutID = $2 and lastModified >= $3
-`
-
-type GetUpdatedExercisesParams struct {
-	Userid       int32
-	Workoutid    int32
-	Lastmodified pgtype.Int8
-}
-
-func (q *Queries) GetUpdatedExercises(ctx context.Context, arg GetUpdatedExercisesParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, getUpdatedExercises, arg.Userid, arg.Workoutid, arg.Lastmodified)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Exercise
-	for rows.Next() {
-		var i Exercise
+		var i Meal
 		if err := rows.Scan(
 			&i.Lastmodified,
 			&i.Deleted,
 			&i.ID,
 			&i.Userid,
-			&i.Workoutid,
-			&i.Name,
-			&i.Weight,
-			&i.Reps,
+			&i.Foodid,
+			&i.Date,
+			&i.Mealtag,
+			&i.Servings,
+			&i.Unit,
 		); err != nil {
 			return nil, err
 		}
@@ -472,6 +464,22 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getUserSettings = `-- name: GetUserSettings :one
+select lastmodified, id, userid, mealtags from settings where userID = $1
+`
+
+func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, error) {
+	row := q.db.QueryRow(ctx, getUserSettings, userid)
+	var i Setting
+	err := row.Scan(
+		&i.Lastmodified,
+		&i.ID,
+		&i.Userid,
+		&i.Mealtags,
+	)
+	return i, err
 }
 
 const searchFoods = `-- name: SearchFoods :many

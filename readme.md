@@ -7,6 +7,7 @@ app:
 - build apk
 - host backend for free
 - better error handling
+- sync food data when viewing it
 
 food page:
 - fix the search bug (when you create a meal it doesn't immediately show in search)

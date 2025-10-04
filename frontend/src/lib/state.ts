@@ -44,11 +44,15 @@ export interface Workout {
   exercises: Exercise[];
 }
 
+export interface Settings {
+  mealTags: string[];
+}
+
 export interface AppState {
   mainToken: string;
   refreshToken: string;
   lastSyncTime: number;
-  mealTags: string[];
+  settings: Settings;
   foods: Map<number, Food>; // map food ids to foods
   meals: Map<number, Meal[]>; // map dates (unix timestamp) to meals
   templates: number[], // keeping a separate list for efficiency
@@ -75,11 +79,11 @@ const state: StateCreator<AppState> = (set, _) => ({
   lastSyncTime: 0,
   foods: new Map(),
   meals: new Map(),
-  mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"],
   templates: [],
   workouts: new Map(),
   weightLog: new Map(),
   periodDates: new Map(),
+  settings: { mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"] },
 
   updateTokens: (main: string, refresh: string) =>
     set((state: AppState) => ({ ...state, mainToken: main, refreshToken: refresh })),
@@ -166,11 +170,46 @@ const state: StateCreator<AppState> = (set, _) => ({
 
   updateUserData: (json: object) =>
     set((state: AppState) => {
-      // TODO!
-      return {
+      const newState = {
         ...state,
-        lastSyncTime: new Date().getTime()
+        lastSyncTime: new Date().getTime(),
+        settings: json.settings
       };
+
+      for (const workout of json.workouts) {
+        if (workout.deleted)
+          newState.removeWorkout(workout.id);
+        else
+          newState.upsertWorkout(workout);
+      }
+
+      for (const meal of json.meals) {
+        const list = state.meals.get(meal.date) ?? [] as Meal[];
+        const index = list.findIndex(m => m.id == meal.id);
+
+        if (meal.deleted && index != -1)
+          newState.removeMeal(meal.date, index);
+        if (!meal.deleted && index != -1)
+          newState.upsertMeal(meal.date, meal, index);
+      }
+
+      for (const food of json.foods)
+        newState.upsertFood(food);
+
+      for (const record of json.records) {
+        if (record.isPeriod) {
+          const set = newState.periodDates.get(record.date) === true;
+          if ((record.deleted && set) || (!record.deleted && !set))
+            newState.togglePeriodDate(record.date);
+        } else {
+          if (record.deleted)
+            newState.removeWeight(record.date);
+          else
+            newState.setWeight(record.date, record.value);
+        }
+      }
+
+      return newState;
     })
 });
 

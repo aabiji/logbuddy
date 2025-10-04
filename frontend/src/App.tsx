@@ -22,7 +22,6 @@ import TemplatePage from "./pages/exercise/Template";
 import WorkoutPage from "./pages/exercise/Workout";
 
 import FoodPage from "./pages/food/Index";
-import FoodAnalysisPage from "./pages/food/Analysis";
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
 
@@ -36,17 +35,30 @@ import "./theme/variables.css";
 setupIonicReact();
 
 function TabsWrapper() {
+  const { lastSyncTime, mainToken, refreshToken, updateUserData } = useAppState();
+  const authRequest = useAuthRequest();
+
+  const history = useHistory();
   const location = useLocation();
   const showTabBar = !["/auth"].includes(location.pathname);
 
-  // automatically redirect to auth page the first time we launch the app
-  const history = useHistory();
-  const { mainToken, refreshToken } = useAppState();
+  const syncUserData = async () => {
+    try {
+      const json = await authRequest((jwt: string) =>
+        request("GET", `/user/data?time=${lastSyncTime}`, undefined, jwt));
+      updateUserData(json);
+    } catch (err) {
+      console.log("ERROR!", err.message);
+    }
+  }
 
   useEffect(() => {
+    // automatically redirect to auth page the first time we launch the app
     const firstLaunch = mainToken.length == 0 || refreshToken.length == 0;
     if (firstLaunch && location.pathname != "/auth")
       history.replace("/auth");
+
+    syncUserData();
   }, []);
 
   return (
@@ -64,7 +76,6 @@ function TabsWrapper() {
         <Route exact path="/exercise/workout/:templateID"><WorkoutPage /></Route>
 
         <Route exact path="/food"><FoodPage /></Route>
-        <Route exact path="/food/analysis"><FoodAnalysisPage /></Route>
         <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
         <Route exact path="/food/search/:mealTag/:timestampStr"><FoodSearchPage /></Route>
       </IonRouterOutlet>
@@ -93,22 +104,6 @@ function TabsWrapper() {
 }
 
 export default function App() {
-  const { lastSyncTime, updateUserData } = useAppState();
-  const authRequest = useAuthRequest();
-
-  // sync user data when the app initially loads
-  const syncUserData = async () => {
-    try {
-      const json = await authRequest((jwt: string) =>
-        request("GET", `/user/data?lastSyncTime=${lastSyncTime}`, undefined, jwt));
-      updateUserData(json);
-    } catch (err) {
-      console.log("ERROR!", err.message);
-    }
-  }
-
-  useEffect(() => { syncUserData() }, []);
-
   return (
     <IonApp>
       <IonReactRouter>
