@@ -56,8 +56,8 @@ function TabsWrapper() {
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");
-
-    syncUserData();
+    if (location.pathname != "/auth")
+      syncUserData();
   }, []);
 
   return (

@@ -62,6 +62,9 @@ type Setting struct {
 	ID           int32
 	Userid       int32
 	Mealtags     []string
+	Macrotargets []byte
+	Useimperial  bool
+	Trackperiod  bool
 }
 
 type User struct {

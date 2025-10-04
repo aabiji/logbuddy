@@ -11,16 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createDefaultSettings = `-- name: CreateDefaultSettings :exec
-insert into settings (userID, mealTags)
-values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks'])
-`
-
-func (q *Queries) CreateDefaultSettings(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, createDefaultSettings, userid)
-	return err
-}
-
 const createExercise = `-- name: CreateExercise :one
 insert into exercises (userID, workoutID, name, weight, reps)
 values ($1, $2, $3, $4, $5) returning id
@@ -457,7 +447,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 }
 
 const getUserSettings = `-- name: GetUserSettings :one
-select lastmodified, id, userid, mealtags from settings where userID = $1
+select lastmodified, id, userid, mealtags, macrotargets, useimperial, trackperiod from settings where userID = $1
 `
 
 func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, error) {
@@ -468,6 +458,9 @@ func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, e
 		&i.ID,
 		&i.Userid,
 		&i.Mealtags,
+		&i.Macrotargets,
+		&i.Useimperial,
+		&i.Trackperiod,
 	)
 	return i, err
 }
@@ -555,6 +548,36 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const setUserSettings = `-- name: SetUserSettings :exec
+insert into settings
+(userID, mealTags, macroTargets, useImperial, trackPeriod)
+values ($1, $2, $3, $4, $5)
+on conflict (userID) do update
+set mealTags = excluded.mealTags,
+    macroTargets = excluded.macroTargets,
+    useImperial = excluded.useImperial,
+    trackPeriod = excluded.trackPeriod
+`
+
+type SetUserSettingsParams struct {
+	Userid       int32
+	Mealtags     []string
+	Macrotargets []byte
+	Useimperial  bool
+	Trackperiod  bool
+}
+
+func (q *Queries) SetUserSettings(ctx context.Context, arg SetUserSettingsParams) error {
+	_, err := q.db.Exec(ctx, setUserSettings,
+		arg.Userid,
+		arg.Mealtags,
+		arg.Macrotargets,
+		arg.Useimperial,
+		arg.Trackperiod,
+	)
+	return err
 }
 
 const setWeight = `-- name: SetWeight :exec

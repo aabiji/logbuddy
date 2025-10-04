@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/aabiji/lobbuddy/database"
@@ -8,7 +9,43 @@ import (
 )
 
 type SettingsJSON struct {
-	MealTags []string `json:"mealTags"`
+	MealTags     []string       `json:"mealTags"`
+	UseImperial  bool           `json:"useImperial"`
+	TrackPeriod  bool           `json:"trackPeriod"`
+	MacroTargets map[string]int `json:"macroTargets"`
+}
+
+func newUser(a *API, email string, hashedPassword string) (int32, error) {
+	tx, err := a.conn.Begin(a.ctx)
+	if err != nil {
+		return -1, err
+	}
+	defer tx.Rollback(a.ctx)
+	qtx := a.queries.WithTx(tx)
+
+	params := database.CreateUserParams{Email: email, Password: hashedPassword}
+	id, err := qtx.CreateUser(a.ctx, params)
+	if err != nil {
+		return -1, err
+	}
+
+	// create the default user settings
+	encoded, err := json.Marshal(map[string]int{"calories": 2000})
+	if err != nil {
+		return -1, err
+	}
+
+	if err := qtx.SetUserSettings(a.ctx, database.SetUserSettingsParams{
+		Userid:       id,
+		Mealtags:     []string{"Breakfast", "Lunch", "Dinner"},
+		Useimperial:  true,
+		Trackperiod:  true,
+		Macrotargets: encoded,
+	}); err != nil {
+		return -1, err
+	}
+
+	return id, tx.Commit(a.ctx)
 }
 
 func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +132,13 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 		respond(w, http.StatusInternalServerError, "failed to fetch settings")
 		return
 	}
-	settings := SettingsJSON{MealTags: row.Mealtags}
+	settings := SettingsJSON{
+		MealTags: row.Mealtags, UseImperial: row.Useimperial, TrackPeriod: row.Trackperiod,
+	}
+	if err := json.Unmarshal(row.Macrotargets, &settings.MacroTargets); err != nil {
+		respond(w, http.StatusInternalServerError, "failed to fetch settings")
+		return
+	}
 
 	if err := tx.Commit(a.ctx); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to fetch data")
@@ -109,4 +152,35 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 		"records":  records,
 		"settings": settings,
 	})
+}
+
+func (a *API) UpdateUserSettings(w http.ResponseWriter, r *http.Request) {
+	userID, ok := parseJWT(a, w, r)
+	if !ok {
+		return
+	}
+
+	settings, ok := parseRequest[SettingsJSON](w, r)
+	if !ok {
+		return
+	}
+
+	encoded, err := json.Marshal(settings.MacroTargets)
+	if err != nil {
+		respond(w, http.StatusInternalServerError, "failed to update settings")
+		return
+	}
+
+	if err := a.queries.SetUserSettings(a.ctx, database.SetUserSettingsParams{
+		Userid:       userID,
+		Mealtags:     settings.MealTags,
+		Useimperial:  settings.UseImperial,
+		Trackperiod:  settings.TrackPeriod,
+		Macrotargets: encoded,
+	}); err != nil {
+		respond(w, http.StatusInternalServerError, "failed to update settings")
+		return
+	}
+
+	respond(w, http.StatusOK, nil)
 }

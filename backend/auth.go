@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aabiji/lobbuddy/database"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/argon2"
@@ -181,27 +180,6 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respond(w, http.StatusOK, map[string]string{"token": token})
-}
-
-func newUser(a *API, email string, hashedPassword string) (int32, error) {
-	tx, err := a.conn.Begin(a.ctx)
-	if err != nil {
-		return -1, err
-	}
-	defer tx.Rollback(a.ctx)
-	qtx := a.queries.WithTx(tx)
-
-	params := database.CreateUserParams{Email: email, Password: hashedPassword}
-	id, err := qtx.CreateUser(a.ctx, params)
-	if err != nil {
-		return -1, err
-	}
-
-	if err := qtx.CreateDefaultSettings(a.ctx, id); err != nil {
-		return -1, err
-	}
-
-	return id, tx.Commit(a.ctx)
 }
 
 // Create a new account if there isn't an existing account

@@ -11,7 +11,12 @@ create table if not exists Settings (
     id serial primary key,
     userID int not null,
 
-    mealTags text[] not null
+    mealTags text[] not null,
+    macroTargets jsonb not null,
+    useImperial boolean not null,
+    trackPeriod boolean not null,
+
+    unique (userID)
 );
 
 create table if not exists Foods (

@@ -46,6 +46,9 @@ export interface Workout {
 
 export interface Settings {
   mealTags: string[];
+  useImperial: boolean;
+  trackPeriod: boolean;
+  macroTargets: Record<string, number>;
 }
 
 export interface AppState {
@@ -69,6 +72,7 @@ export interface AppState {
   removeWeight: (date: number) => void;
   togglePeriodDate: (date: number) => void;
   updateToken: (token: string) => void;
+  updateSettings: (updatedFields: Partial<Settings>) => void;
   updateUserData: (json: object) => void;
 }
 
@@ -81,9 +85,20 @@ const state: StateCreator<AppState> = (set, _) => ({
   workouts: new Map(),
   weightLog: new Map(),
   periodDates: new Map(),
-  settings: { mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"] },
+  settings: {
+    mealTags: [],
+    macroTargets: {},
+    useImperial: true,
+    trackPeriod: true,
+  },
 
   updateToken: (token: string) => set((state: AppState) => ({ ...state, token })),
+
+  updateSettings: (updatedFields: Partial<Settings>) =>
+    set((state: AppState) => ({
+      ...state,
+      settings: { ...state.settings,...updatedFields }
+    })),
 
   upsertFood: (food: Food) =>
     set((state: AppState) => {

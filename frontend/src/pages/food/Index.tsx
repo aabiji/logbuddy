@@ -135,10 +135,14 @@ export default function FoodPage() {
   useEffect(() => {
     const timestamp = dayUnixTimestamp(date);
     const dayMeals = meals.get(timestamp) ?? [];
-    let groups = Object.fromEntries(settings.mealTags.map((t: string) => [t, []]));
+    let groups: Record<string, Meal[]> = {};
 
-    for (const meal of dayMeals)
-      groups[meal.mealTag].push(meal);
+    for (const meal of dayMeals) {
+      if (groups[meal.mealTag] === undefined)
+        groups[meal.mealTag] = [meal];
+      else
+        groups[meal.mealTag].push(meal);
+    }
     setGroupedMeals(groups);
 
     setCalorieCount(countMacro(dayMeals, "calories"));
@@ -232,7 +236,7 @@ export default function FoodPage() {
             close={() => setCurrentMealIndex(-1)}
           />}
 
-        {settings.mealTags.map((tag: string, i: number) => (
+        {Object.keys(groupedMeals).map((tag: string, i: number) => (
           <div key={i}>
             <h1>{tag}</h1>
 

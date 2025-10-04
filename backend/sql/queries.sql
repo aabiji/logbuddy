@@ -1,9 +1,15 @@
 -- name: CreateUser :one
 insert into users (email, password) values ($1, $2) returning id;
 
--- name: CreateDefaultSettings :exec
-insert into settings (userID, mealTags)
-values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks']);
+-- name: SetUserSettings :exec
+insert into settings
+(userID, mealTags, macroTargets, useImperial, trackPeriod)
+values ($1, $2, $3, $4, $5)
+on conflict (userID) do update
+set mealTags = excluded.mealTags,
+    macroTargets = excluded.macroTargets,
+    useImperial = excluded.useImperial,
+    trackPeriod = excluded.trackPeriod;
 
 -- name: GetUserSettings :one
 select * from settings where userID = $1;

@@ -145,6 +145,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /user/new", api.CreateAccount)
 	mux.HandleFunc("POST /user/login", api.Login)
+	mux.HandleFunc("POST /user/settings", api.UpdateUserSettings)
 	mux.HandleFunc("GET /user/data", api.UpdatedUserData)
 
 	mux.HandleFunc("POST /food/new", api.CreateFood)
