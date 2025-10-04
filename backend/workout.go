@@ -28,7 +28,7 @@ type WorkoutJSON struct {
 }
 
 func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -83,7 +83,7 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}

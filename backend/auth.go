@@ -16,17 +16,12 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-func createToken(userId int32, shortLived bool) (string, error) {
-	expiry := time.Now().AddDate(1, 0, 0)
-	if shortLived {
-		expiry = time.Now().Add(15 * time.Minute)
-	}
-
+func createToken(userId int32) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(0, 3, 0)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		Subject:   fmt.Sprintf("%d", userId),
 		Issuer:    "logbuddy-token",
-		ExpiresAt: jwt.NewNumericDate(expiry),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	})
 
 	secret := []byte(os.Getenv("JWT_SECRET"))
@@ -106,10 +101,9 @@ func verifyPassword(password string, actualPassword string) (bool, error) {
 	return hash == parts[4], nil
 }
 
-// Get the user ID from the json web token in the request Authorization header.
-// We're not verifying that the user ID actually exists, because we're sure
-// that the token was issued by us, and that it has a short expiry window.
-func parseJWT(w http.ResponseWriter, r *http.Request) (int32, bool) {
+// Get the user ID from the json web token in the request Authorization
+// header and check that the user's present in the database
+func parseJWT(a *API, w http.ResponseWriter, r *http.Request) (int32, bool) {
 	authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 		respond(w, http.StatusUnauthorized, "Invalid Authorization header")
@@ -140,29 +134,13 @@ func parseJWT(w http.ResponseWriter, r *http.Request) (int32, bool) {
 		return -1, false
 	}
 
-	return int32(id), true
-}
-
-// Issue another general purpose token using a long lived "refresh" token
-func (a *API) IssueToken(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
-	if !ok {
-		return
-	}
-
-	id, err := a.queries.GetUserByID(a.ctx, userID)
-	if err == pgx.ErrNoRows {
+	exists, err := a.queries.ValidateUser(a.ctx, int32(id))
+	if !exists || err != nil {
 		respond(w, http.StatusUnauthorized, "user not found")
-		return
+		return -1, false
 	}
 
-	token, err := createToken(id, true)
-	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create token")
-		return
-	}
-
-	respond(w, http.StatusOK, map[string]string{"mainToken": token})
+	return int32(id), true
 }
 
 type AuthRequest struct {
@@ -196,22 +174,13 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mainToken, err := createToken(user.ID, true)
+	token, err := createToken(user.ID)
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "couldn't create token")
 		return
 	}
 
-	refreshToken, err := createToken(user.ID, false)
-	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create token")
-		return
-	}
-
-	respond(w, http.StatusOK, map[string]string{
-		"refreshToken": refreshToken,
-		"mainToken":    mainToken,
-	})
+	respond(w, http.StatusOK, map[string]string{"token": token})
 }
 
 func newUser(a *API, email string, hashedPassword string) (int32, error) {
@@ -262,20 +231,11 @@ func (a *API) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mainToken, err := createToken(id, true)
+	token, err := createToken(id)
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "couldn't create token")
 		return
 	}
 
-	refreshToken, err := createToken(id, false)
-	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create token")
-		return
-	}
-
-	respond(w, http.StatusOK, map[string]string{
-		"refreshToken": refreshToken,
-		"mainToken":    mainToken,
-	})
+	respond(w, http.StatusOK, map[string]string{"token": token})
 }

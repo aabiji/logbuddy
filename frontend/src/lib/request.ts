@@ -25,42 +25,19 @@ export async function request(
 
 type UserRequest = (jwt: string) => Promise<object>;
 
-// Wrap the UserRequest in custom custom and return a callable function
-function authenticatedRequestFactory(
-  redirectToAuth: () => void,
-  getTokens: () => { mainToken: string, refreshToken: string },
-  updateTokens: (mainToken: string, refreshToken: string) => void
-) {
-  return async function innerFunction(makeRequest: UserRequest): Promise<object> {
-    const { mainToken, refreshToken } = getTokens();
-
-    try {
-      return await makeRequest(mainToken); // issue the request
-    } catch (err: any) {
-      if (err.statusCode != 401) throw err; // not an jwt issue
-
-      // the main token expired, get an another one and retry the request
-      try {
-        const json = await request("POST", "/user/issue", undefined, refreshToken);
-        updateTokens(json.mainToken, refreshToken);
-        return await makeRequest(json.mainToken);
-      } catch (err: any) {
-        // refresh token expired, so reissue another
-        // one by forcing the user to reauthenticate
-        redirectToAuth();
-        return {};
-      }
-    }
-  }
-}
-
-// React hook to conveniently use the authenticatedRequestFactory
+// factory function to make api requests with some added error handling
 export function useAuthRequest() {
   const history = useHistory();
-  const { mainToken, refreshToken, updateTokens } = useAppState();
-  return authenticatedRequestFactory(
-    () => history.replace("/user"),
-    () => ({ mainToken, refreshToken }),
-    updateTokens
-  );
+  const { token } = useAppState();
+
+  return async (makeRequest: UserRequest): Promise<object> => {
+    try {
+      return await makeRequest(token); // issue the request
+    } catch (err: any) {
+      // redirect to the auth page if it's an auth issue
+      if (err.statusCode != 401) throw err;
+      history.replace("/auth");
+      return {};
+    }
+  }
 }

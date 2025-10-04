@@ -24,7 +24,7 @@ type FoodJSON struct {
 }
 
 func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -73,7 +73,7 @@ func foodRowToJson(row database.Food) FoodJSON {
 }
 
 func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	query, okQuery := getQueryString(w, r, "query")
 	filterUser, okFilter := getQueryString(w, r, "onlyUser")
 	if !ok || !okQuery || !okFilter {
@@ -140,7 +140,7 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -181,7 +181,7 @@ func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -203,7 +203,7 @@ func (a *API) GetMeals(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}

@@ -8,8 +8,8 @@ values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks']);
 -- name: GetUserSettings :one
 select * from settings where userID = $1;
 
--- name: GetUserByID :one
-select id from users where id = $1;
+-- name: ValidateUser :one
+select exists(select 1 from users where id = $1);
 
 -- name: GetUserByEmail :one
 select id, email, Password from users where email = $1;

@@ -456,16 +456,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 	return i, err
 }
 
-const getUserByID = `-- name: GetUserByID :one
-select id from users where id = $1
-`
-
-func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
-	err := row.Scan(&id)
-	return id, err
-}
-
 const getUserSettings = `-- name: GetUserSettings :one
 select lastmodified, id, userid, mealtags from settings where userID = $1
 `
@@ -629,4 +619,15 @@ func (q *Queries) UpdateMeal(ctx context.Context, arg UpdateMealParams) error {
 		arg.ID,
 	)
 	return err
+}
+
+const validateUser = `-- name: ValidateUser :one
+select exists(select 1 from users where id = $1)
+`
+
+func (q *Queries) ValidateUser(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, validateUser, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }

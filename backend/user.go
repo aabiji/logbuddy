@@ -12,7 +12,7 @@ type SettingsJSON struct {
 }
 
 func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -109,7 +109,4 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 		"records":  records,
 		"settings": settings,
 	})
-}
-
-func (a *API) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }

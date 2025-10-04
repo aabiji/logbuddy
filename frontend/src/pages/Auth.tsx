@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router';
 import { request } from '../lib/request';
+import { useAppState } from '../lib/state';
 
 import {
   IonButton, IonContent, IonPage, IonInput, IonInputPasswordToggle,
 } from '@ionic/react';
-import { useAppState } from '../lib/state';
 
 export default function AuthPage() {
   const history = useHistory();
-  const { updateTokens } = useAppState();
+  const { updateToken } = useAppState();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +30,7 @@ export default function AuthPage() {
       try {
         const endpoint = isLogin ? "/user/login" : "/user/new";
         const json = await request("POST", endpoint, { email, password }, undefined);
-        updateTokens(json.mainToken, json.refreshToken);
+        updateToken(json.token);
         history.replace("/");
       } catch (err: any) {
         const msg = err.message[0].toUpperCase() + err.message.slice(1);

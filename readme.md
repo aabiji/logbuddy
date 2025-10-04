@@ -2,6 +2,8 @@ LogBuddy helps you log your workouts, food, weight and period.
 
 TODO (app must be done by Sunday):
 
+BUG: we're still able to use a stale account's jwt after it's deleted
+
 app:
 - overhaul styling and design
 - build apk

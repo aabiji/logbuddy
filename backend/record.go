@@ -16,7 +16,7 @@ type RecordJSON struct {
 }
 
 func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -39,7 +39,7 @@ func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) DeleteWeightEntry(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
@@ -58,7 +58,7 @@ func (a *API) DeleteWeightEntry(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) TogglePeriodDate(w http.ResponseWriter, r *http.Request) {
-	userID, ok := parseJWT(w, r)
+	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
 	}
