@@ -143,18 +143,15 @@ func main() {
 	defer api.Cleanup()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /auth/login", api.Login)
-	mux.HandleFunc("POST /auth/new", api.CreateAccount)
-	mux.HandleFunc("POST /auth/issue", api.IssueToken)
+	mux.HandleFunc("POST /user/new", api.CreateAccount)
+	mux.HandleFunc("POST /user/login", api.Login)
+	mux.HandleFunc("POST /user/issue", api.IssueToken)
+	mux.HandleFunc("DELETE /user/delete", api.DeleteUser)
+	mux.HandleFunc("GET /user/data", api.UpdatedUserData)
 
 	mux.HandleFunc("POST /food/new", api.CreateFood)
 	mux.HandleFunc("GET /food/search", api.SearchFood)
 	mux.HandleFunc("GET /food/get", api.GetFood)
-
-	mux.HandleFunc("POST /weight/set", api.SetWeightEntry)
-	mux.HandleFunc("DELETE /weight/delete", api.DeleteWeightEntry)
-
-	mux.HandleFunc("POST /period/toggle", api.TogglePeriodDate)
 
 	mux.HandleFunc("POST /meal/set", api.SetMeal)
 	mux.HandleFunc("GET /meal/day", api.GetMeals)
@@ -162,7 +159,11 @@ func main() {
 
 	mux.HandleFunc("POST /workout/create", api.CreateWorkout)
 	mux.HandleFunc("DELETE /workout/delete", api.DeleteWorkout)
-	mux.HandleFunc("GET /workout/entries", api.GetWorkouts)
+
+	mux.HandleFunc("POST /weight/set", api.SetWeightEntry)
+	mux.HandleFunc("DELETE /weight/delete", api.DeleteWeightEntry)
+
+	mux.HandleFunc("POST /period/toggle", api.TogglePeriodDate)
 
 	logger := log.New(os.Stdout, "", log.Ltime)
 	handler := loggingMiddleware(logger, corsMiddleware(mux))

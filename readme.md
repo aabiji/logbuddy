@@ -1,5 +1,35 @@
 LogBuddy helps you log your workouts, food, weight and period.
 
+TODO (app must be done by Sunday):
+
+app:
+- overhaul styling and design
+- build apk
+- host backend for free
+- better error handling
+
+food page:
+- fix the search bug (when you create a meal it doesn't immediately show in search)
+- remove the food analysis page
+
+exercises page:
+- paginate the workouts in the history view
+
+weight page:
+- add more weight graph views (this month, last 6 months, all time)
+- add checkbox to toggle weekly grouping
+- adjust the graph's number of points to the screen's width
+- paginate the weight entries
+
+settings page:
+- Use imperial units (default)
+- enable/disable period tracking (enabled by default)
+- delete account
+- export all data
+- edit meals tags
+- add/edit macro targets
+- send feedback
+
 Create a .env file that looks like so:
 ```.env
 JWT_SECRET=supersecret

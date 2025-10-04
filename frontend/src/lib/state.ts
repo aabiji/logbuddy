@@ -47,7 +47,7 @@ export interface Workout {
 export interface AppState {
   mainToken: string;
   refreshToken: string;
-
+  lastSyncTime: number;
   mealTags: string[];
   foods: Map<number, Food>; // map food ids to foods
   meals: Map<number, Meal[]>; // map dates (unix timestamp) to meals
@@ -66,15 +66,16 @@ export interface AppState {
   removeWeight: (date: number) => void;
   togglePeriodDate: (date: number) => void;
   updateTokens: (main: string, refresh: string) => void;
+  updateUserData: (json: object) => void;
 }
 
 const state: StateCreator<AppState> = (set, _) => ({
   mainToken: "",
   refreshToken: "",
-
+  lastSyncTime: 0,
   foods: new Map(),
   meals: new Map(),
-  mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"], // TODO: get from /user/data
+  mealTags: ["Breakfast", "Lunch", "Dinner", "Snacks"],
   templates: [],
   workouts: new Map(),
   weightLog: new Map(),
@@ -161,6 +162,15 @@ const state: StateCreator<AppState> = (set, _) => ({
       else
         dates.set(date, true);
       return { ...state, periodDates: dates };
+    }),
+
+  updateUserData: (json: object) =>
+    set((state: AppState) => {
+      // TODO!
+      return {
+        ...state,
+        lastSyncTime: new Date().getTime()
+      };
     })
 });
 

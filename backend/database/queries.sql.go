@@ -223,44 +223,6 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 	return err
 }
 
-const getExercises = `-- name: GetExercises :many
-select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where workoutID = $1 and userID = $2
-`
-
-type GetExercisesParams struct {
-	Workoutid int32
-	Userid    int32
-}
-
-func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, getExercises, arg.Workoutid, arg.Userid)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Exercise
-	for rows.Next() {
-		var i Exercise
-		if err := rows.Scan(
-			&i.Lastmodified,
-			&i.Deleted,
-			&i.ID,
-			&i.Userid,
-			&i.Workoutid,
-			&i.Name,
-			&i.Weight,
-			&i.Reps,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getFoodByID = `-- name: GetFoodByID :one
 select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods where id = $1
 `
@@ -333,18 +295,131 @@ func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) 
 	return items, nil
 }
 
+const getUpdatedExercises = `-- name: GetUpdatedExercises :many
+select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where userID = $1 and workoutID = $2 and lastModified >= $3
+`
+
+type GetUpdatedExercisesParams struct {
+	Userid       int32
+	Workoutid    int32
+	Lastmodified pgtype.Int8
+}
+
+func (q *Queries) GetUpdatedExercises(ctx context.Context, arg GetUpdatedExercisesParams) ([]Exercise, error) {
+	rows, err := q.db.Query(ctx, getUpdatedExercises, arg.Userid, arg.Workoutid, arg.Lastmodified)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Exercise
+	for rows.Next() {
+		var i Exercise
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.ID,
+			&i.Userid,
+			&i.Workoutid,
+			&i.Name,
+			&i.Weight,
+			&i.Reps,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUpdatedMeals = `-- name: GetUpdatedMeals :many
+select lastmodified, deleted, id, userid, foodid, date, mealtag, servings, unit from meals where userID = $1 and lastModified >= $2
+`
+
+type GetUpdatedMealsParams struct {
+	Userid       int32
+	Lastmodified pgtype.Int8
+}
+
+func (q *Queries) GetUpdatedMeals(ctx context.Context, arg GetUpdatedMealsParams) ([]Meal, error) {
+	rows, err := q.db.Query(ctx, getUpdatedMeals, arg.Userid, arg.Lastmodified)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Meal
+	for rows.Next() {
+		var i Meal
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.ID,
+			&i.Userid,
+			&i.Foodid,
+			&i.Date,
+			&i.Mealtag,
+			&i.Servings,
+			&i.Unit,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUpdatedRecords = `-- name: GetUpdatedRecords :many
+select lastmodified, deleted, userid, recordtype, date, value from records where userID = $1 and lastModified >= $2
+`
+
+type GetUpdatedRecordsParams struct {
+	Userid       int32
+	Lastmodified pgtype.Int8
+}
+
+func (q *Queries) GetUpdatedRecords(ctx context.Context, arg GetUpdatedRecordsParams) ([]Record, error) {
+	rows, err := q.db.Query(ctx, getUpdatedRecords, arg.Userid, arg.Lastmodified)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Record
+	for rows.Next() {
+		var i Record
+		if err := rows.Scan(
+			&i.Lastmodified,
+			&i.Deleted,
+			&i.Userid,
+			&i.Recordtype,
+			&i.Date,
+			&i.Value,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUpdatedWorkouts = `-- name: GetUpdatedWorkouts :many
-select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and lastModified >= $2 and lastModified <= $3
+select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and lastModified = $2
 `
 
 type GetUpdatedWorkoutsParams struct {
-	Userid         int32
-	Lastmodified   pgtype.Int8
-	Lastmodified_2 pgtype.Int8
+	Userid       int32
+	Lastmodified pgtype.Int8
 }
 
 func (q *Queries) GetUpdatedWorkouts(ctx context.Context, arg GetUpdatedWorkoutsParams) ([]Workout, error) {
-	rows, err := q.db.Query(ctx, getUpdatedWorkouts, arg.Userid, arg.Lastmodified, arg.Lastmodified_2)
+	rows, err := q.db.Query(ctx, getUpdatedWorkouts, arg.Userid, arg.Lastmodified)
 	if err != nil {
 		return nil, err
 	}
@@ -397,45 +472,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (int32, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	err := row.Scan(&id)
 	return id, err
-}
-
-const getWorkouts = `-- name: GetWorkouts :many
-select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and date >= $2 and date <= $3
-`
-
-type GetWorkoutsParams struct {
-	Userid int32
-	Date   int64
-	Date_2 int64
-}
-
-func (q *Queries) GetWorkouts(ctx context.Context, arg GetWorkoutsParams) ([]Workout, error) {
-	rows, err := q.db.Query(ctx, getWorkouts, arg.Userid, arg.Date, arg.Date_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Workout
-	for rows.Next() {
-		var i Workout
-		if err := rows.Scan(
-			&i.Lastmodified,
-			&i.Deleted,
-			&i.ID,
-			&i.Userid,
-			&i.Name,
-			&i.Date,
-			&i.Istemplate,
-			&i.Notes,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const searchFoods = `-- name: SearchFoods :many

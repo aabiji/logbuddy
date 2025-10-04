@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Route, useHistory, useLocation } from "react-router";
 import { IonReactRouter } from "@ionic/react-router";
 import { useAppState } from "./lib/state";
+import { request, useAuthRequest } from "./lib/request";
 
 import {
   IonApp, IonIcon, IonRouterOutlet, IonTabBar,
@@ -92,6 +93,22 @@ function TabsWrapper() {
 }
 
 export default function App() {
+  const { lastSyncTime, updateUserData } = useAppState();
+  const authRequest = useAuthRequest();
+
+  // sync user data when the app initially loads
+  const syncUserData = async () => {
+    try {
+      const json = await authRequest((jwt: string) =>
+        request("GET", `/user/data?lastSyncTime=${lastSyncTime}`, undefined, jwt));
+      updateUserData(json);
+    } catch (err) {
+      console.log("ERROR!", err.message);
+    }
+  }
+
+  useEffect(() => { syncUserData() }, []);
+
   return (
     <IonApp>
       <IonReactRouter>

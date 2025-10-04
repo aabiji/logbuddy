@@ -28,7 +28,7 @@ export default function AuthPage() {
       setError(undefined);
 
       try {
-        const endpoint = isLogin ? "/auth/login" : "/auth/new";
+        const endpoint = isLogin ? "/user/login" : "/user/new";
         const json = await request("POST", endpoint, { email, password }, undefined);
         updateTokens(json.mainToken, json.refreshToken);
         history.replace("/");

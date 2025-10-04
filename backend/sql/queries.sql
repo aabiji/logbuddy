@@ -5,6 +5,9 @@ insert into users (email, password) values ($1, $2) returning id;
 insert into userpreferences (userID, mealTags)
 values ($1, ARRAY['Breakfast','Lunch','Dinner','Snacks']);
 
+-- nmae: GetUserPreferences :one
+select * from userpreferences where userID = $1;
+
 -- name: GetUserByID :one
 select id from users where id = $1;
 
@@ -62,15 +65,6 @@ where userID = $2 and id = $3;
 -- name: DeleteExercise :exec
 update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3;
 
--- name: GetUpdatedWorkouts :many
-select * from workouts where userID = $1 and lastModified >= $2 and lastModified <= $3;
-
--- name: GetWorkouts :many
-select * from workouts where userID = $1 and date >= $2 and date <= $3;
-
--- name: GetExercises :many
-select * from exercises where workoutID = $1 and userID = $2;
-
 -- name: SetWeight :exec
 insert into records (userID, recordType, date, value) values ($1, 'weight', $2, $3);
 
@@ -82,3 +76,15 @@ set value = 1 - excluded.value, lastModified = $4;
 
 -- name: DeleteRecord :exec
 update records set deleted = true, lastModified = $1 where userID = $2 and date = $3;
+
+-- name: GetUpdatedWorkouts :many
+select * from workouts where userID = $1 and lastModified = $2;
+
+-- name: GetUpdatedExercises :many
+select * from exercises where userID = $1 and workoutID = $2 and lastModified >= $3;
+
+-- name: GetUpdatedMeals :many
+select * from meals where userID = $1 and lastModified >= $2;
+
+-- name: GetUpdatedRecords :many
+select * from records where userID = $1 and lastModified >= $2;

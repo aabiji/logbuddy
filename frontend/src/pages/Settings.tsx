@@ -10,15 +10,6 @@ import {
 export default function SettingsPage() {
   const authRequest = useAuthRequest();
 
-  // Use imperial units (default)
-  // enable/disable period tracking (enabled by default)
-  // delete account
-  // change meals
-  // change macro target (calories/protein)
-  // send feedback
-  // macro targets
-  // auto regulate macro targets
-
   return (
     <IonPage>
       <IonContent>

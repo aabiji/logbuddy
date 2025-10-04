@@ -41,7 +41,7 @@ function authenticatedRequestFactory(
 
       // the main token expired, get an another one and retry the request
       try {
-        const json = await request("POST", "/auth/issue", undefined, refreshToken);
+        const json = await request("POST", "/user/issue", undefined, refreshToken);
         updateTokens(json.mainToken, refreshToken);
         return await makeRequest(json.mainToken);
       } catch (err: any) {
@@ -59,7 +59,7 @@ export function useAuthRequest() {
   const history = useHistory();
   const { mainToken, refreshToken, updateTokens } = useAppState();
   return authenticatedRequestFactory(
-    () => history.replace("/auth"),
+    () => history.replace("/user"),
     () => ({ mainToken, refreshToken }),
     updateTokens
   );
