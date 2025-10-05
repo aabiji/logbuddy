@@ -28,12 +28,12 @@ export default function AuthPage() {
       setError(undefined);
 
       try {
-        const endpoint = isLogin ? "/user/login" : "/user/new";
+        let endpoint = isLogin ? "/user/login" : "/user/new";
         const tokenJson = await request("POST", endpoint, { email, password }, undefined);
         updateToken(tokenJson.token);
 
-        const json = await request("GET",
-          `/user/data?time=${lastSyncTime}`, undefined, tokenJson.token);
+        endpoint = `/user/data?time=${lastSyncTime}`;
+        const json = await request("GET", endpoint, undefined, tokenJson.token);
         updateUserData(json);
 
         history.replace("/");

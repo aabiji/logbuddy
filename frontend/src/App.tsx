@@ -43,8 +43,9 @@ function TabsWrapper() {
   const showTabBar = !["/auth"].includes(location.pathname);
 
   const syncUserData = async () => {
+    const endpoint = `/user/data?time=${lastSyncTime}`;
     const json = await authRequest((jwt: string) =>
-      request("GET", `/user/data?time=${lastSyncTime}`, undefined, jwt));
+      request("GET", endpoint, undefined, jwt));
     if (json) updateUserData(json);
   }
 

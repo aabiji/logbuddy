@@ -277,16 +277,18 @@ func (q *Queries) DeleteWorkouts(ctx context.Context, userid int32) error {
 }
 
 const getExercises = `-- name: GetExercises :many
-select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises where userID = $1 and workoutID = $2
+select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises
+where userID = $1 and workoutID = $2 and ($3::boolean is null or deleted = $3::boolean)
 `
 
 type GetExercisesParams struct {
 	Userid    int32
 	Workoutid int32
+	Column3   bool
 }
 
 func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]Exercise, error) {
-	rows, err := q.db.Query(ctx, getExercises, arg.Userid, arg.Workoutid)
+	rows, err := q.db.Query(ctx, getExercises, arg.Userid, arg.Workoutid, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -380,16 +382,18 @@ func (q *Queries) GetMealsForDay(ctx context.Context, arg GetMealsForDayParams) 
 }
 
 const getUpdatedMeals = `-- name: GetUpdatedMeals :many
-select lastmodified, deleted, id, userid, foodid, date, mealtag, servings, unit from meals where userID = $1 and lastModified >= $2
+select lastmodified, deleted, id, userid, foodid, date, mealtag, servings, unit from meals
+where userID = $1 and lastModified >= $2 and ($3::boolean is null or deleted = $3::boolean)
 `
 
 type GetUpdatedMealsParams struct {
 	Userid       int32
 	Lastmodified pgtype.Int8
+	Column3      bool
 }
 
 func (q *Queries) GetUpdatedMeals(ctx context.Context, arg GetUpdatedMealsParams) ([]Meal, error) {
-	rows, err := q.db.Query(ctx, getUpdatedMeals, arg.Userid, arg.Lastmodified)
+	rows, err := q.db.Query(ctx, getUpdatedMeals, arg.Userid, arg.Lastmodified, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -419,16 +423,18 @@ func (q *Queries) GetUpdatedMeals(ctx context.Context, arg GetUpdatedMealsParams
 }
 
 const getUpdatedRecords = `-- name: GetUpdatedRecords :many
-select lastmodified, deleted, userid, recordtype, date, value from records where userID = $1 and lastModified >= $2
+select lastmodified, deleted, userid, recordtype, date, value from records
+where userID = $1 and lastModified >= $2 and ($3::boolean is null or deleted = $3::boolean)
 `
 
 type GetUpdatedRecordsParams struct {
 	Userid       int32
 	Lastmodified pgtype.Int8
+	Column3      bool
 }
 
 func (q *Queries) GetUpdatedRecords(ctx context.Context, arg GetUpdatedRecordsParams) ([]Record, error) {
-	rows, err := q.db.Query(ctx, getUpdatedRecords, arg.Userid, arg.Lastmodified)
+	rows, err := q.db.Query(ctx, getUpdatedRecords, arg.Userid, arg.Lastmodified, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -455,16 +461,18 @@ func (q *Queries) GetUpdatedRecords(ctx context.Context, arg GetUpdatedRecordsPa
 }
 
 const getUpdatedWorkouts = `-- name: GetUpdatedWorkouts :many
-select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts where userID = $1 and lastModified = $2
+select lastmodified, deleted, id, userid, name, date, istemplate, notes from workouts
+where userID = $1 and lastModified >= $2 and ($3::boolean is null or deleted = $3::boolean)
 `
 
 type GetUpdatedWorkoutsParams struct {
 	Userid       int32
 	Lastmodified pgtype.Int8
+	Column3      bool
 }
 
 func (q *Queries) GetUpdatedWorkouts(ctx context.Context, arg GetUpdatedWorkoutsParams) ([]Workout, error) {
-	rows, err := q.db.Query(ctx, getUpdatedWorkouts, arg.Userid, arg.Lastmodified)
+	rows, err := q.db.Query(ctx, getUpdatedWorkouts, arg.Userid, arg.Lastmodified, arg.Column3)
 	if err != nil {
 		return nil, err
 	}

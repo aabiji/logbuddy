@@ -6,7 +6,7 @@ import { close } from "ionicons/icons";
 export default function ErrorTray() {
   const { errors, removeError } = useAppState();
   return (
-    <div>
+    <div style={{ display: "absolute", bottom: 0, left: 0 }}>
       {errors.map((e, i) => (
         <div key={i}>
           <p>{e}</p>

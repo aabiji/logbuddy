@@ -2,8 +2,6 @@ LogBuddy helps you log your workouts, food, weight and period.
 
 TODO (app must be done by Sunday):
 
-BUG: we're still able to use a stale account's jwt after it's deleted
-
 app:
 - overhaul styling and design
 - build apk
@@ -12,11 +10,8 @@ app:
 - consider paginating the /user/data endpoint response
 - sync food data when viewing it
 
-// TODO: export data
-// TODO: add ui buttons to the weight page (fix it's obvious issue)
-// TODO: fix the meals page when there's nothing there...
-// TODO: start styling the app -- choose an icon
-
+settings page:
+- export user data
 
 food page:
 - fix the search bug (when you create a meal it doesn't immediately show in search)

@@ -6,7 +6,7 @@ import { useAppState } from "./../lib/state";
 import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
   IonInput, IonModal, IonHeader, IonTitle, IonToolbar,
-  IonButtons, IonInputPasswordToggle
+  IonButtons, IonInputPasswordToggle, IonSelect, IonSelectOption
 } from "@ionic/react";
 import ErrorTray from "../ErrorTray";
 import { add, trash } from "ionicons/icons";
@@ -70,14 +70,16 @@ export default function SettingsPage() {
   const authRequest = useAuthRequest();
   const { settings, updateSettings } = useAppState();
 
+  const possibleTargets = () => ["carbohydrate", "protein", "fat"]
+    .filter(t => !Object.keys(settings.macroTargets).includes(t));
+
   const [startYear, year] = [2025, new Date().getFullYear()];
   const copyrightDate =
     year != startYear ? `${startYear} - ${year}` : `${startYear}`;
   const emailURI = `mailto:${process.env.USER_SUPPORT_EMAIL}?subject=Feedback`;
 
   const exportData = async () => {
-    // TODO: get json from api request
-    // TODO: save the json to a file
+    // TODO!
   }
 
   useEffect(() => () => {
@@ -144,13 +146,22 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        {/*<div>
+        <div>
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <h3> Macro targets </h3>
-            <IonButton fill="clear">
-              <IonIcon slot="icon-only" color="primary" icon={add} />
-            </IonButton>
+            <IonSelect
+              label="Add target"
+              onIonChange={(event) => {
+                const key = event.detail.value;
+                updateSettings({
+                  macroTargets: { ...settings.macroTargets, [key]: 0 }
+                })
+              }}>
+              {possibleTargets().map((t, i) =>
+                <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
+            </IonSelect>
           </div>
+
           {Object.keys(settings.macroTargets).map((key, i) => {
             const name = key[0].toUpperCase() + key.slice(1);
             const deletable = key != "calories";
@@ -160,7 +171,7 @@ export default function SettingsPage() {
                 <IonInput
                   labelPlacement="end"
                   inputMode="numeric"
-                  label={deletable ? "calories" : "g"}
+                  label={deletable ? "g" : "calories"}
                   value={settings.macroTargets[key]}
                   onIonInput={(event) => updateSettings({
                     macroTargets: {
@@ -180,7 +191,7 @@ export default function SettingsPage() {
                 )}
               </div>
             )})}
-        </div>*/}
+        </div>
 
         <IonButton onClick={exportData}>
           Export all data

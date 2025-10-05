@@ -113,9 +113,6 @@ export default function FoodPage() {
   const [previousMealTag, setPreviousMealTag] = useState(settings.mealTags[0]);
   const [index, setCurrentMealIndex] = useState(-1);
 
-  const [calorieCount, setCalorieCount] = useState(0);
-  const calorieTarget = 2000;
-
   const countMacro = (meals: Meal[], macro: string): number => {
     let sum = 0;
     for (const m of meals) {
@@ -147,8 +144,6 @@ export default function FoodPage() {
     }
 
     setGroupedMeals(groups);
-
-    setCalorieCount(countMacro(dayMeals, "calories"));
   }, [label, meals]);
 
   const fetchFood = async (id: number) => {
@@ -219,10 +214,18 @@ export default function FoodPage() {
           </IonButton>
         </div>
 
-        <IonItem>
-          <IonProgressBar value={(calorieCount / calorieTarget) * 100} />
-          <p><b>{calorieTarget - calorieCount}</b> calories left</p>
-        </IonItem>
+        {Object.keys(settings.macroTargets).map((t, i) => {
+          const timestamp = dayUnixTimestamp(date);
+          const dayMeals = meals.get(timestamp) ?? [];
+          const value = countMacro(dayMeals, t);
+          const max = settings.macroTargets[t];
+          return (
+            <IonItem key={i}>
+              <IonProgressBar value={(value / max) * 100} />
+              <p><b>{max - value}</b> {t} left</p>
+            </IonItem>
+        )})}
+
 
         {index != -1 &&
           <EditMeal

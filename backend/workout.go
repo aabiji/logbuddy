@@ -127,8 +127,8 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 
 func getWorkout(ctx context.Context, q *database.Queries,
 	w database.Workout) (WorkoutJSON, error) {
-	rows, err := q.GetExercises(ctx,
-		database.GetExercisesParams{Userid: w.Userid, Workoutid: w.ID})
+	rows, err := q.GetExercises(ctx, database.GetExercisesParams{
+		Userid: w.Userid, Workoutid: w.ID})
 	if err != nil {
 		return WorkoutJSON{}, err
 	}
