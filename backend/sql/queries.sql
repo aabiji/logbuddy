@@ -83,16 +83,22 @@ set value = 1 - excluded.value, lastModified = $4;
 update records set deleted = true, lastModified = $1 where userID = $2 and date = $3;
 
 -- name: GetUpdatedWorkouts :many
-select * from workouts where userID = $1 and lastModified >= $2;
+select * from workouts
+where userID = $1 and lastModified >= $2
+  and deleted = coalesce(sqlc.narg('ignoreDeleted'), deleted);
 
 -- name: GetExercises :many
-select * from exercises where userID = $1 and workoutID = $2;
+select * from exercises
+where userID = $1 and workoutID = $2
+  and deleted = coalesce(sqlc.narg('ignoreDeleted'), deleted);
 
 -- name: GetUpdatedMeals :many
-select * from meals where userID = $1 and lastModified >= $2;
+select * from meals where userID = $1 and lastModified >= $2
+  and deleted = coalesce(sqlc.narg('ignoreDeleted'), deleted);
 
 -- name: GetUpdatedRecords :many
-select * from records where userID = $1 and lastModified >= $2;
+select * from records where userID = $1 and lastModified >= $2
+  and deleted = coalesce(sqlc.narg('ignoreDeleted'), deleted);
 
 -- name: DeleteUser :exec
 delete from users where id = $1;

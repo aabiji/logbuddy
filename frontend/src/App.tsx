@@ -35,7 +35,7 @@ import "./theme/variables.css";
 setupIonicReact();
 
 function TabsWrapper() {
-  const { lastSyncTime, token, updateUserData } = useAppState();
+  const { lastSyncTime, clearErrors, token, updateUserData } = useAppState();
   const authRequest = useAuthRequest();
 
   const history = useHistory();
@@ -43,13 +43,14 @@ function TabsWrapper() {
   const showTabBar = !["/auth"].includes(location.pathname);
 
   const syncUserData = async () => {
-    const endpoint = `/user/data?time=${lastSyncTime}`;
+    const endpoint = `/user/data?time=${lastSyncTime}&ignoreDeleted=false`;
     const json = await authRequest((jwt: string) =>
       request("GET", endpoint, undefined, jwt));
     if (json) updateUserData(json);
   }
 
   useEffect(() => {
+    clearErrors();
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");

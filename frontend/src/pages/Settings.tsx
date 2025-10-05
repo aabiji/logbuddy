@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { request, useAuthRequest } from "./../lib/request";
 import { useAppState } from "./../lib/state";
+import { saveFile } from "../lib/filesystem";
 
 import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
@@ -79,7 +80,10 @@ export default function SettingsPage() {
   const emailURI = `mailto:${process.env.USER_SUPPORT_EMAIL}?subject=Feedback`;
 
   const exportData = async () => {
-    // TODO!
+    const json = await authRequest((jwt: string) =>
+      request("GET", `/user/data?time=0&ignoreDeleted=false`, undefined, jwt));
+    if (json)
+      saveFile("logbuddy-export.json", JSON.stringify(json), "application/json");
   }
 
   useEffect(() => () => {

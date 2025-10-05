@@ -32,7 +32,7 @@ export default function AuthPage() {
         const tokenJson = await request("POST", endpoint, { email, password }, undefined);
         updateToken(tokenJson.token);
 
-        endpoint = `/user/data?time=${lastSyncTime}`;
+        endpoint = `/user/data?time=${lastSyncTime}&ignoreDeleted=false`;
         const json = await request("GET", endpoint, undefined, tokenJson.token);
         updateUserData(json);
 

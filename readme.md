@@ -10,9 +10,6 @@ app:
 - consider paginating the /user/data endpoint response
 - sync food data when viewing it
 
-settings page:
-- export user data
-
 food page:
 - fix the search bug (when you create a meal it doesn't immediately show in search)
 

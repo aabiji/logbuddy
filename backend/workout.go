@@ -125,10 +125,12 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	respond(w, http.StatusOK, nil)
 }
 
-func getWorkout(ctx context.Context, q *database.Queries,
-	w database.Workout) (WorkoutJSON, error) {
+func getWorkout(
+	ctx context.Context, q *database.Queries,
+	w database.Workout, ignoreDeleted pgtype.Bool,
+) (WorkoutJSON, error) {
 	rows, err := q.GetExercises(ctx, database.GetExercisesParams{
-		Userid: w.Userid, Workoutid: w.ID})
+		Userid: w.Userid, Workoutid: w.ID, IgnoreDeleted: ignoreDeleted})
 	if err != nil {
 		return WorkoutJSON{}, err
 	}

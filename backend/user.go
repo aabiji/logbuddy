@@ -49,6 +49,7 @@ type SettingsJSON struct {
 }
 
 func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
+	// get all user data that has been updated after a certain timestamp
 	userID, ok := parseJWT(a, w, r)
 	if !ok {
 		return
@@ -57,6 +58,12 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	flag, ok := getQueryString(w, r, "ignoreDeleted")
+	if !ok {
+		return
+	}
+	// optionally only get data that hasn't been soft deleted
+	ignoreDeleted := pgtype.Bool{Valid: flag == "true", Bool: true}
 
 	tx, err := a.conn.Begin(a.ctx)
 	if err != nil {
@@ -69,7 +76,7 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	// get the user's workouts
 	workoutRows, err := txq.GetUpdatedWorkouts(a.ctx, database.GetUpdatedWorkoutsParams{
 		Lastmodified: pgtype.Int8{Int64: time, Valid: true},
-		Userid:       userID,
+		Userid:       userID, IgnoreDeleted: ignoreDeleted,
 	})
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "failed to fetch workouts")
@@ -77,7 +84,7 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	}
 	workouts := []WorkoutJSON{}
 	for _, row := range workoutRows {
-		workout, err := getWorkout(a.ctx, txq, row)
+		workout, err := getWorkout(a.ctx, txq, row, ignoreDeleted)
 		if err != nil {
 			respond(w, http.StatusInternalServerError, "failed to fetch exercises")
 			return
@@ -88,7 +95,7 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	// get the user's meals and the foods associated to them
 	mealRows, err := txq.GetUpdatedMeals(a.ctx, database.GetUpdatedMealsParams{
 		Lastmodified: pgtype.Int8{Int64: time, Valid: true},
-		Userid:       userID,
+		Userid:       userID, IgnoreDeleted: ignoreDeleted,
 	})
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "failed to fetch meals")
@@ -112,7 +119,7 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	// get the user's records
 	recordRows, err := txq.GetUpdatedRecords(a.ctx, database.GetUpdatedRecordsParams{
 		Lastmodified: pgtype.Int8{Int64: time, Valid: true},
-		Userid:       userID,
+		Userid:       userID, IgnoreDeleted: ignoreDeleted,
 	})
 	if err != nil {
 		respond(w, http.StatusInternalServerError, "failed to fetch records")

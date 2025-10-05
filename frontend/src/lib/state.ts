@@ -78,6 +78,7 @@ export interface AppState {
   resetState: () => void;
   addError: (err: string) => void;
   removeError: (index: number) => void;
+  clearErrors: () => void;
 }
 
 const defaultProps = {
@@ -245,7 +246,9 @@ const state: StateCreator<AppState> = (set, _) => ({
           ...state.errors.slice(0, index),
           ...state.errors.slice(index + 1),
         ]
-      }))
+      })),
+
+    clearErrors: () => set((state: AppState) => ({ ...state, errors: [] })),
 });
 
 const storage = new AppStorage();
