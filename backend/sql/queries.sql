@@ -14,11 +14,11 @@ set mealTags = excluded.mealTags,
 -- name: GetUserSettings :one
 select * from settings where userID = $1;
 
--- name: ValidateUser :one
+-- name: UserExists :one
 select exists(select 1 from users where id = $1);
 
--- name: GetUserByEmail :one
-select id, email, Password from users where email = $1;
+-- name: GetUser :one
+select id, email, Password from users where email = $1 or id = $2;
 
 -- name: CreateFood :one
 insert into foods
@@ -93,3 +93,24 @@ select * from meals where userID = $1 and lastModified >= $2;
 
 -- name: GetUpdatedRecords :many
 select * from records where userID = $1 and lastModified >= $2;
+
+-- name: DeleteUser :exec
+delete from users where id = $1;
+
+-- name: DeleteSettings :exec
+delete from settings where userID = $1;
+
+-- name: DeleteFoods :exec
+delete from foods where userID = $1;
+
+-- name: DeleteMeals :exec
+delete from meals where userID = $1;
+
+-- name: DeleteRecords :exec
+delete from records where userID = $1;
+
+-- name: DeleteExercises :exec
+delete from exercises where userID = $1;
+
+-- name: DeleteWorkouts :exec
+delete from workouts where userID = $1;

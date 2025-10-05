@@ -74,9 +74,10 @@ export interface AppState {
   updateToken: (token: string) => void;
   updateSettings: (updatedFields: Partial<Settings>) => void;
   updateUserData: (json: object) => void;
+  resetState: () => void;
 }
 
-const state: StateCreator<AppState> = (set, _) => ({
+const defaultProps = {
   token: "",
   lastSyncTime: 0,
   foods: new Map(),
@@ -90,7 +91,13 @@ const state: StateCreator<AppState> = (set, _) => ({
     macroTargets: {},
     useImperial: true,
     trackPeriod: true,
-  },
+  }
+};
+
+const state: StateCreator<AppState> = (set, _) => ({
+  ...defaultProps,
+
+  resetState: () => set((_) => ({ ...defaultProps })),
 
   updateToken: (token: string) => set((state: AppState) => ({ ...state, token })),
 
@@ -189,9 +196,9 @@ const state: StateCreator<AppState> = (set, _) => ({
       };
 
       for (const workout of json.workouts) {
-        if (workout.deleted)
+        if (workout.deleted && newState.workouts.get(workout.id))
           newState.removeWorkout(workout.id);
-        else
+        else if (!workout.deleted)
           newState.upsertWorkout(workout);
       }
 
@@ -214,9 +221,9 @@ const state: StateCreator<AppState> = (set, _) => ({
           if ((record.deleted && set) || (!record.deleted && !set))
             newState.togglePeriodDate(record.date);
         } else {
-          if (record.deleted)
+          if (record.deleted && newState.weightLog.get(record.date))
             newState.removeWeight(record.date);
-          else
+          else if (!record.deleted)
             newState.setWeight(record.date, record.value);
         }
       }

@@ -1,12 +1,72 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import { request, useAuthRequest } from "./../lib/request";
 import { useAppState } from "./../lib/state";
 
 import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
-  IonInput,
+  IonInput, IonModal, IonHeader, IonTitle, IonToolbar,
+  IonButtons, IonInputPasswordToggle
 } from "@ionic/react";
 import { add, trash } from "ionicons/icons";
+
+function AccountDeletion() {
+  const history = useHistory();
+  const authRequest = useAuthRequest();
+  const { resetState } = useAppState();
+
+  const [showModal, setShowModal] = useState(false);
+  const [password, setPassword] = useState("");
+
+  const deleteUser = async () => {
+    try {
+      await authRequest((jwt: string) =>
+        request("DELETE", `/user/delete?password=${password}`, undefined, jwt));
+      resetState();
+      history.replace("/auth");
+    } catch (err: any) {
+      console.log("ERROR!", err.message);
+    }
+  }
+
+  return (
+    <div>
+      <IonButton color="danger" onClick={() => setShowModal(true)}>
+        Delete account
+      </IonButton>
+
+      <IonModal isOpen={showModal}>
+        <IonHeader mode="ios" className="ion-no-border">
+          <IonToolbar>
+            <IonTitle>Are you sure?</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <p>
+            Once your account is deleted
+            <b> YOU WILL NOT </b>
+            be able to recover any of your data!
+          </p>
+          <p>Enter your password to confirm:</p>
+          <IonInput
+            type="password"
+            placeholder="Password"
+            value={password}
+            onIonInput={(event) => setPassword(event.detail.value as string)}>
+            <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+          </IonInput>
+
+          <IonButton color="danger" onClick={deleteUser}>
+            Delete your account
+          </IonButton>
+        </IonContent>
+      </IonModal>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const authRequest = useAuthRequest();
@@ -136,9 +196,7 @@ export default function SettingsPage() {
           Export all data
         </IonButton>
 
-        <IonButton color="danger">
-          Delete account
-        </IonButton>
+        <AccountDeletion />
 
         <div>
           <p>© LogBuddy {copyrightDate}, Abigail Adegbiji </p>

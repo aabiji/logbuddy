@@ -147,6 +147,7 @@ func main() {
 	mux.HandleFunc("POST /user/login", api.Login)
 	mux.HandleFunc("POST /user/settings", api.UpdateUserSettings)
 	mux.HandleFunc("GET /user/data", api.UpdatedUserData)
+	mux.HandleFunc("DELETE /user/delete", api.DeleteUser)
 
 	mux.HandleFunc("POST /food/new", api.CreateFood)
 	mux.HandleFunc("GET /food/search", api.SearchFood)

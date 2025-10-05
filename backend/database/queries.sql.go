@@ -166,6 +166,24 @@ func (q *Queries) DeleteExercise(ctx context.Context, arg DeleteExerciseParams) 
 	return err
 }
 
+const deleteExercises = `-- name: DeleteExercises :exec
+delete from exercises where userID = $1
+`
+
+func (q *Queries) DeleteExercises(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteExercises, userid)
+	return err
+}
+
+const deleteFoods = `-- name: DeleteFoods :exec
+delete from foods where userID = $1
+`
+
+func (q *Queries) DeleteFoods(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteFoods, userid)
+	return err
+}
+
 const deleteMeal = `-- name: DeleteMeal :exec
 update meals set deleted = true, lastModified = $1
 where userID = $2 and id = $3
@@ -179,6 +197,15 @@ type DeleteMealParams struct {
 
 func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 	_, err := q.db.Exec(ctx, deleteMeal, arg.Lastmodified, arg.Userid, arg.ID)
+	return err
+}
+
+const deleteMeals = `-- name: DeleteMeals :exec
+delete from meals where userID = $1
+`
+
+func (q *Queries) DeleteMeals(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteMeals, userid)
 	return err
 }
 
@@ -197,6 +224,33 @@ func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) erro
 	return err
 }
 
+const deleteRecords = `-- name: DeleteRecords :exec
+delete from records where userID = $1
+`
+
+func (q *Queries) DeleteRecords(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteRecords, userid)
+	return err
+}
+
+const deleteSettings = `-- name: DeleteSettings :exec
+delete from settings where userID = $1
+`
+
+func (q *Queries) DeleteSettings(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteSettings, userid)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+delete from users where id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
+	return err
+}
+
 const deleteWorkout = `-- name: DeleteWorkout :exec
 update workouts set deleted = true, lastModified = $1
 where userID = $2 and id = $3
@@ -210,6 +264,15 @@ type DeleteWorkoutParams struct {
 
 func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) error {
 	_, err := q.db.Exec(ctx, deleteWorkout, arg.Lastmodified, arg.Userid, arg.ID)
+	return err
+}
+
+const deleteWorkouts = `-- name: DeleteWorkouts :exec
+delete from workouts where userID = $1
+`
+
+func (q *Queries) DeleteWorkouts(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, deleteWorkouts, userid)
 	return err
 }
 
@@ -429,19 +492,24 @@ func (q *Queries) GetUpdatedWorkouts(ctx context.Context, arg GetUpdatedWorkouts
 	return items, nil
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-select id, email, Password from users where email = $1
+const getUser = `-- name: GetUser :one
+select id, email, Password from users where email = $1 or id = $2
 `
 
-type GetUserByEmailRow struct {
+type GetUserParams struct {
+	Email string
+	ID    int32
+}
+
+type GetUserRow struct {
 	ID       int32
 	Email    string
 	Password string
 }
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
-	var i GetUserByEmailRow
+func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (GetUserRow, error) {
+	row := q.db.QueryRow(ctx, getUser, arg.Email, arg.ID)
+	var i GetUserRow
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
 }
@@ -644,12 +712,12 @@ func (q *Queries) UpdateMeal(ctx context.Context, arg UpdateMealParams) error {
 	return err
 }
 
-const validateUser = `-- name: ValidateUser :one
+const userExists = `-- name: UserExists :one
 select exists(select 1 from users where id = $1)
 `
 
-func (q *Queries) ValidateUser(ctx context.Context, id int32) (bool, error) {
-	row := q.db.QueryRow(ctx, validateUser, id)
+func (q *Queries) UserExists(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, userExists, id)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err

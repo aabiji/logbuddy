@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aabiji/lobbuddy/database"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/argon2"
@@ -133,7 +134,7 @@ func parseJWT(a *API, w http.ResponseWriter, r *http.Request) (int32, bool) {
 		return -1, false
 	}
 
-	exists, err := a.queries.ValidateUser(a.ctx, int32(id))
+	exists, err := a.queries.UserExists(a.ctx, int32(id))
 	if !exists || err != nil {
 		respond(w, http.StatusUnauthorized, "user not found")
 		return -1, false
@@ -156,7 +157,7 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := a.queries.GetUserByEmail(a.ctx, req.Email)
+	user, err := a.queries.GetUser(a.ctx, database.GetUserParams{Email: req.Email})
 	if err == pgx.ErrNoRows {
 		respond(w, http.StatusUnauthorized, "account not found")
 		return
@@ -192,7 +193,8 @@ func (a *API) CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := a.queries.GetUserByEmail(a.ctx, req.Email); err != pgx.ErrNoRows {
+	p := database.GetUserParams{Email: req.Email}
+	if _, err := a.queries.GetUser(a.ctx, p); err != pgx.ErrNoRows {
 		respond(w, http.StatusUnauthorized, "account already exists")
 		return
 	}

@@ -8,13 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type SettingsJSON struct {
-	MealTags     []string       `json:"mealTags"`
-	UseImperial  bool           `json:"useImperial"`
-	TrackPeriod  bool           `json:"trackPeriod"`
-	MacroTargets map[string]int `json:"macroTargets"`
-}
-
 func newUser(a *API, email string, hashedPassword string) (int32, error) {
 	tx, err := a.conn.Begin(a.ctx)
 	if err != nil {
@@ -46,6 +39,13 @@ func newUser(a *API, email string, hashedPassword string) (int32, error) {
 	}
 
 	return id, tx.Commit(a.ctx)
+}
+
+type SettingsJSON struct {
+	MealTags     []string       `json:"mealTags"`
+	UseImperial  bool           `json:"useImperial"`
+	TrackPeriod  bool           `json:"trackPeriod"`
+	MacroTargets map[string]int `json:"macroTargets"`
 }
 
 func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
@@ -179,6 +179,72 @@ func (a *API) UpdateUserSettings(w http.ResponseWriter, r *http.Request) {
 		Macrotargets: encoded,
 	}); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to update settings")
+		return
+	}
+
+	respond(w, http.StatusOK, nil)
+}
+
+func deleteUser(a *API, userID int32) error {
+	// hard delete the user's data
+	tx, err := a.conn.Begin(a.ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(a.ctx)
+	txq := a.queries.WithTx(tx)
+
+	if err := txq.DeleteUser(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteSettings(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteFoods(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteMeals(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteRecords(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteExercises(a.ctx, userID); err != nil {
+		return err
+	}
+	if err := txq.DeleteWorkouts(a.ctx, userID); err != nil {
+		return err
+	}
+
+	return tx.Commit(a.ctx)
+}
+
+func (a *API) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	userID, ok := parseJWT(a, w, r)
+	if !ok {
+		return
+	}
+
+	// verify the user's password then delete all their data
+	user, err := a.queries.GetUser(a.ctx, database.GetUserParams{ID: userID})
+	if err != nil {
+		respond(w, http.StatusInternalServerError, "failed to delete user")
+		return
+	}
+
+	password, ok := getQueryString(w, r, "password")
+	if !ok {
+		return
+	}
+
+	correct, err := verifyPassword(password, user.Password)
+	if err != nil || !correct {
+		respond(w, http.StatusBadRequest, "wrong password")
+		return
+	}
+
+	if err := deleteUser(a, userID); err != nil {
+		respond(w, http.StatusInternalServerError, "failed to delete user")
 		return
 	}
 
