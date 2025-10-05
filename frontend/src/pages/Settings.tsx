@@ -8,6 +8,7 @@ import {
   IonInput, IonModal, IonHeader, IonTitle, IonToolbar,
   IonButtons, IonInputPasswordToggle
 } from "@ionic/react";
+import ErrorTray from "../ErrorTray";
 import { add, trash } from "ionicons/icons";
 
 function AccountDeletion() {
@@ -19,14 +20,11 @@ function AccountDeletion() {
   const [password, setPassword] = useState("");
 
   const deleteUser = async () => {
-    try {
-      await authRequest((jwt: string) =>
-        request("DELETE", `/user/delete?password=${password}`, undefined, jwt));
-      resetState();
-      history.replace("/auth");
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
+    const response = await authRequest((jwt: string) =>
+      request("DELETE", `/user/delete?password=${password}`, undefined, jwt));
+    if (response === undefined) return;
+    resetState();
+    history.replace("/auth");
   }
 
   return (
@@ -75,30 +73,22 @@ export default function SettingsPage() {
   const [startYear, year] = [2025, new Date().getFullYear()];
   const copyrightDate =
     year != startYear ? `${startYear} - ${year}` : `${startYear}`;
+  const emailURI = `mailto:${process.env.USER_SUPPORT_EMAIL}?subject=Feedback`;
 
   const exportData = async () => {
-    try {
-      // TODO: get json from api request
-      // TODO: save the json to a file
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
+    // TODO: get json from api request
+    // TODO: save the json to a file
   }
 
-  const syncSettings = async () => {
-    try {
-      await authRequest((jwt: string) =>
-        request("POST", "/user/settings", { ...settings }, jwt));
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
-  }
-
-  useEffect(() => () => { syncSettings() }, []);
+  useEffect(() => () => {
+    authRequest((jwt: string) =>
+      request("POST", "/user/settings", { ...settings }, jwt));
+  }, []);
 
   return (
     <IonPage>
       <IonContent>
+        <ErrorTray />
         <h1>Settings</h1>
 
         <IonCheckbox
@@ -200,7 +190,7 @@ export default function SettingsPage() {
 
         <div>
           <p>© LogBuddy {copyrightDate}, Abigail Adegbiji </p>
-          <a>Send feedback</a>
+          <a href={emailURI}>Send feedback</a>
         </div>
       </IonContent>
     </IonPage>

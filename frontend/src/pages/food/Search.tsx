@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-
 import { Food, useAppState } from "../../lib/state";
+import { dayUnixTimestamp } from "../../lib/date";
 import { request, useAuthRequest } from "../../lib/request";
 
 import {
@@ -10,6 +10,7 @@ import {
   IonLabel, IonBackButton, IonIcon, IonInput,
   IonButton, IonSelect, IonSelectOption, IonText
 } from "@ionic/react";
+import ErrorTray from "../../ErrorTray";
 import { add, search } from "ionicons/icons";
 
 export default function FoodSearchPage() {
@@ -26,39 +27,36 @@ export default function FoodSearchPage() {
   const [filterOption, setFilterOption] = useState("all");
 
   const createMeal = async (food: Food) => {
-    try {
-      const mealInfo = {
-        id: -1,
-        mealTag,
-        servings: 1,
-        foodID: food.id,
-        servingsUnit: food.servingUnits[0]
-      };
-      const body = { ...mealInfo, updating: false };
-      const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
+    const mealInfo = {
+      id: -1,
+      mealTag,
+      servings: 1,
+      foodID: food.id,
+      servingsUnit: food.servingUnits[0],
+      date: dayUnixTimestamp(new Date()),
+    };
+    const body = { ...mealInfo, updating: false };
+    const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
+    if (json === undefined) return;
 
-      const meal = { ...mealInfo, id: json.mealID };
-      upsertMeals(date, [...meals.get(date), meal]);
-    } catch (err: any) {
-      console.log("ERROR", err.message);
-    }
+    const meal = { ...mealInfo, id: json.mealID };
+    upsertMeals(date, [...meals.get(date)!, meal]);
   }
 
   const searchFood = async () => {
     if (query.length == 0) return;
-    try {
-      const params = new URLSearchParams();
-      params.append("query", query);
-      params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
-      const endpoint = `/food/search?${params.toString()}`;
-      const response = await authRequest((jwt: string) => request("GET", endpoint, undefined, jwt));
 
-      setResults(prev => [...prev, ...response.results]);
-      for (const food of response.results)
-        upsertFood(food);
-    } catch (err: any) {
-      console.log(err);
-    }
+    const params = new URLSearchParams();
+    params.append("query", query);
+    params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
+    const endpoint = `/food/search?${params.toString()}`;
+
+    const response = await authRequest((jwt: string) => request("GET", endpoint, undefined, jwt));
+    if (response === undefined) return;
+
+    setResults(prev => [...prev, ...response.results]);
+    for (const food of response.results)
+      upsertFood(food);
   }
 
   return (
@@ -73,6 +71,8 @@ export default function FoodSearchPage() {
       </IonHeader>
 
       <IonContent>
+        <ErrorTray />
+
         <IonItem>
           <IonSelect
             slot="start" aria-label="Serving unit" value={filterOption}

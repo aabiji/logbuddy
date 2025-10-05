@@ -61,6 +61,7 @@ export interface AppState {
   workouts: Map<number, Workout> // map id to workout
   weightLog: Map<number, number>, // map date to weight
   periodDates: Map<number, boolean>, // map date to 'true'
+  errors: string[];
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
@@ -75,6 +76,8 @@ export interface AppState {
   updateSettings: (updatedFields: Partial<Settings>) => void;
   updateUserData: (json: object) => void;
   resetState: () => void;
+  addError: (err: string) => void;
+  removeError: (index: number) => void;
 }
 
 const defaultProps = {
@@ -91,7 +94,8 @@ const defaultProps = {
     macroTargets: {},
     useImperial: true,
     trackPeriod: true,
-  }
+  },
+  errors: []
 };
 
 const state: StateCreator<AppState> = (set, _) => ({
@@ -229,7 +233,19 @@ const state: StateCreator<AppState> = (set, _) => ({
       }
 
       return newState;
-    })
+    }),
+
+    addError: (err: string) =>
+      set((state: AppState) => ({ ...state, errors: [ ...state.errors, err ] })),
+
+    removeError: (index: number) =>
+      set((state: AppState) => ({
+        ...state,
+        errors: [
+          ...state.errors.slice(0, index),
+          ...state.errors.slice(index + 1),
+        ]
+      }))
 });
 
 const storage = new AppStorage();

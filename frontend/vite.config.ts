@@ -2,10 +2,15 @@
 
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import path from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  define: {
+    "process.env": {
+    ...loadEnv(mode, path.resolve(__dirname), "")
+    }
+  },
   plugins: [
     react(),
     legacy(),
@@ -15,4 +20,4 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
   }
-})
+}));

@@ -10,6 +10,7 @@ import {
   IonPage, IonItemOption, IonIcon, IonButton, IonContent,
   IonButtons, IonBackButton,
 } from "@ionic/react";
+import ErrorTray from "../../ErrorTray";
 import { trash } from "ionicons/icons";
 
 export default function TemplatePage() {
@@ -28,13 +29,10 @@ export default function TemplatePage() {
   );
 
   const remove = async () => {
-    try {
-      await authRequest((jwt: string) =>
-        request("DELETE", `/workout/delete?id=${template.id}`, undefined, jwt));
+    const response = await authRequest((jwt: string) =>
+      request("DELETE", `/workout/delete?id=${template.id}`, undefined, jwt));
+    if (response !== undefined)
       removeWorkout(template.id);
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
   }
 
   const update = async () => {
@@ -47,13 +45,10 @@ export default function TemplatePage() {
       payload.exercises[i].id = -1;
     }
 
-    try {
-      const json = await authRequest((jwt: string) =>
-        request("POST", "/workout/create", payload, jwt));
+    const json = await authRequest((jwt: string) =>
+      request("POST", "/workout/create", payload, jwt));
+    if (json !== undefined)
       upsertWorkout(json.workout);
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
   }
 
   return (
@@ -74,6 +69,8 @@ export default function TemplatePage() {
       </IonHeader>
 
       <IonContent>
+        <ErrorTray />
+
         <IonItem>
           <IonInput
             placeholder="Template name" value={template.name} slot="start"

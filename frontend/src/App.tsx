@@ -43,20 +43,16 @@ function TabsWrapper() {
   const showTabBar = !["/auth"].includes(location.pathname);
 
   const syncUserData = async () => {
-    try {
-      const json = await authRequest((jwt: string) =>
-        request("GET", `/user/data?time=${lastSyncTime}`, undefined, jwt));
-      updateUserData(json);
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
+    const json = await authRequest((jwt: string) =>
+      request("GET", `/user/data?time=${lastSyncTime}`, undefined, jwt));
+    if (json) updateUserData(json);
   }
 
   useEffect(() => {
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");
-    if (location.pathname != "/auth")
+    if (token.length !== 0 && location.pathname != "/auth")
       syncUserData();
   }, []);
 

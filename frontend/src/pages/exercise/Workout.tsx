@@ -10,6 +10,7 @@ import {
   IonPage, IonButton, IonContent, IonButtons,
   IonBackButton
 } from "@ionic/react";
+import ErrorTray from "../../ErrorTray";
 
 export default function WorkoutPage() {
   const authRequest = useAuthRequest();
@@ -37,13 +38,10 @@ export default function WorkoutPage() {
       payload.exercises[i].id = -1;
     }
 
-    try {
-      const json = await authRequest((jwt: string) =>
-        request("POSt", "/workout/create", payload, jwt));
+    const json = await authRequest((jwt: string) =>
+      request("POSt", "/workout/create", payload, jwt));
+    if (json !== undefined)
       upsertWorkout(json.workout);
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
   }
 
   return (
@@ -64,6 +62,8 @@ export default function WorkoutPage() {
       </IonHeader>
 
       <IonContent>
+        <ErrorTray />
+
         <IonTextarea
           label="Notes" autoGrow={true}
           labelPlacement="stacked" placeholder="Notes"

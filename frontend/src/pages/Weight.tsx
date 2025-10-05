@@ -8,6 +8,7 @@ import {
   IonIcon, IonItemOptions, IonItemOption, IonInput
 } from "@ionic/react";
 import { LineGraph } from "./exercise/Graph";
+import ErrorTray from "../ErrorTray";
 import { trash } from "ionicons/icons";
 
 export default function WeightPage() {
@@ -22,14 +23,10 @@ export default function WeightPage() {
   }, [weightLog]);
 
   const removeEntry = async (date: Date) => {
-    try {
-      const t = dayUnixTimestamp(date);
-      const endpoint = `/weight/delete?date=${t}`;
-      await authRequest((jwt: string) => request("DELETE", endpoint, undefined, jwt));
-      removeWeight(t);
-    } catch (err: any) {
-      console.log("ERROR!", err.message);
-    }
+    const t = dayUnixTimestamp(date);
+    const endpoint = `/weight/delete?date=${t}`;
+    const response = await authRequest((jwt: string) => request("DELETE", endpoint, undefined, jwt));
+    if (response !== undefined) removeWeight(t);
   }
 
   const editWeight = (value: number) => { // debounced api call
@@ -37,19 +34,17 @@ export default function WeightPage() {
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
-      try {
-        const t = dayUnixTimestamp(new Date());
-        const endpoint = `/weight/set?date=${t}&weight=${value}`;
-        await authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
-       } catch (err: any) {
-        console.log("ERROR!", err.message);
-      }
+      const t = dayUnixTimestamp(new Date());
+      const endpoint = `/weight/set?date=${t}&weight=${value}`;
+      await authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
     }, 300);
   }
 
   return (
     <IonPage>
       <IonContent>
+        <ErrorTray />
+
         <div style={{
           top: 0, zIndex: 10,
           position: "sticky",

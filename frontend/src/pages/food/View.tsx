@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useHistory, useParams } from "react-router";
-
 import { Food, useAppState } from "../../lib/state";
 import { request, useAuthRequest } from "../../lib/request";
 
@@ -10,6 +9,7 @@ import {
   IonButton, IonSelect, IonSelectOption, IonIcon, IonItemDivider,
   IonText
 } from "@ionic/react";
+import ErrorTray from "../../ErrorTray";
 import { add, remove, star } from "ionicons/icons";
 
 export default function FoodViewPage() {
@@ -39,25 +39,22 @@ export default function FoodViewPage() {
     } else if (food.servingSizes.length == 0) {
       setError("Food must have a serving size")
     } else {
-      try {
-        const json = await authRequest((jwt: string) =>
-          request("POST", "/food/new", food, jwt));
+      const json = await authRequest((jwt: string) =>
+        request("POST", "/food/new", food, jwt));
+      if (json === undefined) return;
 
-          // normalize the nutrient values down to per 1 g
-          // (or whatever the default serving unit is)
-          const servingSize = food.servingSizes[food.defaultServingIndex];
-          let normalizedFood = { ...food, id: json.id } as Food;
-          for (const key of Object.keys(food)) {
-            if (!excludedKeys.includes(key))
-              normalizedFood[key] /= servingSize;
-          }
-
-          upsertFood(normalizedFood);
-          setFood(normalizedFood);
-        history.goBack();
-      } catch (err: any) {
-        console.log(err);
+      // normalize the nutrient values down to per 1 g
+      // (or whatever the default serving unit is)
+      const servingSize = food.servingSizes[food.defaultServingIndex];
+      let normalizedFood = { ...food, id: json.id } as Food;
+      for (const key of Object.keys(food)) {
+        if (!excludedKeys.includes(key))
+          normalizedFood[key] /= servingSize;
       }
+
+      upsertFood(normalizedFood);
+      setFood(normalizedFood);
+      history.goBack();
     }
   }
 
@@ -78,6 +75,8 @@ export default function FoodViewPage() {
       </IonHeader>
 
       <IonContent>
+        <ErrorTray />
+
         {edit
           ? <IonInput
             value={food.name}

@@ -9,7 +9,7 @@ import {
 
 export default function AuthPage() {
   const history = useHistory();
-  const { updateToken } = useAppState();
+  const { lastSyncTime, updateToken, updateUserData } = useAppState();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,8 +29,13 @@ export default function AuthPage() {
 
       try {
         const endpoint = isLogin ? "/user/login" : "/user/new";
-        const json = await request("POST", endpoint, { email, password }, undefined);
-        updateToken(json.token);
+        const tokenJson = await request("POST", endpoint, { email, password }, undefined);
+        updateToken(tokenJson.token);
+
+        const json = await request("GET",
+          `/user/data?time=${lastSyncTime}`, undefined, tokenJson.token);
+        updateUserData(json);
+
         history.replace("/");
       } catch (err: any) {
         const msg = err.message[0].toUpperCase() + err.message.slice(1);

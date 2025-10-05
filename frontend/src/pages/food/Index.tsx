@@ -9,6 +9,7 @@ import {
   IonModal, IonInput, IonSelect, IonSelectOption,
   IonProgressBar,
 } from "@ionic/react";
+import ErrorTray from "../../ErrorTray";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 
 function EditMeal({ date, index, close, setPreviousMealTag }: {
@@ -19,24 +20,19 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
   const { foods, meals, settings, upsertMeal, removeMeal } = useAppState();
 
   const update = async (m: Meal) => {
-    try {
-      await authRequest((jwt: string) =>
-        request("POST", "/meal/set", { ...m, updating: true }, jwt));
+    const response = await authRequest((jwt: string) =>
+      request("POST", "/meal/set", { ...m, updating: true }, jwt));
+    if (response !== undefined)
       upsertMeal(date, m, index);
-    } catch (err: any) {
-      console.log("ERROR", err.message);
-    }
   }
 
   const remove = async () => {
-    try {
-      const id = meals.get(date)![index].id;
-      await authRequest((jwt: string) =>
-        request("DELETE", `/meal/delete?mealID=${id}`, undefined, jwt));
+    const id = meals.get(date)![index].id;
+    const response = await authRequest((jwt: string) =>
+      request("DELETE", `/meal/delete?mealID=${id}`, undefined, jwt));
+    if (response !== undefined) {
       removeMeal(date, index);
       close();
-    } catch (err: any) {
-      console.log("ERROR", err.message);
     }
   }
 
@@ -143,41 +139,41 @@ export default function FoodPage() {
       else
         groups[meal.mealTag].push(meal);
     }
+
+    if (Object.keys(groups).length == 0) {
+      for (let tag of settings.mealTags) {
+        groups[tag] = [];
+      }
+    }
+
     setGroupedMeals(groups);
 
     setCalorieCount(countMacro(dayMeals, "calories"));
   }, [label, meals]);
 
   const fetchFood = async (id: number) => {
-    try {
-      const json = await authRequest((_jwt: string) =>
-        request("GET", `/food/get?id=${id}`, undefined, undefined));
+    const json = await authRequest((_jwt: string) =>
+      request("GET", `/food/get?id=${id}`, undefined, undefined));
+    if (json !== undefined)
       upsertFood(json.food as Food);
-    } catch (err: any) {
-      console.log("ERROR", err.message);
-    }
   }
 
   const fetchMeals = async (dateTimestamp: number) => {
-    try {
-      // fetch all the meals for this day
-      const params = new URLSearchParams();
-      params.append("dateTimestamp", `${dayUnixTimestamp(date)}`);
-      const endpoint = `/meal/day?${params.toString()}`;
+    // fetch all the meals for this day
+    const params = new URLSearchParams();
+    params.append("dateTimestamp", `${dayUnixTimestamp(date)}`);
+    const endpoint = `/meal/day?${params.toString()}`;
 
-      const json = await authRequest((jwt: string) =>
-        request("GET", endpoint, undefined, jwt));
-       upsertMeals(dateTimestamp, json.meals as Meal[]);
+    const json = await authRequest((jwt: string) =>
+      request("GET", endpoint, undefined, jwt));
+    if (json === undefined) return;
+      upsertMeals(dateTimestamp, json.meals as Meal[]);
 
-      // fetch foods that we don't have cached as well
-      for (const meal of json.meals) {
-        if (foods.get(meal.foodID) === undefined) {
-          fetchFood(meal.foodId);
-        }
+    // fetch foods that we don't have cached as well
+    for (const meal of json.meals) {
+      if (foods.get(meal.foodID) === undefined) {
+        fetchFood(meal.foodId);
       }
-
-    } catch (err: any) {
-      console.log("ERROR", err.message);
     }
   }
 
@@ -208,19 +204,18 @@ export default function FoodPage() {
   return (
     <IonPage>
       <IonContent>
+        <ErrorTray />
+
         <div style={row}>
           <h3>{label}</h3>
-
           <IonButton size="default" fill="clear" onClick={() => changeDate(-1)}>
             <IonIcon slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
-
-          <IonButton size="default" fill="clear" onClick={() => changeDate(1)}>
-            <IonIcon slot="icon-only" color="white" icon={chevronForward} />
-          </IonButton>
-
           <IonButton size="large" fill="clear" onClick={addMeal}>
             <IonIcon slot="icon-only" icon={add} color="success" />
+          </IonButton>
+          <IonButton size="default" fill="clear" onClick={() => changeDate(1)}>
+            <IonIcon slot="icon-only" color="white" icon={chevronForward} />
           </IonButton>
         </div>
 

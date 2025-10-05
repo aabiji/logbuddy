@@ -90,14 +90,10 @@ export default function PeriodPage() {
   }, [periodDates]);
 
   const toggle = async (date: number) => {
-    try {
-      const willBeSet = periodDates.get(date) ? 0 : 1;
-      const endpoint = `/period/toggle?date=${date}&set=${willBeSet}`;
-      await authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
-      togglePeriodDate(date);
-    } catch (err: any) {
-      console.log("ERRO!", err.message);
-    }
+    const willBeSet = periodDates.get(date) ? 0 : 1;
+    const endpoint = `/period/toggle?date=${date}&set=${willBeSet}`;
+    const response = await authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
+    if (response !== undefined) togglePeriodDate(date);
   }
 
   const monthLength = () =>

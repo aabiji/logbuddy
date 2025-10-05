@@ -9,7 +9,14 @@ app:
 - build apk
 - host backend for free
 - better error handling
+- consider paginating the /user/data endpoint response
 - sync food data when viewing it
+
+// TODO: export data
+// TODO: add ui buttons to the weight page (fix it's obvious issue)
+// TODO: fix the meals page when there's nothing there...
+// TODO: start styling the app -- choose an icon
+
 
 food page:
 - fix the search bug (when you create a meal it doesn't immediately show in search)
@@ -23,7 +30,7 @@ weight page:
 - adjust the graph's number of points to the screen's width
 - paginate the weight entries
 
-Create a .env file that looks like so:
+Create a .env file that looks like this in the project root:
 ```.env
 JWT_SECRET=supersecret
 POSTGRES_USER=postgres
@@ -32,6 +39,12 @@ POSTGRES_HOSTNAME=db # same as service
 DB_PORT=5432
 POSTGRES_DB=db
 APP_PORT=8080
+```
+
+Create a .env file that looks like this in frontend/ root:
+```.env
+BACKEND_API_URL=http://localhost:8080
+USER_SUPPORT_EMAIL=<YOUR EMAIL>
 ```
 
 Run the frontend:

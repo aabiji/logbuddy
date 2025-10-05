@@ -8,7 +8,7 @@ export async function request(
   payload: object | undefined,
   token: string | undefined
 ): Promise<object> {
-  const url = `http://localhost:8080${endpoint}`;
+  const url = `${process.env.BACKEND_API_URL}${endpoint}`;
   let body = { method, headers: { "Content-Type": "application/json" } };
   if (payload) body.body = JSON.stringify(payload);
   if (token) body.headers["Authorization"] = `Bearer ${token}`;
@@ -28,16 +28,18 @@ type UserRequest = (jwt: string) => Promise<object>;
 // factory function to make api requests with some added error handling
 export function useAuthRequest() {
   const history = useHistory();
-  const { token } = useAppState();
+  const { addError, token } = useAppState();
 
-  return async (makeRequest: UserRequest): Promise<object> => {
+  return async (makeRequest: UserRequest): Promise<object | undefined> => {
     try {
       return await makeRequest(token); // issue the request
     } catch (err: any) {
       // redirect to the auth page if it's an auth issue
-      if (err.statusCode != 401) throw err;
-      history.replace("/auth");
-      return {};
+      if (err.statusCode == 401)
+        history.replace("/auth");
+      else
+        addError(err.message);
+      return undefined;
     }
   }
 }
