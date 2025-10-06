@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { request, useAuthRequest } from "./../lib/request";
-import { dayUnixTimestamp, formatDate } from "./../lib/date";
+import { dayUnixTimestamp, elapsedDays, formatDate } from "./../lib/date";
 import { useAppState } from "./../lib/state";
 
 import {
@@ -23,9 +23,6 @@ function groupIntoPeriods(sortedTimestamps: number[]) {
   }
   return periods;
 }
-
-const elapsedDays = (timestampA: number, timestampB: number) =>
-  Math.floor((timestampA - timestampB) / 86400000);
 
 // get the average cycle length and the average length of a period
 function calculateLengthStats(periods: number[][]) {

@@ -29,7 +29,10 @@ func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	v := database.SetWeightParams{Date: date, Value: int32(weight), Userid: userID}
+	v := database.SetWeightParams{
+		Date: date, Value: int32(weight), Userid: userID,
+		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
+	}
 	if err := a.queries.SetWeight(a.ctx, v); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to set weight entry")
 		return

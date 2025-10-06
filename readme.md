@@ -16,12 +16,6 @@ food page:
 exercises page:
 - paginate the workouts in the history view
 
-weight page:
-- add more weight graph views (this month, last 6 months, all time)
-- add checkbox to toggle weekly grouping
-- adjust the graph's number of points to the screen's width
-- paginate the weight entries
-
 Create a .env file that looks like this in the project root:
 ```.env
 JWT_SECRET=supersecret

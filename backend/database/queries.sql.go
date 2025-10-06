@@ -659,17 +659,25 @@ func (q *Queries) SetUserSettings(ctx context.Context, arg SetUserSettingsParams
 }
 
 const setWeight = `-- name: SetWeight :exec
-insert into records (userID, recordType, date, value) values ($1, 'weight', $2, $3)
+insert into records (userID, recordType, date, value)
+values ($1, 'weight', $2, $3) on conflict(userID, recordType, date) do update
+set value = excluded.value, lastModified = $4
 `
 
 type SetWeightParams struct {
-	Userid int32
-	Date   int64
-	Value  int32
+	Userid       int32
+	Date         int64
+	Value        int32
+	Lastmodified pgtype.Int8
 }
 
 func (q *Queries) SetWeight(ctx context.Context, arg SetWeightParams) error {
-	_, err := q.db.Exec(ctx, setWeight, arg.Userid, arg.Date, arg.Value)
+	_, err := q.db.Exec(ctx, setWeight,
+		arg.Userid,
+		arg.Date,
+		arg.Value,
+		arg.Lastmodified,
+	)
 	return err
 }
 

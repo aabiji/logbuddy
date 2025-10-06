@@ -4,11 +4,12 @@ import { formatDate } from "../../lib/date";
 import {
   Chart as ChartJS, CategoryScale, PointElement,
   LineElement, Tooltip, TimeScale, ChartOptions,
+  LinearScale
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-date-fns";
 
-ChartJS.register(CategoryScale, TimeScale, PointElement, LineElement, Tooltip);
+ChartJS.register(CategoryScale, LinearScale, TimeScale, PointElement, LineElement, Tooltip);
 
 export class MinHeap {
   values: any[];
@@ -138,7 +139,7 @@ export function LineGraph({ data }: { data: Point[]; }) {
     if (data.length == 0) return [];
     const simplified = visvalingamWhyattAlgorithm(data, targetLength);
     simplified.sort((a, b) => a.date.getTime() - b.date.getTime());
-    return simplified.map(p => ({x : p.date, y: p.value }));
+    return simplified.map(p => ({ x : p.date, y: p.value }));
   }, [data]);
 
   const dataset = {
@@ -163,5 +164,10 @@ export function LineGraph({ data }: { data: Point[]; }) {
     }
   };
 
-  return <Line options={options} data={{ datasets: [dataset] }} />;
+  return (
+    <div>
+      {points.length == 0 && <p>No weight logged</p>}
+      {points.length > 0 && <Line options={options} data={{ datasets: [dataset] }} />}
+    </div>
+  );
 }

@@ -71,7 +71,9 @@ where userID = $2 and id = $3;
 update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3;
 
 -- name: SetWeight :exec
-insert into records (userID, recordType, date, value) values ($1, 'weight', $2, $3);
+insert into records (userID, recordType, date, value)
+values ($1, 'weight', $2, $3) on conflict(userID, recordType, date) do update
+set value = excluded.value, lastModified = $4;
 
 -- name: TogglePeriodDate :exec
 -- (toggles the value column between 0/1)
