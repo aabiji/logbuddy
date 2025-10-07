@@ -59,6 +59,12 @@ bun run build
 # in one terminal pane
 ionic serve --host=0.0.0.0 --port=3000
 
-# in another terminal pane
+# in another terminal pane (only need to buildonce)
 bunx cap run android -l
+```
+
+Update the icons:
+```bash
+bunx capacitor-assets generate --iconBackgroundColor "#4A90E2"
+bunx cap sync
 ```

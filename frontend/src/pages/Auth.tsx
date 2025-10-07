@@ -6,6 +6,7 @@ import { useAppState, UserDataUpdate } from '../lib/state';
 import {
   IonButton, IonContent, IonPage, IonInput, IonInputPasswordToggle,
 } from '@ionic/react';
+import "../theme/styles.css";
 
 export default function AuthPage() {
   const history = useHistory();
@@ -49,20 +50,19 @@ export default function AuthPage() {
   return (
     <IonPage>
       <IonContent>
-        <div>
-          <h1>logbuddy</h1>
+        <div className="auth-box">
+          <h1>LogBuddy</h1>
+          {error !== undefined && <p className='error-message'>{error}</p>}
 
           <IonInput
-            type="email"
-            placeholder="Email"
             value={email}
+            type="email" placeholder="Email" fill="outline"
             onIonInput={(event) => setEmail(event.detail.value as string)}
           />
 
           <IonInput
-            type="password"
-            placeholder="Password"
             value={password}
+            type="password" placeholder="Password" fill="outline"
             onIonInput={(event) => setPassword(event.detail.value as string)}>
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
@@ -71,13 +71,9 @@ export default function AuthPage() {
             {isLogin ? "Login" : "Create account"}
           </IonButton>
 
-          {error !== undefined &&
-            <p style={{ color: "red", fontSize: "0.9rem" }}>{error}</p>}
-
-          <IonButton fill="clear"
-            onClick={() => { setIsLogin(!isLogin); setError(""); }}>
+          <p className="auth-toggle" onClick={() => { setIsLogin(!isLogin); setError(""); }}>
             {isLogin ? "Create account" : "Login"}
-          </IonButton>
+          </p>
         </div>
       </IonContent>
     </IonPage>

@@ -1,0 +1,30 @@
+.auth-box {
+  width: 90%;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.auth-box .error-message {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.auth-box .auth-toggle {
+  font-size: 13px;
+  text-align: right;
+}
+
+.auth-box h1 {
+  text-align: center;
+}
+
+ion-button {
+  --box-shadow: none;
+}
