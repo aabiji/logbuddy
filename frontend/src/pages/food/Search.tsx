@@ -36,7 +36,8 @@ export default function FoodSearchPage() {
       date: dayUnixTimestamp(new Date()),
     };
     const body = { ...mealInfo, updating: false };
-    const json = await authRequest((jwt: string) => request("POST", "/meal/set", body, jwt));
+    const json = await authRequest((jwt: string) =>
+      request("POST", "/meal/set", body, jwt)) as { mealID: number; };
     if (json === undefined) return;
 
     const meal = { ...mealInfo, id: json.mealID };
@@ -51,7 +52,8 @@ export default function FoodSearchPage() {
     params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
     const endpoint = `/food/search?${params.toString()}`;
 
-    const response = await authRequest((jwt: string) => request("GET", endpoint, undefined, jwt));
+    const response = await authRequest((jwt: string) =>
+      request("GET", endpoint, undefined, jwt)) as { results: Food[]; };
     if (response === undefined) return;
 
     setResults(prev => [...prev, ...response.results]);

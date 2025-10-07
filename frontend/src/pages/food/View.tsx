@@ -40,7 +40,7 @@ export default function FoodViewPage() {
       setError("Food must have a serving size")
     } else {
       const json = await authRequest((jwt: string) =>
-        request("POST", "/food/new", food, jwt));
+        request("POST", "/food/new", food, jwt)) as { id: number; };
       if (json === undefined) return;
 
       // normalize the nutrient values down to per 1 g
@@ -49,7 +49,7 @@ export default function FoodViewPage() {
       let normalizedFood = { ...food, id: json.id } as Food;
       for (const key of Object.keys(food)) {
         if (!excludedKeys.includes(key))
-          normalizedFood[key] /= servingSize;
+          (normalizedFood[key as keyof Food] as number) /= servingSize;
       }
 
       upsertFood(normalizedFood);
@@ -204,7 +204,7 @@ export default function FoodViewPage() {
                     setFood(prev => ({ ...prev, [key]: value }));
                   }}
                 />
-                : <IonText><h4>{food[key] * food.servingSizes[currentServing]}</h4></IonText>
+                : <IonText><h4>{(food[key as keyof Food] as number) * food.servingSizes[currentServing]}</h4></IonText>
               }
             </IonItem>
           );

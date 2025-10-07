@@ -1,6 +1,17 @@
 import { useHistory } from "react-router";
 import { useAppState } from "./state";
 
+export class ApiError extends Error {
+  statusCode: number;
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.statusCode = statusCode;
+    if (Error.captureStackTrace)
+      Error.captureStackTrace(this, ApiError);
+  }
+}
+
+
 // Create a request to the backend
 export async function request(
   method: string,
@@ -9,17 +20,17 @@ export async function request(
   token: string | undefined
 ): Promise<object> {
   const url = `${process.env.BACKEND_API_URL}${endpoint}`;
-  let body = { method, headers: { "Content-Type": "application/json" } };
+  let headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  let body: RequestInit = { method };
   if (payload) body.body = JSON.stringify(payload);
-  if (token) body.headers["Authorization"] = `Bearer ${token}`;
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  body.headers = headers;
 
   const response = await fetch(url, body);
   const json = await response.json();
-  if (!response.ok) {
-    const err = new Error(json["error"] || "Unknown error");
-    err.statusCode = response.status;
-    throw err;
-  }
+  if (!response.ok)
+    throw new ApiError(json["error"] || "Unknown error", response.status);
   return json;
 }
 

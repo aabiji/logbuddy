@@ -113,12 +113,12 @@ export default function FoodPage() {
   const [previousMealTag, setPreviousMealTag] = useState(settings.mealTags[0]);
   const [index, setCurrentMealIndex] = useState(-1);
 
-  const countMacro = (meals: Meal[], macro: string): number => {
+  const countMacro = (meals: Meal[], macro: keyof Food): number => {
     let sum = 0;
     for (const m of meals) {
       const food = foods.get(m.foodID)!;
       const i = food.servingUnits.indexOf(m.servingsUnit);
-      sum +=  m.servings * food.servingSizes[i] * food[macro];
+      sum +=  m.servings * food.servingSizes[i] * (food[macro] as number);
     }
     return sum;
   }
@@ -148,7 +148,7 @@ export default function FoodPage() {
 
   const fetchFood = async (id: number) => {
     const json = await authRequest((_jwt: string) =>
-      request("GET", `/food/get?id=${id}`, undefined, undefined));
+      request("GET", `/food/get?id=${id}`, undefined, undefined)) as { food: Food; };
     if (json !== undefined)
       upsertFood(json.food as Food);
   }
@@ -160,14 +160,14 @@ export default function FoodPage() {
     const endpoint = `/meal/day?${params.toString()}`;
 
     const json = await authRequest((jwt: string) =>
-      request("GET", endpoint, undefined, jwt));
+      request("GET", endpoint, undefined, jwt)) as { meals: Meal[] };
     if (json === undefined) return;
       upsertMeals(dateTimestamp, json.meals as Meal[]);
 
     // fetch foods that we don't have cached as well
     for (const meal of json.meals) {
       if (foods.get(meal.foodID) === undefined) {
-        fetchFood(meal.foodId);
+        fetchFood(meal.foodID);
       }
     }
   }
@@ -217,7 +217,7 @@ export default function FoodPage() {
         {Object.keys(settings.macroTargets).map((t, i) => {
           const timestamp = dayUnixTimestamp(date);
           const dayMeals = meals.get(timestamp) ?? [];
-          const value = countMacro(dayMeals, t);
+          const value = countMacro(dayMeals, t as keyof Food);
           const max = settings.macroTargets[t];
           return (
             <IonItem key={i}>

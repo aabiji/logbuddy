@@ -1,6 +1,9 @@
 export function formatDate(date: Date, shortened?: boolean) {
-  const options = { year: "numeric", month: shortened ? "short" : "long", day: "numeric" };
-  const formatter = new Intl.DateTimeFormat('en-US', options);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    year: "numeric" as const,
+    month: shortened ? "short" as const: "long" as const,
+    day: "numeric" as const
+  });
   return formatter.format(date);
 }
 

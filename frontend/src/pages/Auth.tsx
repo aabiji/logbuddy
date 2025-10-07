@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router';
 import { request } from '../lib/request';
-import { useAppState } from '../lib/state';
+import { useAppState, UserDataUpdate } from '../lib/state';
 
 import {
   IonButton, IonContent, IonPage, IonInput, IonInputPasswordToggle,
@@ -29,11 +29,13 @@ export default function AuthPage() {
 
       try {
         let endpoint = isLogin ? "/user/login" : "/user/new";
-        const tokenJson = await request("POST", endpoint, { email, password }, undefined);
+        const tokenJson =
+          await request("POST", endpoint, { email, password }, undefined) as { token: string; };
         updateToken(tokenJson.token);
 
         endpoint = `/user/data?time=${lastSyncTime}&ignoreDeleted=false`;
-        const json = await request("GET", endpoint, undefined, tokenJson.token);
+        const json =
+          await request("GET", endpoint, undefined, tokenJson.token) as UserDataUpdate;
         updateUserData(json);
 
         history.replace("/");

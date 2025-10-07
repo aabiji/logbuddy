@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Route, useHistory, useLocation } from "react-router";
 import { IonReactRouter } from "@ionic/react-router";
-import { useAppState } from "./lib/state";
+import { useAppState, UserDataUpdate } from "./lib/state";
 import { request, useAuthRequest } from "./lib/request";
 
 import {
@@ -46,7 +46,7 @@ function TabsWrapper() {
     const endpoint = `/user/data?time=${lastSyncTime}&ignoreDeleted=false`;
     const json = await authRequest((jwt: string) =>
       request("GET", endpoint, undefined, jwt));
-    if (json) updateUserData(json);
+    if (json) updateUserData(json as UserDataUpdate);
   }
 
   useEffect(() => {

@@ -39,7 +39,7 @@ export default function WorkoutPage() {
     }
 
     const json = await authRequest((jwt: string) =>
-      request("POSt", "/workout/create", payload, jwt));
+      request("POSt", "/workout/create", payload, jwt)) as { workout: Workout; };
     if (json !== undefined)
       upsertWorkout(json.workout);
   }

@@ -46,7 +46,7 @@ export default function TemplatePage() {
     }
 
     const json = await authRequest((jwt: string) =>
-      request("POST", "/workout/create", payload, jwt));
+      request("POST", "/workout/create", payload, jwt)) as { workout: Workout; };
     if (json !== undefined)
       upsertWorkout(json.workout);
   }

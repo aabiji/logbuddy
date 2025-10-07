@@ -19,6 +19,7 @@ export interface Food {
 }
 
 export interface Meal {
+  deleted?: boolean;
   id: number;
   date: number;
   foodID: number;
@@ -36,6 +37,7 @@ export interface Exercise {
 }
 
 export interface Workout {
+  deleted?: boolean;
   id: number;
   name: string;
   date: number;
@@ -44,12 +46,27 @@ export interface Workout {
   exercises: Exercise[];
 }
 
-export interface Settings {
+interface Settings {
   mealTags: string[];
   useImperial: boolean;
   trackPeriod: boolean;
   macroTargets: Record<string, number>;
 }
+
+interface RecordJSON {
+  deleted: boolean;
+  isPeriod: boolean;
+  date: number;
+  value: number;
+};
+
+export interface UserDataUpdate {
+  workouts: Workout[];
+  foods: Food[];
+  meals: Meal[];
+  records: RecordJSON[];
+  settings: Settings;
+};
 
 export interface AppState {
   token: string;
@@ -74,7 +91,7 @@ export interface AppState {
   togglePeriodDate: (date: number) => void;
   updateToken: (token: string) => void;
   updateSettings: (updatedFields: Partial<Settings>) => void;
-  updateUserData: (json: object) => void;
+  updateUserData: (json: UserDataUpdate) => void;
   resetState: () => void;
   addError: (err: string) => void;
   removeError: (index: number) => void;
@@ -192,7 +209,7 @@ const state: StateCreator<AppState> = (set, _) => ({
       return { ...state, periodDates: dates };
     }),
 
-  updateUserData: (json: object) =>
+  updateUserData: (json: UserDataUpdate) =>
     set((state: AppState) => {
       const newState = {
         ...state,
@@ -252,6 +269,5 @@ const state: StateCreator<AppState> = (set, _) => ({
 });
 
 const storage = new AppStorage();
-await storage.init();
 const options = { name: "app-state", storage: storage };
 export const useAppState = create(persist(state, options));
