@@ -67,7 +67,7 @@ export default function AuthPage() {
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
 
-          <IonButton expand="full" size="default" onClick={authenticate}>
+          <IonButton expand="full" size="default"  shape="round"onClick={authenticate}>
             {isLogin ? "Login" : "Create account"}
           </IonButton>
 

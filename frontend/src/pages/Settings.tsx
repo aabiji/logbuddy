@@ -10,6 +10,7 @@ import {
   IonButtons, IonInputPasswordToggle, IonSelect, IonSelectOption
 } from "@ionic/react";
 import ErrorTray from "../ErrorTray";
+import "../theme/styles.css";
 import { add, trash } from "ionicons/icons";
 
 function AccountDeletion() {
@@ -93,43 +94,29 @@ export default function SettingsPage() {
 
   return (
     <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Settings</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+
       <IonContent>
         <ErrorTray />
-        <h1>Settings</h1>
-
-        <IonCheckbox
-          labelPlacement="end"
-          checked={settings.useImperial}
-          onIonChange={(event) => updateSettings({
-            useImperial: event.detail.checked
-          })}>
-          Use imperial units
-        </IonCheckbox>
-
-        <IonCheckbox
-          labelPlacement="end"
-          checked={settings.trackPeriod}
-          onIonChange={(event) => updateSettings({
-            trackPeriod: event.detail.checked
-          })}>
-          Enable period tracking feature
-        </IonCheckbox>
 
         <div>
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <h3> Meals </h3>
-            <IonButton
-              fill="clear"
+          <div className="horizontal-strip">
+            <h4> Meals </h4>
+            <IonButton className="icon-btn-square"
               onClick={() => updateSettings({
                 mealTags: [...settings.mealTags, "New meal"]
               })}>
-              <IonIcon slot="icon-only" color="primary" icon={add} />
+              <IonIcon slot="icon-only" color="white" icon={add} />
             </IonButton>
           </div>
           {settings.mealTags.map((_, i) => (
-            <div key={i}>
+            <div key={i} className="horizontal-strip list-item">
               <IonInput
-                value={settings.mealTags[i]}
+                value={settings.mealTags[i]} fill="solid"
                 onIonInput={(event) => updateSettings({
                   mealTags: [
                     ...settings.mealTags.slice(0, i),
@@ -150,9 +137,12 @@ export default function SettingsPage() {
           ))}
         </div>
 
+        <hr />
+
+        {/*TODO: replace the dropdown with a add button that'll open a selection modal */}
         <div>
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-            <h3> Macro targets </h3>
+          <div className="horizontal-strip">
+            <h4> Macro targets </h4>
             <IonSelect
               label="Add target"
               onIonChange={(event) => {
@@ -170,12 +160,12 @@ export default function SettingsPage() {
             const name = key[0].toUpperCase() + key.slice(1);
             const deletable = key != "calories";
             return (
-              <div key={i}>
+              <div key={i} className="horizontal-strip list-item">
                 <p>{name}</p>
                 <IonInput
                   labelPlacement="end"
-                  inputMode="numeric"
-                  label={deletable ? "g" : "calories"}
+                  inputMode="numeric" fill="solid"
+                  label={deletable ? "g" : ""}
                   value={settings.macroTargets[key]}
                   onIonInput={(event) => updateSettings({
                     macroTargets: {
@@ -185,7 +175,7 @@ export default function SettingsPage() {
                   })}
                 />
                 {deletable && (
-                  <IonButton onClick={() => {
+                  <IonButton fill="clear" onClick={() => {
                     const copy = JSON.parse(JSON.stringify(settings.macroTargets));
                     delete copy[key];
                     updateSettings({ macroTargets: copy });
@@ -197,13 +187,39 @@ export default function SettingsPage() {
             )})}
         </div>
 
-        <IonButton onClick={exportData}>
-          Export all data
-        </IonButton>
-
-        <AccountDeletion />
+        <hr />
 
         <div>
+          <h4> General </h4>
+          <IonCheckbox
+            labelPlacement="end"
+            checked={settings.useImperial}
+            onIonChange={(event) => updateSettings({
+              useImperial: event.detail.checked
+            })}>
+            Use imperial units
+          </IonCheckbox>
+
+          <IonCheckbox
+            labelPlacement="end"
+            checked={settings.trackPeriod}
+            onIonChange={(event) => updateSettings({
+              trackPeriod: event.detail.checked
+            })}>
+            Enable period tracking feature
+          </IonCheckbox>
+
+          <div className="horizontal-strip control-btns">
+            <IonButton onClick={exportData}>
+              Export all data
+            </IonButton>
+            <AccountDeletion />
+          </div>
+        </div>
+
+        <hr />
+
+        <div className="copyright-info">
           <p>© LogBuddy {copyrightDate}, Abigail Adegbiji </p>
           <a href={emailURI}>Send feedback</a>
         </div>

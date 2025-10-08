@@ -10,6 +10,13 @@ import {
 } from "@ionic/react";
 import { barbell, fastFood, scale, settings, water } from "ionicons/icons";
 
+import "@ionic/react/css/core.css";
+import "@ionic/react/css/normalize.css";
+import "@ionic/react/css/structure.css";
+import "@ionic/react/css/typography.css";
+import "@ionic/react/css/palettes/dark.system.css";
+import "./theme/variables.css";
+
 import AuthPage from "./pages/Auth";
 import WeightPage from "./pages/Weight";
 import PeriodPage from "./pages/Period";
@@ -24,13 +31,6 @@ import WorkoutPage from "./pages/exercise/Workout";
 import FoodPage from "./pages/food/Index";
 import FoodSearchPage from "./pages/food/Search";
 import FoodViewPage from "./pages/food/View";
-
-import "@ionic/react/css/core.css";
-import "@ionic/react/css/normalize.css";
-import "@ionic/react/css/structure.css";
-import "@ionic/react/css/typography.css";
-import "@ionic/react/css/palettes/dark.system.css";
-import "./theme/variables.css";
 
 setupIonicReact();
 
