@@ -7,6 +7,7 @@ import {
   IonContent, IonPage, IonButton, IonIcon, IonLabel,
 } from "@ionic/react";
 import { chevronForward, chevronBack } from "ionicons/icons";
+import "../theme/styles.css";
 
 function groupIntoPeriods(sortedTimestamps: number[]) {
   if (sortedTimestamps.length === 0) return [];
@@ -106,7 +107,7 @@ export default function PeriodPage() {
   return (
     <IonPage>
       <IonContent>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+        <div className="horizontal-strip">
           <IonButton size="default" fill="clear" onClick={() => changeMonth(-1)}>
             <IonIcon slot="icon-only" color="primary" icon={chevronBack} />
           </IonButton>
@@ -120,14 +121,16 @@ export default function PeriodPage() {
           {Array.from({ length: monthLength() }, (_, i) => {
             const d = new Date(date.getFullYear(), date.getMonth(), i + 1);
             const t = dayUnixTimestamp(d);
-            const color = periodDates.get(t) ? "danger" : "medium";
             return (
               <IonButton
-                key={i} shape="round"
-                fill="clear" size="small"
+                key={i} shape="round" size="small"
+                color={periodDates.get(t) ? "danger" : undefined}
+                fill={periodDates.get(t) ? "solid" : "clear"}
                 style={{ aspectRatio: '1' }}
                 onClick={() => toggle(t)}>
-                <IonLabel color={color}>{i + 1}</IonLabel>
+                <IonLabel color={periodDates.get(t) ? "light" : "medium"}>
+                  {i + 1}
+                </IonLabel>
               </IonButton>
           )})}
         </div>

@@ -6,12 +6,11 @@ import { saveFile } from "../lib/filesystem";
 
 import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
-  IonInput, IonModal, IonHeader, IonTitle, IonToolbar,
-  IonButtons, IonInputPasswordToggle, IonSelect, IonSelectOption
+  IonInput, IonModal, IonInputPasswordToggle
 } from "@ionic/react";
 import ErrorTray from "../ErrorTray";
-import "../theme/styles.css";
 import { add, trash } from "ionicons/icons";
+import "../theme/styles.css";
 
 function AccountDeletion() {
   const history = useHistory();
@@ -35,34 +34,66 @@ function AccountDeletion() {
         Delete account
       </IonButton>
 
-      <IonModal isOpen={showModal}>
-        <IonHeader mode="ios" className="ion-no-border">
-          <IonToolbar>
-            <IonTitle>Are you sure?</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
+      <IonModal
+        className="centered-modal"
+        onDidDismiss={() => setShowModal(false)}
+        initialBreakpoint={undefined}
+        breakpoints={undefined}
+        isOpen={showModal}>
+        <div>
           <p>
-            Once your account is deleted
-            <b> YOU WILL NOT </b>
+            Once your account is deleted you will <b> NOT </b>
             be able to recover any of your data!
           </p>
           <p>Enter your password to confirm:</p>
           <IonInput
             type="password"
             placeholder="Password"
-            value={password}
+            value={password} fill="outline"
             onIonInput={(event) => setPassword(event.detail.value as string)}>
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
 
-          <IonButton color="danger" onClick={deleteUser}>
+          <IonButton
+            color="danger"
+            onClick={deleteUser}
+            style={{ width: "100%", marginTop: "10px" }}>
             Delete your account
           </IonButton>
-        </IonContent>
+        </div>
+      </IonModal>
+    </div>
+  );
+}
+
+function Selection({ selections, setSelection }:
+  { selections: string[], setSelection: (s: string) => void; }) {
+  const [showModal, setShowModal] = useState(false);
+  return (
+    <div>
+      <IonButton className="icon-btn-square" onClick={() => setShowModal(true)}>
+        <IonIcon slot="icon-only" color="white" icon={add} />
+      </IonButton>
+      <IonModal
+        className="centered-modal"
+        onDidDismiss={() => setShowModal(false)}
+        initialBreakpoint={undefined}
+        breakpoints={undefined}
+        isOpen={showModal}>
+        <div className="selection-container">
+          {selections.map((option, i) => (
+            <IonCheckbox key={i}
+              className="selection-option"
+              labelPlacement="end"
+              checked={false}
+              onIonChange={() => {
+                setSelection(option);
+                setShowModal(false);
+              }}>
+              {option[0].toUpperCase() + option.slice(1)}
+            </IonCheckbox>
+          ))}
+        </div>
       </IonModal>
     </div>
   );
@@ -72,7 +103,7 @@ export default function SettingsPage() {
   const authRequest = useAuthRequest();
   const { settings, updateSettings } = useAppState();
 
-  const possibleTargets = () => ["carbohydrate", "protein", "fat"]
+  const possibleMacroTargets = () => ["carbohydrate", "protein", "fat"]
     .filter(t => !Object.keys(settings.macroTargets).includes(t));
 
   const [startYear, year] = [2025, new Date().getFullYear()];
@@ -94,14 +125,55 @@ export default function SettingsPage() {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Settings</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent>
         <ErrorTray />
+
+        <div>
+          <div className="horizontal-strip">
+            <h4> Macro targets </h4>
+            <Selection
+              selections={possibleMacroTargets()}
+              setSelection={(selection: string) =>
+                updateSettings({
+                  macroTargets: { ...settings.macroTargets, [selection]: 0 }
+                })}
+            />
+          </div>
+
+          {Object.keys(settings.macroTargets).map((key, i) => {
+            const name = key[0].toUpperCase() + key.slice(1);
+            const deletable = key != "calories";
+            return (
+              <div key={i} className="horizontal-strip list-item">
+                <div className="horizontal-strip" style={{ flexGrow: 1 }}>
+                  <p>{name}</p>
+                  <IonInput
+                    labelPlacement="end"
+                    inputMode="numeric" fill="solid"
+                    label={deletable ? "g" : ""}
+                    value={settings.macroTargets[key]}
+                    onIonInput={(event) => updateSettings({
+                      macroTargets: {
+                        ...settings.macroTargets,
+                        [key]: Number(event.detail.value)
+                      }
+                    })}
+                  />
+                </div>
+                {deletable && (
+                  <IonButton fill="clear" onClick={() => {
+                    const copy = JSON.parse(JSON.stringify(settings.macroTargets));
+                    delete copy[key];
+                    updateSettings({ macroTargets: copy });
+                  }}>
+                    <IonIcon slot="icon-only" color="danger" icon={trash} size="small" />
+                  </IonButton>
+                )}
+              </div>
+            )})}
+        </div>
+
+        <hr />
 
         <div>
           <div className="horizontal-strip">
@@ -131,7 +203,7 @@ export default function SettingsPage() {
                   ...settings.mealTags.slice(i + 1),
                 ]
               })}>
-                <IonIcon slot="icon-only" color="danger" icon={trash} />
+                <IonIcon slot="icon-only" color="danger" icon={trash} size="default" />
               </IonButton>
             </div>
           ))}
@@ -139,59 +211,10 @@ export default function SettingsPage() {
 
         <hr />
 
-        {/*TODO: replace the dropdown with a add button that'll open a selection modal */}
-        <div>
-          <div className="horizontal-strip">
-            <h4> Macro targets </h4>
-            <IonSelect
-              label="Add target"
-              onIonChange={(event) => {
-                const key = event.detail.value;
-                updateSettings({
-                  macroTargets: { ...settings.macroTargets, [key]: 0 }
-                })
-              }}>
-              {possibleTargets().map((t, i) =>
-                <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
-            </IonSelect>
-          </div>
-
-          {Object.keys(settings.macroTargets).map((key, i) => {
-            const name = key[0].toUpperCase() + key.slice(1);
-            const deletable = key != "calories";
-            return (
-              <div key={i} className="horizontal-strip list-item">
-                <p>{name}</p>
-                <IonInput
-                  labelPlacement="end"
-                  inputMode="numeric" fill="solid"
-                  label={deletable ? "g" : ""}
-                  value={settings.macroTargets[key]}
-                  onIonInput={(event) => updateSettings({
-                    macroTargets: {
-                      ...settings.macroTargets,
-                      [key]: Number(event.detail.value)
-                    }
-                  })}
-                />
-                {deletable && (
-                  <IonButton fill="clear" onClick={() => {
-                    const copy = JSON.parse(JSON.stringify(settings.macroTargets));
-                    delete copy[key];
-                    updateSettings({ macroTargets: copy });
-                  }}>
-                    <IonIcon slot="icon-only" color="danger" icon={trash} />
-                  </IonButton>
-                )}
-              </div>
-            )})}
-        </div>
-
-        <hr />
-
         <div>
           <h4> General </h4>
           <IonCheckbox
+            className="list-item"
             labelPlacement="end"
             checked={settings.useImperial}
             onIonChange={(event) => updateSettings({
@@ -201,6 +224,7 @@ export default function SettingsPage() {
           </IonCheckbox>
 
           <IonCheckbox
+            className="list-item"
             labelPlacement="end"
             checked={settings.trackPeriod}
             onIonChange={(event) => updateSettings({

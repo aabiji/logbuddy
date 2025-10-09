@@ -12,6 +12,9 @@ food page:
 exercises page:
 - paginate the workouts in the history view
 
+settings page:
+- button to import data from myfitnesspal or hevy (look into their data formats)
+
 Create a .env file that looks like this in the project root:
 ```.env
 JWT_SECRET=supersecret

@@ -12,6 +12,7 @@ import {
 import { LineGraph, Point } from "./exercise/Graph";
 import ErrorTray from "../ErrorTray";
 import { add, trash } from "ionicons/icons";
+import "../theme/styles.css";
 
 export default function WeightPage() {
   const authRequest = useAuthRequest();
@@ -110,10 +111,17 @@ export default function WeightPage() {
         <ErrorTray />
 
         <div>
-          <IonButton onClick={() => setShowDatePicker(true)} fill="clear">
+          <IonButton
+            onClick={() => setShowDatePicker(true)}
+            className="icon-btn-square">
             <IonIcon slot="icon-only" color="primary" icon={add} />
           </IonButton>
-          <IonModal isOpen={showDatePicker}>
+          <IonModal
+            className="centered-modal"
+            onDidDismiss={() => setShowDatePicker(false)}
+            initialBreakpoint={undefined}
+            breakpoints={undefined}
+            isOpen={showDatePicker}>
             <IonDatetime
               presentation="date"
               onIonChange={(event) =>

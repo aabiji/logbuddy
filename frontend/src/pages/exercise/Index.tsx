@@ -5,6 +5,7 @@ import {
   IonContent, IonPage, IonButton, IonList, IonText, IonIcon
 } from "@ionic/react";
 import { add, pencil } from "ionicons/icons";
+import "../theme/styles.css";
 
 export default function ExercisePage() {
   const history = useHistory();

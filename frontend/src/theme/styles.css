@@ -1,3 +1,4 @@
+/* general html elements */
 hr {
   border: none !important;
   border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
@@ -8,6 +9,29 @@ hr {
   opacity: 1 !important;
 }
 
+/* general modal */
+ion-modal.centered-modal {
+  --width: 85%;
+  --max-width: 500px;
+  --height: auto;
+  --max-height: 80%;
+  --border-radius: 12px;
+  --box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ion-modal.centered-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+ion-modal.centered-modal::part(content) {
+  padding: 15px;
+}
+
+/* general inputs */
 ion-input[fill="solid"] {
   --background: rgba(0, 0, 0, 0.03);
   --background-focused: #FFFFFF;
@@ -36,6 +60,7 @@ ion-input[fill="solid"][inputmode="numeric"] {
   text-align: center;
 }
 
+/* general buttons */
 ion-button {
   --border-radius: 4px;
   --padding-start: 10px;
@@ -43,9 +68,10 @@ ion-button {
   --padding-bottom: 10px;
   --padding-top: 10px;
   --box-shadow: none;
+  font-size: 12px;
+  text-transform: none;
 }
 
-/* make clear buttons stand out better */
 ion-button[fill="clear"] {
   --background: var(--ion-color-secondary);
   --background-hover: #EAEBEE;
@@ -65,15 +91,15 @@ ion-button[slot="icon-only"] {
   aspect-ratio: 1;
 }
 
+/* general page container and header */
 ion-content {
   --padding-top: env(safe-area-inset-top);
-  --padding-top: 0px;
+  --padding-top: 22px;
   --padding-start: 14px;
   --padding-end: 14px;
   font-size: 13px;
 }
 
-/* remove the border shadow and add thin line to the header */
 ion-header {
   box-shadow: none !important;
 }
@@ -85,12 +111,18 @@ ion-toolbar {
   box-shadow: none;
 }
 
-/* center and fade the title */
 ion-title {
   text-align: center;
   opacity: 0.6;
   font-weight: 400;
   font-size: 16px;
+}
+
+/* general selection */
+.selection-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 ion-select {
