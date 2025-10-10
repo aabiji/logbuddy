@@ -9,7 +9,7 @@ import {
   IonButton, IonSelect, IonSelectOption, IonIcon, IonItemDivider,
   IonText
 } from "@ionic/react";
-import ErrorTray from "../../ErrorTray";
+import { ErrorTray } from "../../Components";
 import { add, remove, star } from "ionicons/icons";
 
 export default function FoodViewPage() {

@@ -31,6 +31,42 @@ ion-modal.centered-modal::part(content) {
   padding: 15px;
 }
 
+/* general radio */
+ion-radio {
+  --color: var(--ion-color-medium);
+  --color-checked: var(--ion-color-primary);
+  --border-width: 2px;
+  --border-radius: 50%;
+  margin: 8px 0;
+  white-space: nowrap;
+  width: 100%;
+}
+
+ion-radio::part(container) {
+  border-color: var(--ion-color-medium);
+}
+
+ion-radio::part(mark) {
+  border-color: var(--ion-color-primary);
+}
+
+/* general sliding component */
+ion-item-sliding {
+  --padding-start: 0px;
+  --padding-end: 0px;
+  --inner-padding-start: 8px;
+  --inner-padding-end: 8px;
+}
+
+ion-item {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --inner-padding-start: 8px;
+  --inner-padding-end: 8px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
+}
+
 /* general inputs */
 ion-input[fill="solid"] {
   --background: rgba(0, 0, 0, 0.03);
@@ -102,6 +138,7 @@ ion-content {
 
 ion-header {
   box-shadow: none !important;
+  padding-top: 20px;
 }
 
 ion-toolbar {
@@ -239,4 +276,23 @@ ion-select-popover ion-radio {
 
 .control-btns {
   margin-top: 10px;
+}
+
+/* Weight.tsx */
+.weight-value {
+  font-size: 12px;
+}
+
+/* Index.tsx (Exercise) */
+.template-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+  margin: auto;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: var(--ion-color-secondary);
+  border: 1px solid var(--ion-border-color);
+  border-radius: 8px;
 }

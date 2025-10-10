@@ -9,7 +9,7 @@ import {
   IonModal, IonInput, IonSelect, IonSelectOption,
   IonProgressBar,
 } from "@ionic/react";
-import ErrorTray from "../../ErrorTray";
+import { ErrorTray } from "../../Components";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 
 function EditMeal({ date, index, close, setPreviousMealTag }: {

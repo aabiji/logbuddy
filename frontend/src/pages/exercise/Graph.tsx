@@ -145,7 +145,7 @@ export function LineGraph({ data }: { data: Point[]; }) {
   const dataset = {
     data: points,
     label: "Graph",
-    borderColor: "cyan",
+    borderColor: "#00B8A9",
     pointHoverRadius: 4,
     pointRadius: 2,
   };

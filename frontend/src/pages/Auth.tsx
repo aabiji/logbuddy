@@ -39,7 +39,7 @@ export default function AuthPage() {
           await request("GET", endpoint, undefined, tokenJson.token) as UserDataUpdate;
         updateUserData(json);
 
-        history.replace("/");
+        history.replace("/exercise");
       } catch (err: any) {
         const msg = err.message[0].toUpperCase() + err.message.slice(1);
         setError(err.statusCode !== 500 ? msg : "Failed to connect to server");

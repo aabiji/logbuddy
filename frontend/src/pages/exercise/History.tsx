@@ -21,7 +21,7 @@ export default function HistoryPage() {
 
   return (
     <IonPage>
-      <IonHeader mode="ios" className="ion-no-border">
+      <IonHeader>
         <IonToolbar>
           <IonTitle>Workout history</IonTitle>
           <IonButtons slot="start">
@@ -32,7 +32,7 @@ export default function HistoryPage() {
 
       <IonContent>
         {entries.length == 0
-          ? <IonText><p>No workouts</p></IonText>
+          ? <IonText><p style={{ textAlign: "center" }}>No workouts</p></IonText>
           : <IonList style={{ background: "transparent" }}>
             {entries.map((workout: Workout, i: number) => (
               <IonCard key={i}>

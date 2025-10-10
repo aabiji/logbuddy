@@ -7,11 +7,11 @@ import {
   IonContent, IonPage, IonList, IonItem, IonItemSliding,
   IonIcon, IonItemOptions, IonItemOption, IonInput,
   IonButton, IonModal, IonDatetime, IonCheckbox,
-  IonSelect, IonSelectOption
+  IonRadioGroup, IonRadio,
 } from "@ionic/react";
 import { LineGraph, Point } from "./exercise/Graph";
-import ErrorTray from "../ErrorTray";
-import { add, trash } from "ionicons/icons";
+import { ErrorTray } from "../Components";
+import { add, pencil, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
 export default function WeightPage() {
@@ -19,6 +19,7 @@ export default function WeightPage() {
   const { removeWeight, setWeight, weightLog } = useAppState();
   const [viewHorizon, setViewHorizon] = useState("thisMonth");
   const [groupWeekly, setGroupWeekly] = useState(false);
+  const [showViewPicker, setShowViewPicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   // get the indexes of points whose dates mark a new month
@@ -110,39 +111,54 @@ export default function WeightPage() {
       <IonContent>
         <ErrorTray />
 
-        <div>
-          <IonButton
-            onClick={() => setShowDatePicker(true)}
-            className="icon-btn-square">
-            <IonIcon slot="icon-only" color="primary" icon={add} />
-          </IonButton>
-          <IonModal
-            className="centered-modal"
-            onDidDismiss={() => setShowDatePicker(false)}
-            initialBreakpoint={undefined}
-            breakpoints={undefined}
-            isOpen={showDatePicker}>
-            <IonDatetime
-              presentation="date"
-              onIonChange={(event) =>
-                editWeight(new Date(event.detail.value as string), 0, true)}
-            />
-          </IonModal>
+        <div className="horizontal-strip">
+          <h6>Weight graph</h6>
 
-          <IonSelect
-            slot="start" aria-label="View horizon" value={viewHorizon}
-            onIonChange={(event) => setViewHorizon(event.detail.value)}>
-            <IonSelectOption value="thisMonth">This month</IonSelectOption>
-            <IonSelectOption value="thisYear">Last year</IonSelectOption>
-            <IonSelectOption value="allTime">All time</IonSelectOption>
-          </IonSelect>
+          <div className="horizontal-strip" style={{ width: "25%" }}>
+            <IonButton
+              onClick={() => setShowDatePicker(true)}
+              className="icon-btn-square">
+              <IonIcon slot="icon-only" color="light" icon={add} />
+            </IonButton>
+            <IonModal
+              className="centered-modal"
+              onDidDismiss={() => setShowDatePicker(false)}
+              initialBreakpoint={undefined}
+              breakpoints={undefined}
+              isOpen={showDatePicker}>
+              <IonDatetime
+                presentation="date"
+                onIonChange={(event) =>
+                  editWeight(new Date(event.detail.value as string), 0, true)}
+              />
+            </IonModal>
 
-          <IonCheckbox
-            labelPlacement="end"
-            checked={groupWeekly}
-            onIonChange={(event) => setGroupWeekly(event.detail.checked)}>
-            Group weekly
-          </IonCheckbox>
+            <IonButton
+              onClick={() => setShowViewPicker(true)}
+              className="icon-btn-square">
+              <IonIcon slot="icon-only" color="light" icon={pencil} />
+            </IonButton>
+            <IonModal
+              className="centered-modal"
+              onDidDismiss={() => setShowViewPicker(false)}
+              initialBreakpoint={undefined}
+              breakpoints={undefined}
+              isOpen={showViewPicker}>
+              <IonRadioGroup
+                value={viewHorizon}
+                onIonChange={(event) => setViewHorizon(event.detail.value)}>
+                <IonRadio labelPlacement="start" value="thisMonth">This month</IonRadio>
+                <IonRadio labelPlacement="start" value="thisYear">Last year</IonRadio>
+                <IonRadio labelPlacement="start" value="allTime">All time</IonRadio>
+              </IonRadioGroup>
+              <IonCheckbox
+                labelPlacement="start"
+                checked={groupWeekly}
+                onIonChange={(event) => setGroupWeekly(event.detail.checked)}>
+                Group weekly
+              </IonCheckbox>
+            </IonModal>
+          </div>
         </div>
 
         <LineGraph data={plotData} />
@@ -150,9 +166,9 @@ export default function WeightPage() {
         <IonList>
           {sortedWeightLogs.map(v => (
             <IonItemSliding key={v[0]}>
-              <IonItem>
+              <IonItem className="weight-value">
                 <IonInput
-                  slot="start"
+                  slot="start" fill="solid"
                   min={0} max={500} value={v[1]}
                   type="number" placeholder="0"
                   label="lbs" labelPlacement="end"

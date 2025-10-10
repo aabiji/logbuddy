@@ -7,6 +7,7 @@ import {
   IonSegmentButton, IonLabel
 } from "@ionic/react";
 import { LineGraph, Point } from "./Graph";
+import "../../theme/styles.css";
 
 type ExerciseData = { weightPoints: Point[], repPoints: Point[] };
 
@@ -49,7 +50,7 @@ export default function ProgressPage() {
 
   return (
     <IonPage>
-      <IonHeader mode="ios" className="ion-no-border">
+      <IonHeader>
         <IonToolbar>
           <IonTitle>Progress</IonTitle>
           <IonButtons slot="start">
@@ -59,14 +60,15 @@ export default function ProgressPage() {
       </IonHeader>
 
       <IonContent>
-        {plotData.size == 0 && <p>No exercises</p>}
+        {plotData.size == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}
         {plotData.size > 0 && [...plotData.keys()].map((exerciseName, i) => {
           const view = views[exerciseName] || "weight";
           return (
             <div key={i}>
               <div>
-                <h2>{exerciseName}</h2>
+                <h4 style={{ textAlign: "center" }}>{exerciseName}</h4>
                 <IonSegment
+                  style={{ fontSize: "10px" }}
                   value={view} mode="ios"
                   onIonChange={(e) =>
                     setViews({

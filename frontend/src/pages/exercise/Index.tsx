@@ -5,7 +5,7 @@ import {
   IonContent, IonPage, IonButton, IonList, IonText, IonIcon
 } from "@ionic/react";
 import { add, pencil } from "ionicons/icons";
-import "../theme/styles.css";
+import "../../theme/styles.css";
 
 export default function ExercisePage() {
   const history = useHistory();
@@ -20,44 +20,40 @@ export default function ExercisePage() {
             justifyContent: "space-between"
            }}>
           <IonButton
-            fill="clear"
+            fill="clear" color="primary"
             onClick={() => history.push("/exercise/progress")}>
-            <p>Progress</p>
+            <b>Progress</b>
           </IonButton>
 
           <IonButton
-            fill="clear"
+            fill="clear" color="primary"
             onClick={() => history.push("/exercise/history")}>
-            <p>Workouts</p>
+            <b>Workouts</b>
           </IonButton>
 
           <IonButton
-            fill="clear"
+            fill="clear" color="primary"
             onClick={async () => history.push(`/exercise/template/-1`)}>
-            <p>New template</p>
+            <b>Template</b>
           </IonButton>
         </div>
 
         {templates.length == 0
-          ? <IonText><p>No templates</p></IonText>
+          ? <IonText><p style={{ textAlign: "center" }}>No templates</p></IonText>
           : <IonList style={{ background: "transparent" }}>
             {templates.map((id: number, i: number) => (
-              <div key={i} style={{
-                display: "flex", backgroundColor: "var(--ion-color-dark)",
-                alignItems: "center", justifyContent: "space-between",
-                width: "95%", margin: "auto", padding: 10, marginBottom: 10
-              }}>
-                <h4>{workouts.get(id)!.name}</h4>
+              <div key={i} className="template-item">
+                <h6>{workouts.get(id)!.name}</h6>
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <IonButton
-                    color="primary"
+                    style={{ gap: "15px" }} color="tertiary"
                     onClick={async () => history.push(`/exercise/workout/${id}`)}>
                     <IonIcon aria-hidden="true" icon={add} color="light" />
                     Start
                   </IonButton>
 
                   <IonButton
-                    color="success"
+                    color="success" style={{ gap: "15px" }}
                     onClick={() => history.push(`/exercise/template/${id}`)}>
                     <IonIcon aria-hidden="true" icon={pencil} color="light" />
                     Edit

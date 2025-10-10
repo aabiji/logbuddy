@@ -61,20 +61,18 @@ function TabsWrapper() {
   return (
     <IonTabs>
       <IonRouterOutlet animated={false}>
-        <Route exact path="/auth"><AuthPage /></Route>
-        <Route exact path="/weight"><WeightPage /></Route>
-        <Route exact path="/period"><PeriodPage /></Route>
-        <Route exact path="/settings"><SettingsPage /></Route>
-
-        <Route exact path="/"><ExercisePage /></Route>
-        <Route exact path="/exercise/history"><HistoryPage /></Route>
-        <Route exact path="/exercise/progress"><ProgressPage /></Route>
-        <Route exact path="/exercise/template/:id"><TemplatePage /></Route>
-        <Route exact path="/exercise/workout/:templateID"><WorkoutPage /></Route>
-
-        <Route exact path="/food"><FoodPage /></Route>
-        <Route exact path="/food/view/:foodID"><FoodViewPage /></Route>
-        <Route exact path="/food/search/:mealTag/:timestampStr"><FoodSearchPage /></Route>
+        <Route exact path="/auth" component={AuthPage} />
+        <Route exact path="/weight" component={WeightPage} />
+        <Route exact path="/period" component={PeriodPage} />
+        <Route exact path="/settings" component={SettingsPage} />
+        <Route exact path="/exercise" component={ExercisePage} />
+        <Route exact path="/exercise/history" component={HistoryPage} />
+        <Route exact path="/exercise/progress" component={ProgressPage} />
+        <Route exact path="/exercise/template/:id" component={TemplatePage} />
+        <Route exact path="/exercise/workout/:templateID" component={WorkoutPage} />
+        <Route exact path="/food" component={FoodPage} />
+        <Route exact path="/food/view/:foodID" component={FoodViewPage} />
+        <Route exact path="/food/search/:mealTag/:timestampStr" component={FoodSearchPage} />
       </IonRouterOutlet>
 
       {showTabBar && (
@@ -85,7 +83,7 @@ function TabsWrapper() {
           <IonTabButton tab="food" href="/food">
             <IonIcon aria-hidden="true" icon={fastFood} />
           </IonTabButton>
-          <IonTabButton tab="index" href="/">
+          <IonTabButton tab="home" href="/exercise">
             <IonIcon aria-hidden="true" icon={barbell} />
           </IonTabButton>
           <IonTabButton tab="period" href="/period">

@@ -10,7 +10,8 @@ import {
   IonPage, IonButton, IonContent, IonButtons,
   IonBackButton
 } from "@ionic/react";
-import ErrorTray from "../../ErrorTray";
+import { ErrorTray } from "../../Components";
+import "../../theme/styles.css";
 
 export default function WorkoutPage() {
   const authRequest = useAuthRequest();
@@ -46,14 +47,14 @@ export default function WorkoutPage() {
 
   return (
     <IonPage>
-      <IonHeader mode="ios" className="ion-no-border">
+      <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
           <IonTitle>{workout.name}</IonTitle>
           <IonButtons slot="end">
-            <IonButton
+            <IonButton color="primary"
               onClick={async () => { await create(); history.back(); }}>
               Save
             </IonButton>

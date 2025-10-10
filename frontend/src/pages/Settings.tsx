@@ -8,7 +8,7 @@ import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
   IonInput, IonModal, IonInputPasswordToggle
 } from "@ionic/react";
-import ErrorTray from "../ErrorTray";
+import { ErrorTray, Selection } from "../Components";
 import { add, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
@@ -60,39 +60,6 @@ function AccountDeletion() {
             style={{ width: "100%", marginTop: "10px" }}>
             Delete your account
           </IonButton>
-        </div>
-      </IonModal>
-    </div>
-  );
-}
-
-function Selection({ selections, setSelection }:
-  { selections: string[], setSelection: (s: string) => void; }) {
-  const [showModal, setShowModal] = useState(false);
-  return (
-    <div>
-      <IonButton className="icon-btn-square" onClick={() => setShowModal(true)}>
-        <IonIcon slot="icon-only" color="white" icon={add} />
-      </IonButton>
-      <IonModal
-        className="centered-modal"
-        onDidDismiss={() => setShowModal(false)}
-        initialBreakpoint={undefined}
-        breakpoints={undefined}
-        isOpen={showModal}>
-        <div className="selection-container">
-          {selections.map((option, i) => (
-            <IonCheckbox key={i}
-              className="selection-option"
-              labelPlacement="end"
-              checked={false}
-              onIonChange={() => {
-                setSelection(option);
-                setShowModal(false);
-              }}>
-              {option[0].toUpperCase() + option.slice(1)}
-            </IonCheckbox>
-          ))}
         </div>
       </IonModal>
     </div>
