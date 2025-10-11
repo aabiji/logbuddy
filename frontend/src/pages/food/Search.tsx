@@ -8,10 +8,11 @@ import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
   IonLabel, IonBackButton, IonIcon, IonInput,
-  IonButton, IonSelect, IonSelectOption, IonText
+  IonButton
 } from "@ionic/react";
 import { ErrorTray } from "../../Components";
 import { add, search } from "ionicons/icons";
+import "../../theme/styles.css";
 
 export default function FoodSearchPage() {
   const history = useHistory();
@@ -24,7 +25,6 @@ export default function FoodSearchPage() {
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Food[]>(Array.from(foods.values()));
-  const [filterOption, setFilterOption] = useState("all");
 
   const createMeal = async (food: Food) => {
     const mealInfo = {
@@ -49,7 +49,7 @@ export default function FoodSearchPage() {
 
     const params = new URLSearchParams();
     params.append("query", query);
-    params.append("onlyUser", filterOption == "user-food" ? "true" : "false");
+    params.append("onlyUser", "false");
     const endpoint = `/food/search?${params.toString()}`;
 
     const response = await authRequest((jwt: string) =>
@@ -63,41 +63,35 @@ export default function FoodSearchPage() {
 
   return (
     <IonPage>
-      <IonHeader mode="ios" className="ion-no-border">
+      <IonHeader>
         <IonToolbar>
-          <IonTitle>Search</IonTitle>
+          <IonTitle className="centered-title">Search</IonTitle>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="inner-page">
         <ErrorTray />
 
-        <IonItem>
-          <IonSelect
-            slot="start" aria-label="Serving unit" value={filterOption}
-            onIonChange={(event) => setFilterOption(event.detail.value)}>
-            <IonSelectOption value="all">All</IonSelectOption>
-            <IonSelectOption value="user-foods">Your foods</IonSelectOption>
-          </IonSelect>
-
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           <IonInput
-            value={query}
+            value={query} fill="outline"
             placeholder="Search food"
             onChange={(e) => setQuery(e.currentTarget.value as string)}
+            style={{ width: "80%" }}
           />
-          <IonButton size="default" fill="clear" onClick={searchFood}>
-            <IonIcon item-right slot="icon-only" color="blue" icon={search}></IonIcon>
+          <IonButton fill="solid" onClick={searchFood}>
+            <IonIcon size="default" slot="icon-only" color="light" icon={search}></IonIcon>
           </IonButton>
 
           <IonButton
-            size="large" shape="round" fill="clear"
+            shape="round" fill="solid" color="tertiary" 
             onClick={() => history.push("/food/view/-1")}>
-            <IonIcon slot="icon-only" color="success" icon={add}></IonIcon>
+            <IonIcon size="default" slot="icon-only" color="light" icon={add}></IonIcon>
           </IonButton>
-        </IonItem>
+        </div>
 
         {results.length == 0
           ? <IonText>No results</IonText>
@@ -105,15 +99,17 @@ export default function FoodSearchPage() {
             {results.map((r: Food, i: number) => (
               <IonItem key={i}>
                 <IonLabel
-                  style={{ cursor: "pointer" }}
                   onClick={() => history.push(`/food/view/${r.id}`)}>
                   <h2>{r.name}</h2>
-                  <p>
-                    {r.servingSizes[r.defaultServingIndex]}
-                    {r.servingUnits[r.defaultServingIndex]} •
-                    {r.calories * r.servingSizes[r.defaultServingIndex]}
-                    calories
-                  </p>
+                  <div style={{ display: "flex", flexDirection: "row", gap: "2px" }}>
+                    <p>
+                      {r.servingSizes[r.defaultServingIndex]}
+                      {r.servingUnits[r.defaultServingIndex]}
+                    </p>
+                    <p> • </p>
+                    <p> {r.calories * r.servingSizes[r.defaultServingIndex]} </p>
+                    <p> calories </p>
+                  </div>
                 </IonLabel>
 
                 <IonButton

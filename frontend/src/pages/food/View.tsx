@@ -6,11 +6,11 @@ import { request, useAuthRequest } from "../../lib/request";
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButtons, IonItem, IonLabel, IonBackButton, IonInput,
-  IonButton, IonSelect, IonSelectOption, IonIcon, IonItemDivider,
-  IonText
+  IonButton, IonSelect, IonSelectOption, IonIcon, IonText
 } from "@ionic/react";
 import { ErrorTray } from "../../Components";
-import { add, remove, star } from "ionicons/icons";
+import { add, trash, star } from "ionicons/icons";
+import "../../theme/styles.css";
 
 export default function FoodViewPage() {
   const history = useHistory();
@@ -60,43 +60,47 @@ export default function FoodViewPage() {
 
   return (
     <IonPage>
-      <IonHeader mode="ios" className="ion-no-border">
+      <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
 
-          <IonTitle>Create food</IonTitle>
+          <IonTitle className="centered-title">Create food</IonTitle>
 
           {edit && <IonButtons slot="end">
-            <IonButton onClick={createFood}>Save</IonButton>
+            <IonButton color="primary" onClick={createFood}>
+              Save
+            </IonButton>
           </IonButtons>}
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="inner-page">
         <ErrorTray />
 
         {edit
           ? <IonInput
             value={food.name}
+            fill="outline"
             placeholder="Food name"
             onChange={(event) => {
               const value = event.currentTarget.value as string ?? "";
               setFood((prev: Food) => ({ ...prev, name: value }));
             }}
           />
-          : <IonText><h1>{food.name}</h1></IonText>
+          : <IonText><h3>{food.name}</h3></IonText>
         }
         {error !== undefined &&
           <p style={{ color: "red", fontSize: "0.9rem" }}>{error}</p>}
 
-        <IonItemDivider>
-          <IonText><h4>Serving sizes</h4></IonText>
+        <div className="horizontal-strip">
+          <b>Serving sizes</b>
           {edit &&
             <IonButton
               slot="end"
-              size="default" fill="clear"
+              size="default"
+              fill="solid"
               onClick={() => {
                 setFood(prev => ({
                   ...prev,
@@ -107,64 +111,71 @@ export default function FoodViewPage() {
             >
               <IonIcon slot="icon-only" color="white" icon={add} />
             </IonButton>}
-        </IonItemDivider>
+        </div>
+        <hr />
 
         {edit && food.servingSizes.map((_, i) => (
-          <IonItem key={i}>
-            <IonInput
-              slot="start"
-              type="number"
-              placeholder="0"
-              value={food.servingSizes[i]}
-              onIonInput={(event) => {
-                const value = Number(event.detail.value);
-                setFood((prev) => {
-                  const newServings = [...prev.servingSizes];
-                  newServings[i] = value;
-                  return { ...prev, servingSizes: newServings };
-                });
-              }}
-            />
-
-            <IonSelect
-              slot="start"
-              aria-label="Serving unit"
-              value={food.servingUnits[i]}
-              onIonChange={(event) => {
-                const value = event.detail.value;
-                setFood((prev) => {
-                  const newUnits = [...prev.servingUnits];
-                  newUnits[i] = value;
-                  return { ...prev, servingUnits: newUnits };
-                });
-              }}>
-              <IonSelectOption value="g">g</IonSelectOption>
-              <IonSelectOption value="mL">mL</IonSelectOption>
-            </IonSelect>
-
-            <IonButton
-              fill="clear" slot="end" size="small"
-              onClick={() => {
-                setFood((prev: Food) => ({ ...prev, defaultServingIndex: i }));
-              }}>
-              <IonIcon
-                icon={star} slot="icon-only"
-                color={food.defaultServingIndex == i ? "warning" : "white"}
+          <IonItem key={i} className="serving-size">
+            <div>
+              <IonInput
+                className="nutrient-input"
+                slot="start"
+                type="number"
+                placeholder="0"
+                fill="solid"
+                value={food.servingSizes[i]}
+                onIonInput={(event) => {
+                  const value = Number(event.detail.value);
+                  setFood((prev) => {
+                    const newServings = [...prev.servingSizes];
+                    newServings[i] = value;
+                    return { ...prev, servingSizes: newServings };
+                  });
+                }}
               />
-            </IonButton>
 
-            <IonButton
-              slot="end" size="small" fill="clear"
-              onClick={() => {
-                setFood((prev) => ({
-                  ...prev,
-                  servingSizes: prev.servingSizes.filter((_, index) => index !== i),
-                  servingUnits: prev.servingUnits.filter((_, index) => index !== i),
-                }));
-              }}
-            >
-              <IonIcon slot="icon-only" color="red" icon={remove} />
-            </IonButton>
+              <IonSelect
+                slot="start"
+                aria-label="Serving unit"
+                value={food.servingUnits[i]}
+                onIonChange={(event) => {
+                  const value = event.detail.value;
+                  setFood((prev) => {
+                    const newUnits = [...prev.servingUnits];
+                    newUnits[i] = value;
+                    return { ...prev, servingUnits: newUnits };
+                  });
+                }}>
+                <IonSelectOption value="g">g</IonSelectOption>
+                <IonSelectOption value="mL">mL</IonSelectOption>
+              </IonSelect>
+            </div>
+
+            <div>
+              <IonButton
+                fill="clear" slot="end" size="small"
+                onClick={() => {
+                  setFood((prev: Food) => ({ ...prev, defaultServingIndex: i }));
+                }}>
+                <IonIcon
+                  icon={star} slot="icon-only"
+                  color={food.defaultServingIndex == i ? "warning" : "medium"}
+                />
+              </IonButton>
+
+              <IonButton
+                slot="end" size="small" fill="clear"
+                onClick={() => {
+                  setFood((prev) => ({
+                    ...prev,
+                    servingSizes: prev.servingSizes.filter((_, index) => index !== i),
+                    servingUnits: prev.servingUnits.filter((_, index) => index !== i),
+                  }));
+                }}
+              >
+                <IonIcon slot="icon-only" color="danger" icon={trash} />
+              </IonButton>
+            </div>
           </IonItem>
         ))}
 
@@ -181,21 +192,24 @@ export default function FoodViewPage() {
           </IonSelect>
         }
 
-        <IonItemDivider>
-          <IonText><h4>Nutrients</h4></IonText>
-        </IonItemDivider>
-
+        <b>Nutrients</b>
+        <hr />
         {(Object.keys(food) as (keyof Food)[]).map((key, i) => {
           if (excludedKeys.includes(key)) return null;
+          const unit = key == "calories" ? "cal" : "g";
           return (
-            <IonItem key={i}>
+            <IonItem key={i} className="nutrient-input">
               <IonLabel position="fixed" slot="start">
                 {key[0].toUpperCase() + key.slice(1)}
               </IonLabel>
               {edit
                 ? <IonInput
+                  className="nutrient-input"
                   slot="end"
                   type="number"
+                  label={unit}
+                  labelPlacement="end"
+                  fill="solid"
                   placeholder="0"
                   required={key == "calories"}
                   value={food[key] as number}
@@ -204,7 +218,7 @@ export default function FoodViewPage() {
                     setFood(prev => ({ ...prev, [key]: value }));
                   }}
                 />
-                : <IonText><h4>{(food[key as keyof Food] as number) * food.servingSizes[currentServing]}</h4></IonText>
+                : <b>{(food[key as keyof Food] as number) * food.servingSizes[currentServing]}</b>
               }
             </IonItem>
           );

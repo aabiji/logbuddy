@@ -23,14 +23,14 @@ export default function HistoryPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Workout history</IonTitle>
+          <IonTitle className="centered-title">Workout history</IonTitle>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="inner-page">
         {entries.length == 0
           ? <IonText><p style={{ textAlign: "center" }}>No workouts</p></IonText>
           : <IonList style={{ background: "transparent" }}>

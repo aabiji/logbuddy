@@ -62,7 +62,7 @@ export default function WorkoutPage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="inner-page">
         <ErrorTray />
 
         <IonTextarea

@@ -52,14 +52,14 @@ export default function ProgressPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Progress</IonTitle>
+          <IonTitle className="centered-title">Progress</IonTitle>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent className="inner-page">
         {plotData.size == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}
         {plotData.size > 0 && [...plotData.keys()].map((exerciseName, i) => {
           const view = views[exerciseName] || "weight";
