@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/aabiji/lobbuddy/database"
+	"github.com/aabiji/logbuddy/database"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 

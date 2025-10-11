@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aabiji/lobbuddy/database"
+	"github.com/aabiji/logbuddy/database"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/argon2"

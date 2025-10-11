@@ -1,4 +1,4 @@
-module github.com/aabiji/lobbuddy
+module github.com/aabiji/logbuddy
 
 go 1.24.2
 

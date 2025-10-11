@@ -1,0 +1,5 @@
+- consider paginating the /user/data endpoint response
+- fix the search bug (when you create a meal it doesn't immediately show in search)
+- sync food data when viewing it
+- button to import data from myfitnesspal or hevy (look into their data formats)
+- paginate the workouts in the history view

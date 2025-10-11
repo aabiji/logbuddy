@@ -8,7 +8,7 @@ import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
   IonLabel, IonBackButton, IonIcon, IonInput,
-  IonButton
+  IonButton, IonText
 } from "@ionic/react";
 import { ErrorTray } from "../../Components";
 import { add, search } from "ionicons/icons";

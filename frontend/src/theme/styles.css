@@ -311,7 +311,7 @@ ion-select-popover ion-radio {
 }
 
 .inner-page {
-  --padding-top: 5px; !important;
+  --padding-top: 5px !important;
 }
 
 .nutrient-input {

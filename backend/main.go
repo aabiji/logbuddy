@@ -12,7 +12,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/aabiji/lobbuddy/database"
+	"github.com/aabiji/logbuddy/database"
 )
 
 type LoggingResponseWriter struct {

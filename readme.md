@@ -1,73 +1,55 @@
-LogBuddy helps you log your workouts, food, weight and period.
+<div style="display: flex; align-items: center; gap: 10px;">
+  <img src="frontend/assets/icon.png" width="40" height="40" />
+  <h1 style="margin: 0;">LogBuddy</h1>
+</div>
+LogBuddy is a simple app that helps you log your workouts, food consumption, weight and period.
+It has a Golang backend, with an Ionic frontend, using PostgreSQL as its database.
 
-TODO (app must be done by Sunday):
-
-app:
-- consider paginating the /user/data endpoint response
-- sync food data when viewing it
-
-food page:
-- fix the search bug (when you create a meal it doesn't immediately show in search)
-
-exercises page:
-- paginate the workouts in the history view
-
-settings page:
-- button to import data from myfitnesspal or hevy (look into their data formats)
-
-Create a .env file that looks like this in the project root:
-```.env
+### Deploy the backend
+Setup the project:
+```bash
+# write some backend serets
+cat > .env << EOF
 JWT_SECRET=supersecret
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=supersecret
 POSTGRES_HOSTNAME=db # same as service
 DB_PORT=5432
 POSTGRES_DB=db
-APP_PORT=8080
-```
+APP_PORT=8100
+EOF
 
-Create a .env file that looks like this in frontend/ root:
-```.env
-BACKEND_API_URL=http://localhost:8080
+# write some frontend secrets
+cat > frontend/.env << EOF
+BACKEND_API_URL=<BACKEND ADDRESS>:8100
 USER_SUPPORT_EMAIL=<YOUR EMAIL>
+EOF
 ```
 
-Run the backend:
+Run locally:
 ```bash
 cd path/to/logbuddy
 sudo docker compose up
 ```
 
-Run the frontend (web):
-```bash
-cd path/to/logbuddy/frontend
-bun install -g @ionic/cli
-bun install
-ionic serve
-```
-
-Build the frontend (android):
-```bash
-cd path/to/logbuddy/frontend
-bun run build
-bunx cap run android
-```
-* make sure you have android studio installed
-
-Run the frontend with live reloading (android):
+### Build the frontend (android)
+Debug build:
 ```bash
 cd path/to/logbuddy/frontend
 bun run build
 
-# in one terminal pane
-ionic serve --host=0.0.0.0 --port=3000
-
-# in another terminal pane (only need to buildonce)
+# build once with live reloading
 bunx cap run android -l
+
+# serve the frontend exposed on the local network
+ionic serve --host=0.0.0.0 --port=3000
 ```
 
-Update the icons:
+Production build:
 ```bash
-bunx capacitor-assets generate --iconBackgroundColor "#4A90E2"
-bunx cap sync
+cd path/to/logbuddy/frontend
+bun run build
+bunx cap sync android
+cd android && ./gradlew assembleDebug && cd ..
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
