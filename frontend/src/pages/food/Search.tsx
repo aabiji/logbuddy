@@ -11,7 +11,7 @@ import {
   IonLabel, IonBackButton, IonIcon, IonInput,
   IonButton, IonText, IonSelect, IonSelectOption
 } from "@ionic/react";
-import { ErrorTray } from "../../Components";
+import { NotificationTray } from "../../Components";
 import { add } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -89,7 +89,7 @@ export default function FoodSearchPage() {
       </IonHeader>
 
       <IonContent className="inner-page">
-        <ErrorTray />
+        <NotificationTray />
 
         <div className="search-controls">
           <IonInput
@@ -134,8 +134,11 @@ export default function FoodSearchPage() {
 
                 <IonButton
                   onClick={() => createMeal(r)}
-                  shape="round" size="large" fill="solid">
-                  <IonIcon slot="icon-only" color="light" icon={add}></IonIcon>
+                  shape="round" size="small" fill="clear">
+                  <IonIcon
+                    slot="icon-only" color="tertiary"
+                    icon={add} className="bold-icon"
+                  />
                 </IonButton>
               </IonItem>
             ))}

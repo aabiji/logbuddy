@@ -10,7 +10,7 @@ import {
   IonPage, IonItemOption, IonIcon, IonButton, IonContent,
   IonButtons, IonBackButton,
 } from "@ionic/react";
-import { ErrorTray } from "../../Components";
+import { NotificationTray } from "../../Components";
 import { trash } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -70,12 +70,12 @@ export default function TemplatePage() {
       </IonHeader>
 
       <IonContent>
-        <ErrorTray />
+        <NotificationTray />
 
-        <IonItem>
+        <div className="horizontal-strip">
           <IonInput
             fill="outline"
-            placeholder="Template name" value={template.name} slot="start"
+            placeholder="Template name" value={template.name}
             onIonInput={(event) => setTemplate((prev: Workout) =>
               ({ ...prev, name: event.detail.value as string }))}
           />
@@ -86,7 +86,7 @@ export default function TemplatePage() {
               <IonIcon icon={trash} color="danger" />
             </IonButton>
           }
-        </IonItem>
+        </div>
 
         <div>
           {template.exercises.map((e: Exercise, i: number) => (

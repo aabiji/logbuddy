@@ -96,6 +96,10 @@ ion-input[fill="solid"][inputmode="numeric"] {
   text-align: center;
 }
 
+ion-input[fill="outline"] {
+  --background: var(--ion-color-light);
+}
+
 /* general buttons */
 ion-button {
   --border-radius: 4px;
@@ -226,6 +230,18 @@ ion-select-popover ion-radio {
   --color: var(--ion-color-primary);
 }
 
+.error-toast {
+  --background: var(--ion-color-danger);
+  --color: var(--ion-color-light);
+  --box-shadow: none;
+}
+
+.info-toast {
+  --background: var(--ion-color-tertiary);
+  --color: var(--ion-color-light);
+  --box-shadow: none;
+}
+
 .inner-page {
   --padding-top: 5px !important;
 }
@@ -316,11 +332,10 @@ ion-select-popover ion-radio {
 }
 
 .serving-size {
-  --padding-start: 0;
+  --padding-start: 15px;
   --padding-end: 0;
   --inner-padding-end: 0;
   --inner-padding-start: 0;
-  width: 110%;
 }
 
 .food-item {
@@ -340,4 +355,12 @@ ion-select-popover ion-radio {
   paddingBottom: 10px;
   top: 0px;
   zIndex: 10;
+}
+
+.food-view-name {
+  font-size: 14px;
+}
+
+.bold-icon {
+  --ionicon-stroke-width: 55px;
 }

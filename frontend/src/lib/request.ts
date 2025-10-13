@@ -39,7 +39,7 @@ type UserRequest = (jwt: string) => Promise<object>;
 // factory function to make api requests with some added error handling
 export function useAuthRequest() {
   const history = useHistory();
-  const { addError, token } = useAppState();
+  const { addNotification, token } = useAppState();
 
   return async (makeRequest: UserRequest): Promise<object | undefined> => {
     try {
@@ -49,7 +49,7 @@ export function useAuthRequest() {
       if (err.statusCode == 401)
         history.replace("/auth");
       else
-        addError(err.message);
+        addNotification({ message: err.message, error: true });
       return undefined;
     }
   }

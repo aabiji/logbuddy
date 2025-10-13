@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useHistory, useParams } from "react-router";
+import { useIonViewDidEnter } from "@ionic/react";
 import { Food, useAppState } from "../../lib/state";
 import { request, useAuthRequest } from "../../lib/request";
 
@@ -8,7 +9,7 @@ import {
   IonButtons, IonItem, IonLabel, IonBackButton, IonInput,
   IonButton, IonSelect, IonSelectOption, IonIcon, IonText
 } from "@ionic/react";
-import { ErrorTray } from "../../Components";
+import { NotificationTray } from "../../Components";
 import { add, trash, star } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -16,14 +17,14 @@ export default function FoodViewPage() {
   const history = useHistory();
   const authRequest = useAuthRequest();
   const { foodID } = useParams<{ foodID: string; }>();
-  const { foods, upsertFood } = useAppState();
+  const { addNotification, foods, upsertFood } = useAppState();
 
   const edit = foodID == "-1";
   const defaultFood = {
     id: -1, name: "",
     calories: 0, carbohydrate: 0, protein: 0,
     fat: 0, calcium: 0, potassium: 0, iron: 0,
-    servingSizes: [], servingUnits: [],
+    servingSizes: [ 0 ], servingUnits: [ "g" ],
     defaultServingIndex: 0
   };
   // when we just want nutrients
@@ -33,11 +34,25 @@ export default function FoodViewPage() {
   const [food, setFood] = useState<Food>(edit ? defaultFood : foods.get(Number(foodID))!);
   const [currentServing, setCurrentServing] = useState(food.defaultServingIndex);
 
+  // Update food when viewing it
+  useIonViewDidEnter(() => {
+    (async () => {
+      if (edit) return;
+      const json = await authRequest((_jwt: string) =>
+        request("GET", `/food/get?id=${foodID}`, undefined, undefined)) as { food: Food; };
+      if (json !== undefined)
+        upsertFood(json.food as Food);
+    })();
+  });
+
   const createFood = async () => {
+    const haveServingSizes =
+      food.servingSizes.length > 0 && !food.servingSizes.some(s => s == 0);
+
     if (food.name.length == 0) {
       setError("Must set a name");
-    } else if (food.servingSizes.length == 0) {
-      setError("Must set a serving size")
+    } else if (!haveServingSizes) {
+      setError("Must set a valid serving size")
     } else if (food.calories == 0) {
       setError("Must set calories");
     } else {
@@ -54,6 +69,7 @@ export default function FoodViewPage() {
           (normalizedFood[key as keyof Food] as number) /= servingSize;
       }
 
+      addNotification({ message: `Created ${food.name}`, error: false });
       setFood(normalizedFood);
       upsertFood(normalizedFood);
       history.goBack();
@@ -81,12 +97,13 @@ export default function FoodViewPage() {
       </IonHeader>
 
       <IonContent className="inner-page">
-        <ErrorTray />
+        <NotificationTray />
 
         {edit
           ? <IonInput
             value={food.name}
             fill="outline"
+            className="food-view-name"
             placeholder="Food name"
             onChange={(event) => {
               const value = event.currentTarget.value as string ?? "";
@@ -120,7 +137,7 @@ export default function FoodViewPage() {
 
         {edit && food.servingSizes.map((_, i) => (
           <IonItem key={i} className="serving-size">
-            <div>
+            <div className="horizontal-strip">
               <IonInput
                 className="nutrient-input"
                 slot="start"
@@ -155,7 +172,7 @@ export default function FoodViewPage() {
               </IonSelect>
             </div>
 
-            <div>
+            <div className="wtf">
               <IonButton
                 fill="clear" slot="end" size="small"
                 onClick={() => {

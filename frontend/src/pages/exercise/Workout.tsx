@@ -10,7 +10,7 @@ import {
   IonPage, IonButton, IonContent, IonButtons,
   IonBackButton
 } from "@ionic/react";
-import { ErrorTray } from "../../Components";
+import { NotificationTray } from "../../Components";
 import "../../theme/styles.css";
 
 export default function WorkoutPage() {
@@ -63,7 +63,7 @@ export default function WorkoutPage() {
       </IonHeader>
 
       <IonContent className="inner-page">
-        <ErrorTray />
+        <NotificationTray />
 
         <IonTextarea
           label="Notes" autoGrow={true}

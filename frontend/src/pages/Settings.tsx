@@ -8,7 +8,7 @@ import {
   IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
   IonInput, IonModal, IonInputPasswordToggle
 } from "@ionic/react";
-import { ErrorTray, Selection } from "../Components";
+import { NotificationTray, Selection } from "../Components";
 import { add, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
@@ -93,7 +93,7 @@ export default function SettingsPage() {
   return (
     <IonPage>
       <IonContent>
-        <ErrorTray />
+        <NotificationTray />
 
         <div>
           <div className="horizontal-strip">

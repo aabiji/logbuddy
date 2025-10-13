@@ -6,6 +6,7 @@ import {
   IonTitle, IonButtons, IonBackButton, IonSegment,
   IonSegmentButton, IonLabel
 } from "@ionic/react";
+import { NotificationTray } from "../../Components";
 import { LineGraph, Point } from "./Graph";
 import "../../theme/styles.css";
 
@@ -60,7 +61,10 @@ export default function ProgressPage() {
       </IonHeader>
 
       <IonContent className="inner-page">
+        <NotificationTray />
+
         {plotData.size == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}
+
         {plotData.size > 0 && [...plotData.keys()].map((exerciseName, i) => {
           const view = views[exerciseName] || "weight";
           return (

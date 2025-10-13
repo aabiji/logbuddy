@@ -10,7 +10,7 @@ import {
   IonRadioGroup, IonRadio,
 } from "@ionic/react";
 import { LineGraph, Point } from "./exercise/Graph";
-import { ErrorTray } from "../Components";
+import { NotificationTray } from "../Components";
 import { add, pencil, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
@@ -109,7 +109,7 @@ export default function WeightPage() {
   return (
     <IonPage>
       <IonContent>
-        <ErrorTray />
+        <NotificationTray />
 
         <div className="horizontal-strip">
           <h6>Weight graph</h6>

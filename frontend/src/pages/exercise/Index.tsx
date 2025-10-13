@@ -4,6 +4,7 @@ import { useAppState } from "../../lib/state";
 import {
   IonContent, IonPage, IonButton, IonList, IonText, IonIcon
 } from "@ionic/react";
+import { NotificationTray } from "../../Components";
 import { add, pencil } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -14,6 +15,8 @@ export default function ExercisePage() {
   return (
     <IonPage>
       <IonContent>
+        <NotificationTray />
+
         <div
           style={{
             display: "flex", flexDirection: "row",

@@ -120,7 +120,7 @@ func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]any{"foods": foodRowToJson(row)}
+	data := map[string]any{"food": foodRowToJson(row)}
 	respond(w, http.StatusOK, data)
 }
 

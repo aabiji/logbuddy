@@ -1,24 +1,15 @@
 [ ] consider paginating the /user/data endpoint response
-[ ] fix the search bug (when you create a meal it doesn't immediately show in search)
-[ ] sync food data when viewing it
-[ ] button to import data from myfitnesspal or hevy (look into their data formats)
 [ ] paginate the workouts in the history view
 [ ] parse workout log to a json format i can import (add import button). document json format
 [ ] why do i have to login every time i open the app?
-[ ] the food results list should be updated when i create a food
 [ ] add a cardio exercise type (improve the way you add exercises)
 [ ] change the apk icon to the one i set
 [ ] add "item" as a serving size
 [ ] search using incomplete terms (not have to type the whole name)
 [ ] add the filtering selection back to the search page (search as you type instead of having a button)
 [ ] populate the food database with the contents of another food database, so we don't have to define foods from scratch
-[ ] show toast notification when you add a food
-[ ] style the error tray (absolute at the bottom)
 [ ] add screenshots of the app to the readme (repost on hackernews)
-[ ] show ex: "100 g" instead of "g" in edit meal
-[ ] show calories in meal item
 [ ] update the meal item tags when you edit the meal
-[ ] "show no meals here" if there's no meals under "Breakfast"
 [ ] cleanup some extraneous ui bugs
 [ ] show loading icon on buttons
 [ ] toggle dark mode

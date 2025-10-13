@@ -8,7 +8,7 @@ import {
   IonContent, IonPage, IonIcon, IonButton, IonProgressBar,
   IonModal, IonInput, IonSelect, IonSelectOption
 } from "@ionic/react";
-import { ErrorTray } from "../../Components";
+import { NotificationTray } from "../../Components";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -44,59 +44,58 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
       onDidDismiss={close}
       handleBehavior="cycle">
       <IonContent>
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          <IonSelect
-            label="Move to"
-            aria-label="Move to meal"
-            value={meals.get(date)![index].mealTag}
-            onIonChange={(event) => {
-              update({
-                ...meals.get(date)![index],
-                mealTag: event.detail.value,
-              });
-              setPreviousMealTag(event.detail.value);
-            }}>
-            {settings.mealTags.map((t: string, i: number) =>
-              <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
-          </IonSelect>
+        {(() => {
+          const meal = meals.get(date)![index];
+          const food = foods.get(meal.foodID)!;
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+              <IonSelect
+                label="Move to"
+                aria-label="Move to meal"
+                value={meal.mealTag}
+                onIonChange={(event) => {
+                  update({ ...meal, mealTag: event.detail.value, });
+                  setPreviousMealTag(event.detail.value);
+                }}>
+                {settings.mealTags.map((t: string, i: number) =>
+                  <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
+              </IonSelect>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 25 }}>
-            <IonInput
-              fill="solid"
-              type="number"
-              placeholder="0"
-              labelPlacement="end"
-              label="Servings"
-              min={0.1}
-              value={meals.get(date)![index].servings}
-              onIonInput={(event) => {
-                update({
-                  ...meals.get(date)![index],
-                  servings: Number(event.detail.value)
-                });
-              }}
-            />
+              <div style={{ display: "flex", alignItems: "center", gap: 25 }}>
+                <IonInput
+                  fill="solid"
+                  type="number"
+                  placeholder="0"
+                  labelPlacement="end"
+                  label="Servings"
+                  min={0.1}
+                  value={meal.servings}
+                  onIonInput={(event) => {
+                    update({ ...meal, servings: Number(event.detail.value) });
+                  }}
+                />
 
-            <IonSelect
-              aria-label="Serving unit"
-              value={meals.get(date)![index].servingsUnit}
-              onIonChange={(event) => {
-                update({
-                  ...meals.get(date)![index],
-                  servingsUnit: event.detail.value,
-                });
-              }}>
-              {foods.get(meals.get(date)![index].foodID)!
-                .servingUnits.map((u: string, i: number) =>
-                  <IonSelectOption value={u} key={i}>{u}</IonSelectOption>
-                )}
-            </IonSelect>
-          </div>
+                <IonSelect
+                  aria-label="Serving unit"
+                  value={meal.servingsUnit}
+                  onIonChange={(event) => {
+                    update({ ...meal, servingsUnit: event.detail.value });
+                  }}>
+                  {food.servingUnits.map((u: string, i: number) => (
+                    <IonSelectOption value={u} key={i}>
+                      {food.servingSizes[i]} {u}
+                    </IonSelectOption>
+                    ))
+                  }
+                </IonSelect>
+              </div>
 
-          <IonButton size="default" color="danger" onClick={remove}>
-            Remove meal
-          </IonButton>
-        </div>
+              <IonButton size="default" color="danger" onClick={remove}>
+                Remove meal
+              </IonButton>
+            </div>
+          );
+        })()}
       </IonContent>
     </IonModal>
   );
@@ -199,18 +198,18 @@ export default function FoodPage() {
   return (
     <IonPage>
       <IonContent>
-        <ErrorTray />
+        <NotificationTray />
 
         <div style={row}>
           <h5>{label}</h5>
           <IonButton fill="clear" onClick={() => changeDate(-1)}>
-            <IonIcon size="default" slot="icon-only" color="white" icon={chevronBack} />
+            <IonIcon size="small" slot="icon-only" color="white" icon={chevronBack} />
           </IonButton>
           <IonButton fill="solid" onClick={addMeal}>
-            <IonIcon size="large" slot="icon-only" icon={add} color="light" />
+            <IonIcon size="default" slot="icon-only" icon={add} color="light" />
           </IonButton>
           <IonButton fill="clear" onClick={() => changeDate(1)}>
-            <IonIcon size="default" slot="icon-only" color="white" icon={chevronForward} />
+            <IonIcon size="small" slot="icon-only" color="white" icon={chevronForward} />
           </IonButton>
         </div>
 
@@ -252,7 +251,7 @@ export default function FoodPage() {
                   <div key={j} className="food-item">
                     <div>
                       <b style={{ fontSize: 14 }}>{food.name}</b>
-                      <p>{meal.servings * food.servingSizes[servingIndex]} {meal.servingsUnit}</p>
+                      <p>{food.calories * food.servingSizes[servingIndex]} calories</p>
                     </div>
 
                     <IonButton

@@ -1,6 +1,7 @@
 import { create, StateCreator } from "zustand";
 import { persist } from "zustand/middleware";
 import { AppStorage } from "./storage";
+import { notifications } from "ionicons/icons";
 
 // macro and micr nutrients are per 1 g
 export interface Food {
@@ -68,6 +69,8 @@ export interface UserDataUpdate {
   settings: Settings;
 };
 
+interface Notification { message: string; error: boolean; };
+
 export interface AppState {
   token: string;
   lastSyncTime: number;
@@ -78,7 +81,7 @@ export interface AppState {
   workouts: Map<number, Workout> // map id to workout
   weightLog: Map<number, number>, // map date to weight
   periodDates: Map<number, boolean>, // map date to 'true'
-  errors: string[];
+  notifications: Notification[];
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
@@ -92,10 +95,10 @@ export interface AppState {
   updateToken: (token: string) => void;
   updateSettings: (updatedFields: Partial<Settings>) => void;
   updateUserData: (json: UserDataUpdate) => void;
+  addNotification: (n: Notification) => void;
+  removeNotification: (index: number) => void;
+  clearNotifications: () => void;
   resetState: () => void;
-  addError: (err: string) => void;
-  removeError: (index: number) => void;
-  clearErrors: () => void;
 }
 
 const defaultProps = {
@@ -113,7 +116,7 @@ const defaultProps = {
     useImperial: true,
     trackPeriod: true,
   },
-  errors: []
+  notifications: []
 };
 
 const state: StateCreator<AppState> = (set, _) => ({
@@ -253,19 +256,19 @@ const state: StateCreator<AppState> = (set, _) => ({
       return newState;
     }),
 
-    addError: (err: string) =>
-      set((state: AppState) => ({ ...state, errors: [ ...state.errors, err ] })),
+    addNotification: (n: Notification) =>
+      set((state: AppState) => ({ ...state, notifications: [ ...state.notifications, n ] })),
 
-    removeError: (index: number) =>
+    removeNotification: (index: number) =>
       set((state: AppState) => ({
         ...state,
-        errors: [
-          ...state.errors.slice(0, index),
-          ...state.errors.slice(index + 1),
+        notifications: [
+          ...state.notifications.slice(0, index),
+          ...state.notifications.slice(index + 1),
         ]
       })),
 
-    clearErrors: () => set((state: AppState) => ({ ...state, errors: [] })),
+    clearNotifications: () => set((state: AppState) => ({ ...state, notifications: [] })),
 });
 
 const storage = new AppStorage();

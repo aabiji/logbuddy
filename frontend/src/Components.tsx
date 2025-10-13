@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useAppState } from "./lib/state";
 
 import {
-  IonCheckbox, IonButton, IonIcon, IonModal
+  IonCheckbox, IonButton, IonIcon, IonModal, IonToast
 } from "@ionic/react";
-import { add, close } from "ionicons/icons";
+import { add } from "ionicons/icons";
 import "./theme/styles.css";
 
 export function Selection({ selections, setSelection }:
@@ -40,17 +40,19 @@ export function Selection({ selections, setSelection }:
   );
 }
 
-export function ErrorTray() {
-  const { errors, removeError } = useAppState();
+export function NotificationTray() {
+  const { notifications, removeNotification } = useAppState();
   return (
-    <div style={{ display: "absolute", bottom: 0, left: 0 }}>
-      {errors.map((e, i) => (
-        <div key={i}>
-          <p>{e}</p>
-          <IonButton fill="clear" onClick={() => removeError(i)}>
-            <IonIcon slot="icon-only" icon={close} />
-          </IonButton>
-        </div>
+    <div>
+      {notifications.map((n, i) => (
+        <IonToast
+          key={i}
+          isOpen={true}
+          duration={5000}
+          message={n.message}
+          onDidDismiss={() => removeNotification(i)}
+          className={n.error ? "error-toast" : "info-toast"}
+        />
       ))}
     </div>
   );

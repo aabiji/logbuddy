@@ -6,6 +6,7 @@ import { useAppState } from "./../lib/state";
 import {
   IonContent, IonPage, IonButton, IonIcon, IonLabel,
 } from "@ionic/react";
+import { NotificationTray } from "../Components";
 import { chevronForward, chevronBack } from "ionicons/icons";
 import "../theme/styles.css";
 
@@ -107,6 +108,8 @@ export default function PeriodPage() {
   return (
     <IonPage>
       <IonContent>
+        <NotificationTray />
+
         <div className="horizontal-strip">
           <IonButton size="default" fill="clear" onClick={() => changeMonth(-1)}>
             <IonIcon slot="icon-only" color="primary" icon={chevronBack} />

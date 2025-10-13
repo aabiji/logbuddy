@@ -8,6 +8,7 @@ import {
   IonContent, IonPage, IonHeader, IonToolbar,
   IonButtons, IonBackButton, IonList, IonText
 } from "@ionic/react";
+import { NotificationTray } from "../../Components";
 
 export default function HistoryPage() {
   const { workouts } = useAppState();
@@ -31,6 +32,8 @@ export default function HistoryPage() {
       </IonHeader>
 
       <IonContent className="inner-page">
+        <NotificationTray />
+
         {entries.length == 0
           ? <IonText><p style={{ textAlign: "center" }}>No workouts</p></IonText>
           : <IonList style={{ background: "transparent" }}>
