@@ -72,7 +72,7 @@ function TabsWrapper() {
         <Route exact path="/exercise/workout/:templateID" component={WorkoutPage} />
         <Route exact path="/food" component={FoodPage} />
         <Route exact path="/food/view/:foodID" component={FoodViewPage} />
-        <Route exact path="/food/search/:mealTag/:timestampStr" component={FoodSearchPage} />
+        <Route exact path="/food/search/:mealTag/:dayTimestamp" component={FoodSearchPage} />
       </IonRouterOutlet>
 
       {showTabBar && (

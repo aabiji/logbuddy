@@ -5,9 +5,8 @@ import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp, formatDate } from "../../lib/date";
 
 import {
-  IonContent, IonPage, IonIcon, IonButton, IonItem, IonLabel,
-  IonModal, IonInput, IonSelect, IonSelectOption,
-  IonProgressBar,
+  IonContent, IonPage, IonIcon, IonButton, IonProgressBar,
+  IonModal, IonInput, IonSelect, IonSelectOption
 } from "@ionic/react";
 import { ErrorTray } from "../../Components";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
@@ -239,29 +238,34 @@ export default function FoodPage() {
             close={() => setCurrentMealIndex(-1)}
           />}
 
-        {Object.keys(groupedMeals).map((tag: string, i: number) => (
-          <div key={i}>
-            <h5>{tag}</h5>
-            {Object.values(groupedMeals[tag] ?? {}).map((meal: Meal, j: number) => {
-              const food = foods.get(meal.foodID)!;
-              const servingIndex = food.servingUnits.indexOf(meal.servingsUnit);
-              return (
-                <div key={j} className="food-item">
-                  <div>
-                    <b style={{ fontSize: 14 }}>{food.name}</b>
-                    <p>{meal.servings * food.servingSizes[servingIndex]} {meal.servingsUnit}</p>
-                  </div>
+        {Object.keys(groupedMeals).map((tag: string, i: number) => {
+          const values = Object.values(groupedMeals[tag] ?? {});
+          return (
+            <div key={i}>
+              <h5>{tag}</h5>
+              {values.length == 0 && <p style={{ textAlign: "center" }}>No meals</p>}
 
-                  <IonButton
-                    shape="round" size="default" fill="clear"
-                    onClick={() => setCurrentMealIndex(j)}>
-                    <IonIcon slot="icon-only" color="success" icon={pencil}></IonIcon>
-                  </IonButton>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+              {values.length > 0 && values.map((meal: Meal, j: number) => {
+                const food = foods.get(meal.foodID)!;
+                const servingIndex = food.servingUnits.indexOf(meal.servingsUnit);
+                return (
+                  <div key={j} className="food-item">
+                    <div>
+                      <b style={{ fontSize: 14 }}>{food.name}</b>
+                      <p>{meal.servings * food.servingSizes[servingIndex]} {meal.servingsUnit}</p>
+                    </div>
+
+                    <IonButton
+                      shape="round" size="default" fill="clear"
+                      onClick={() => setCurrentMealIndex(j)}>
+                      <IonIcon slot="icon-only" color="success" icon={pencil}></IonIcon>
+                    </IonButton>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </IonContent>
     </IonPage>
   );

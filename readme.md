@@ -1,42 +1,18 @@
-<div style="display: flex; align-items: center; gap: 10px;">
-  <img src="frontend/assets/icon.png" width="40" height="40" />
-  <h1 style="margin: 0;">LogBuddy</h1>
-</div>
 LogBuddy is a simple app that helps you log your workouts, food consumption, weight and period.
 It has a Golang backend, with an Ionic frontend, using PostgreSQL as its database.
 
-### Deploy the backend
-Setup the project:
+### Run
+Run the backend (be sure to edit .env and frontend/.env):
 ```bash
-# write some backend serets
-cat > .env << EOF
-JWT_SECRET=supersecret
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=supersecret
-POSTGRES_HOSTNAME=db # same as service
-DB_PORT=5432
-POSTGRES_DB=db
-APP_PORT=8100
-EOF
-
-# write some frontend secrets
-cat > frontend/.env << EOF
-BACKEND_API_URL=<BACKEND ADDRESS>:8100
-USER_SUPPORT_EMAIL=<YOUR EMAIL>
-EOF
+cd path/to/logbuddy && ./run-backend.sh
 ```
 
-Run locally:
-```bash
-cd path/to/logbuddy
-sudo docker compose up
-```
-
-### Build the frontend (android)
-Debug build:
+Create an android debug build:
 ```bash
 cd path/to/logbuddy/frontend
-bun run build
+
+bun install -g @ionic/cli
+bun install && bun run build
 
 # build once with live reloading
 bunx cap run android -l
@@ -45,11 +21,16 @@ bunx cap run android -l
 ionic serve --host=0.0.0.0 --port=3000
 ```
 
-Production build:
+Create an android production build:
 ```bash
 cd path/to/logbuddy/frontend
-bun run build
+
+bun install && bun run build
+
+bunx capacitor-assets generate --iconBackgroundColor "#4A90E2"
 bunx cap sync android
+
 cd android && ./gradlew assembleDebug && cd ..
+
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```

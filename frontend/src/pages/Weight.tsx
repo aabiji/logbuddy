@@ -163,31 +163,35 @@ export default function WeightPage() {
 
         <LineGraph data={plotData} />
 
-        <IonList>
-          {sortedWeightLogs.map(v => (
-            <IonItemSliding key={v[0]}>
-              <IonItem className="weight-value">
-                <IonInput
-                  slot="start" fill="solid"
-                  min={0} max={500} value={v[1]}
-                  type="number" placeholder="0"
-                  label="lbs" labelPlacement="end"
-                  onIonInput={(event) =>
-                    editWeight(new Date(v[0]), Number(event.detail.value), false)}
-                />
-                <p slot="end">{formatDate(new Date(v[0]))}</p>
-              </IonItem>
+        {sortedWeightLogs.length == 0 &&
+          <p style={{ textAlign: "center" }}>No weight logged</p>}
+        {sortedWeightLogs.length > 0 &&
+          <IonList>
+            {sortedWeightLogs.map(v => (
+              <IonItemSliding key={v[0]}>
+                <IonItem className="weight-value">
+                  <IonInput
+                    slot="start" fill="solid"
+                    min={0} max={500} value={v[1]}
+                    type="number" placeholder="0"
+                    label="lbs" labelPlacement="end"
+                    onIonInput={(event) =>
+                      editWeight(new Date(v[0]), Number(event.detail.value), false)}
+                  />
+                  <p slot="end">{formatDate(new Date(v[0]))}</p>
+                </IonItem>
 
-              <IonItemOptions>
-                <IonItemOption
-                  color="danger"
-                  onClick={() => removeEntry(new Date(v[0]))}>
-                  <IonIcon aria-hidden="true" icon={trash} />
-                </IonItemOption>
-              </IonItemOptions>
-            </IonItemSliding>
-          ))}
-        </IonList>
+                <IonItemOptions>
+                  <IonItemOption
+                    color="danger"
+                    onClick={() => removeEntry(new Date(v[0]))}>
+                    <IonIcon aria-hidden="true" icon={trash} />
+                  </IonItemOption>
+                </IonItemOptions>
+              </IonItemSliding>
+            ))}
+          </IonList>
+        }
       </IonContent>
     </IonPage>
   );

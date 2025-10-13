@@ -166,8 +166,8 @@ export function LineGraph({ data }: { data: Point[]; }) {
 
   return (
     <div>
-      {points.length == 0 && <p>No weight logged</p>}
-      {points.length > 0 && <Line options={options} data={{ datasets: [dataset] }} />}
+      {points.length > 0 &&
+        <Line options={options} data={{ datasets: [dataset] }} />}
     </div>
   );
 }

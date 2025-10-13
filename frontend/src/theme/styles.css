@@ -226,6 +226,10 @@ ion-select-popover ion-radio {
   --color: var(--ion-color-primary);
 }
 
+.inner-page {
+  --padding-top: 5px !important;
+}
+
 /* Auth.tsx */
 .auth-box {
   width: 90%;
@@ -258,7 +262,6 @@ ion-select-popover ion-radio {
   padding: 0px;
 }
 
-/* Settings.tsx */
 .horizontal-strip {
   display: flex;
   flex-direction: row;
@@ -291,12 +294,10 @@ ion-select-popover ion-radio {
   margin-top: 10px;
 }
 
-/* Weight.tsx */
 .weight-value {
   font-size: 12px;
 }
 
-/* Index.tsx (Exercise) */
 .template-item {
   display: flex;
   align-items: center;
@@ -308,10 +309,6 @@ ion-select-popover ion-radio {
   background: var(--ion-color-secondary);
   border: 1px solid var(--ion-border-color);
   border-radius: 8px;
-}
-
-.inner-page {
-  --padding-top: 5px !important;
 }
 
 .nutrient-input {
@@ -336,4 +333,11 @@ ion-select-popover ion-radio {
   background: var(--ion-color-secondary);
   margin-bottom: 10px;
   padding: 10px 5px 10px 5px;
+}
+
+.search-controls {
+  display: absolute;
+  paddingBottom: 10px;
+  top: 0px;
+  zIndex: 10;
 }

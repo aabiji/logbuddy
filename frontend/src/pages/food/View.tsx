@@ -35,9 +35,11 @@ export default function FoodViewPage() {
 
   const createFood = async () => {
     if (food.name.length == 0) {
-      setError("Food must have a name");
+      setError("Must set a name");
     } else if (food.servingSizes.length == 0) {
-      setError("Food must have a serving size")
+      setError("Must set a serving size")
+    } else if (food.calories == 0) {
+      setError("Must set calories");
     } else {
       const json = await authRequest((jwt: string) =>
         request("POST", "/food/new", food, jwt)) as { id: number; };
@@ -52,8 +54,8 @@ export default function FoodViewPage() {
           (normalizedFood[key as keyof Food] as number) /= servingSize;
       }
 
-      upsertFood(normalizedFood);
       setFood(normalizedFood);
+      upsertFood(normalizedFood);
       history.goBack();
     }
   }
@@ -66,7 +68,9 @@ export default function FoodViewPage() {
             <IonBackButton defaultHref="#" />
           </IonButtons>
 
-          <IonTitle className="centered-title">Create food</IonTitle>
+          <IonTitle className="centered-title">
+            {edit ? "Create" : "View"} food
+          </IonTitle>
 
           {edit && <IonButtons slot="end">
             <IonButton color="primary" onClick={createFood}>

@@ -1,21 +1,24 @@
-How to deploy the backend to alwaysdata
+## Deploying the backend to AlwaysData
 
-The site's type should be "User Program"
-The site's environment should look like this:
+Create a new site, with the type "User Program".
+Set the site's environment to something like this:
 ```
-POSTGRES_USER=logbuddy
+DB_PORT=5432
+POSTGRES_USER=<user>
 POSTGRES_PASSWORD=<user password>
 POSTGRES_HOSTNAME=postgresql-<user>.alwaysdata.net
-POSTGRES_DB=<database_name>
-DB_PORT=5432
+POSTGRES_DB=<database name>
+JWT_SECRET=something-super-secret
 APP_PORT=8100
-JWT_SECRET=supersecret
 ```
 
-Copy the backend over to alwaysdata using FTP:
+Copy the backend over using FTP:
 ```bash
-go build .
-lftp -u logbuddy ftp-logbuddy.alwaysdata.net
+# compile a isngle executable instead of using docker
+# since alwaysdata provides databases
+cd /path/to/logbuddy/backend && go build .
+
+lftp -u <user> ftp-<user>.alwaysdata.net
 # in the ftp prompt now...
 put logbuddy
 mirror -R sql sql

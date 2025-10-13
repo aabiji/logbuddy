@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { useIonViewWillEnter } from "@ionic/react";
 import { Food, useAppState } from "../../lib/state";
 import { dayUnixTimestamp } from "../../lib/date";
 import { request, useAuthRequest } from "../../lib/request";
@@ -8,23 +9,29 @@ import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
   IonLabel, IonBackButton, IonIcon, IonInput,
-  IonButton, IonText
+  IonButton, IonText, IonSelect, IonSelectOption
 } from "@ionic/react";
 import { ErrorTray } from "../../Components";
-import { add, search } from "ionicons/icons";
+import { add } from "ionicons/icons";
 import "../../theme/styles.css";
 
 export default function FoodSearchPage() {
   const history = useHistory();
   const authRequest = useAuthRequest();
 
-  const { mealTag, timestampStr } = useParams<{ mealTag: string; timestampStr: string; }>();
-  const date = Number(timestampStr);
+  const { mealTag, dayTimestamp } = useParams<{ mealTag: string; dayTimestamp: string; }>();
+  const date = Number(dayTimestamp);
 
-  const { foods, meals, upsertMeals, upsertFood } = useAppState();
+  const { meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Food[]>(Array.from(foods.values()));
+  const [searchFilter, setSearchFilter] = useState("all");
+  const [results, setResults] = useState<Food[]>([]);
+
+  useIonViewWillEnter(() => {
+    if (query.length == 0)
+      setResults(Array.from(useAppState.getState().foods.values()));
+  });
 
   const createMeal = async (food: Food) => {
     const mealInfo = {
@@ -44,21 +51,30 @@ export default function FoodSearchPage() {
     upsertMeals(date, [...meals.get(date)!, meal]);
   }
 
-  const searchFood = async () => {
-    if (query.length == 0) return;
-
+  const searchFood = async (search: string) => {
     const params = new URLSearchParams();
-    params.append("query", query);
-    params.append("onlyUser", "false");
+    params.append("query", search);
+    params.append("onlyUser", searchFilter == "onlyUser" ? "true" : "false");
     const endpoint = `/food/search?${params.toString()}`;
 
     const response = await authRequest((jwt: string) =>
       request("GET", endpoint, undefined, jwt)) as { results: Food[]; };
     if (response === undefined) return;
 
-    setResults(prev => [...prev, ...response.results]);
+    setResults(response.results);
     for (const food of response.results)
       upsertFood(food);
+  }
+
+  const timeout = useRef<NodeJS.Timeout | null>(null);
+  const updateSearchQuery = (str: string) => {
+    setQuery(str);
+    // debounced search
+    if (timeout.current) clearTimeout(timeout.current);
+    timeout.current = setTimeout(async () => {
+      if (str.trim().length > 0)
+        await searchFood(str);
+    }, 300);
   }
 
   return (
@@ -75,22 +91,26 @@ export default function FoodSearchPage() {
       <IonContent className="inner-page">
         <ErrorTray />
 
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <div className="search-controls">
           <IonInput
-            value={query} fill="outline"
             placeholder="Search food"
-            onChange={(e) => setQuery(e.currentTarget.value as string)}
-            style={{ width: "80%" }}
+            value={query} fill="outline"
+            onChange={(e) => updateSearchQuery(e.currentTarget.value as string)}
           />
-          <IonButton fill="solid" onClick={searchFood}>
-            <IonIcon size="default" slot="icon-only" color="light" icon={search}></IonIcon>
-          </IonButton>
+          <div className="horizontal-strip">
+            <IonSelect
+              value={searchFilter}
+              onIonChange={(e) => setSearchFilter(e.detail.value)}>
+              <IonSelectOption value="all">All</IonSelectOption>
+              <IonSelectOption value="onlyUser">Your foods</IonSelectOption>
+            </IonSelect>
 
-          <IonButton
-            shape="round" fill="solid" color="tertiary" 
-            onClick={() => history.push("/food/view/-1")}>
-            <IonIcon size="default" slot="icon-only" color="light" icon={add}></IonIcon>
-          </IonButton>
+            <IonButton
+              shape="round" fill="solid" color="primary" 
+              onClick={() => history.push("/food/view/-1")}>
+              Create
+            </IonButton>
+          </div>
         </div>
 
         {results.length == 0
@@ -114,8 +134,8 @@ export default function FoodSearchPage() {
 
                 <IonButton
                   onClick={() => createMeal(r)}
-                  shape="round" size="large" fill="clear">
-                  <IonIcon slot="icon-only" color="success" icon={add}></IonIcon>
+                  shape="round" size="large" fill="solid">
+                  <IonIcon slot="icon-only" color="light" icon={add}></IonIcon>
                 </IonButton>
               </IonItem>
             ))}
