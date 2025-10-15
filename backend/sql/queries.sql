@@ -59,13 +59,13 @@ select * from meals where date = $1 and userID = $2 and deleted = false;
 insert into workouts (userID, name, notes, date, isTemplate)
 values ($1, $2, $3, $4, $5) returning id;
 
--- name: CreateExercise :one
-insert into exercises (userID, workoutID, name, weight, reps)
-values ($1, $2, $3, $4, $5) returning id;
+-- name: CreateExercises :batchmany
+insert into exercises
+(userID, workoutID, exerciseType, name, weight, reps, duration)
+values ($1, $2, $3, $4, $5, $6, $7) returning id;
 
 -- name: DeleteWorkout :exec
-update workouts set deleted = true, lastModified = $1
-where userID = $2 and id = $3;
+update workouts set deleted = true, lastModified = $1 where userID = $2 and id = $3;
 
 -- name: DeleteExercise :exec
 update exercises set deleted = true, lastModified = $1 where workoutID = $2 and userID = $3;
@@ -102,23 +102,23 @@ select * from meals where userID = $1 and lastModified >= $2
 select * from records where userID = $1 and lastModified >= $2
   and deleted = coalesce(sqlc.narg('ignoreDeleted'), deleted);
 
--- name: DeleteUser :exec
+-- name: HardDeleteUser :exec
 delete from users where id = $1;
 
--- name: DeleteSettings :exec
+-- name: HardDeleteSettings :exec
 delete from settings where userID = $1;
 
--- name: DeleteFoods :exec
+-- name: HardDeleteFoods :exec
 delete from foods where userID = $1;
 
--- name: DeleteMeals :exec
+-- name: HardDeleteMeals :exec
 delete from meals where userID = $1;
 
--- name: DeleteRecords :exec
+-- name: HardDeleteRecords :exec
 delete from records where userID = $1;
 
--- name: DeleteExercises :exec
+-- name: HardDeleteExercises :exec
 delete from exercises where userID = $1;
 
--- name: DeleteWorkouts :exec
+-- name: HardDeleteWorkouts :exec
 delete from workouts where userID = $1;

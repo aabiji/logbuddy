@@ -12,7 +12,7 @@ type RecordJSON struct {
 	Deleted  bool  `json:"deleted"`
 	IsPeriod bool  `json:"isPeriod"`
 	Date     int64 `json:"date"`
-	Value    int32 `json:"value"`
+	Value    float64 `json:"value"`
 }
 
 func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
@@ -20,17 +20,17 @@ func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	date, ok := getQueryInt(w, r, "date")
+	date, ok := getQuery[int64](w, r, "date")
 	if !ok {
 		return
 	}
-	weight, ok := getQueryInt(w, r, "weight")
+	weight, ok := getQuery[float64](w, r, "weight")
 	if !ok {
 		return
 	}
 
 	v := database.SetWeightParams{
-		Date: date, Value: int32(weight), Userid: userID,
+		Date: date, Value: float64(weight), Userid: userID,
 		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 	}
 	if err := a.queries.SetWeight(a.ctx, v); err != nil {
@@ -46,7 +46,7 @@ func (a *API) DeleteWeightEntry(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	date, ok := getQueryInt(w, r, "date")
+	date, ok := getQuery[int64](w, r, "date")
 	if !ok {
 		return
 	}
@@ -65,17 +65,17 @@ func (a *API) TogglePeriodDate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	date, ok := getQueryInt(w, r, "date")
+	date, ok := getQuery[int64](w, r, "date")
 	if !ok {
 		return
 	}
-	value, ok := getQueryInt(w, r, "set")
+	value, ok := getQuery[int64](w, r, "set")
 	if !ok {
 		return
 	}
 
 	if err := a.queries.TogglePeriodDate(a.ctx, database.TogglePeriodDateParams{
-		Userid: userID, Date: date, Value: int32(value),
+		Userid: userID, Date: date, Value: float64(value),
 		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 	}); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to toggle date")

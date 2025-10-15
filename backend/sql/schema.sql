@@ -26,7 +26,7 @@ create table if not exists Foods (
 
     name text not null,
     defaultServingIndex int not null,
-    servingSizes int[] not null,
+    servingSizes float[] not null,
     servingUnits text[] not null,
 
     -- per 1 g
@@ -48,7 +48,7 @@ create table if not exists Meals (
     foodID int not null,
     date bigint not null,
     mealTag text not null,
-    servings int not null,
+    servings float not null,
     unit text not null
 );
 
@@ -59,10 +59,12 @@ create table if not exists Exercises (
     id serial primary key,
     userID int not null,
     workoutID int not null,
+    exerciseType text not null,
 
     name text not null,
     weight int not null,
-    reps int[] not null -- rep per each set
+    reps int[] not null, -- number of reps in each set
+    duration float not null -- in minutes
 );
 
 create table if not exists Workouts (
@@ -84,7 +86,7 @@ create table if not exists Records (
     userID int not null,
     recordType text not null,
     date bigint not null,
-    value int not null,
+    value float not null,
 
     unique (userID, recordType, date)
 );

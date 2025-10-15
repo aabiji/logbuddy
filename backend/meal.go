@@ -11,7 +11,7 @@ import (
 type FoodJSON struct {
 	ID                  int32    `json:"id,omitempty"`
 	Name                string   `json:"name"`
-	ServingSizes        []int32  `json:"servingSizes"`
+	ServingSizes        []float64  `json:"servingSizes"`
 	ServingUnits        []string `json:"servingUnits"`
 	DefaultServingIndex int32    `json:"defaultServingIndex"`
 	Calories            float64  `json:"calories"`
@@ -74,8 +74,8 @@ func foodRowToJson(row database.Food) FoodJSON {
 
 func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 	userID, ok := parseJWT(a, w, r)
-	query, okQuery := getQueryString(w, r, "query")
-	filterUser, okFilter := getQueryString(w, r, "onlyUser")
+	query, okQuery := getQuery[string](w, r, "query")
+	filterUser, okFilter := getQuery[string](w, r, "onlyUser")
 	if !ok || !okQuery || !okFilter {
 		return
 	}
@@ -109,7 +109,7 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
-	foodID, ok := getQueryInt(w, r, "id")
+	foodID, ok := getQuery[int64](w, r, "id")
 	if !ok {
 		return
 	}
@@ -131,7 +131,7 @@ type MealJSON struct {
 	Date     int64  `json:"date,omitempty"`
 	FoodID   int32  `json:"foodID,omitempty"`
 	MealTag  string `json:"mealTag"`
-	Servings int32  `json:"servings"`
+	Servings float64  `json:"servings"`
 	Unit     string `json:"servingsUnit"`
 }
 
@@ -176,7 +176,7 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
-	mealID, ok := getQueryInt(w, r, "mealID")
+	mealID, ok := getQuery[int64](w, r, "mealID")
 	if !ok {
 		return
 	}
@@ -198,7 +198,7 @@ func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) GetMeals(w http.ResponseWriter, r *http.Request) {
-	date, ok := getQueryInt(w, r, "dateTimestamp")
+	date, ok := getQuery[int64](w, r, "dateTimestamp")
 	if !ok {
 		return
 	}

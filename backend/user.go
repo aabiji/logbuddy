@@ -54,11 +54,11 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	time, ok := getQueryInt(w, r, "time")
+	time, ok := getQuery[int64](w, r, "time")
 	if !ok {
 		return
 	}
-	flag, ok := getQueryString(w, r, "ignoreDeleted")
+	flag, ok := getQuery[string](w, r, "ignoreDeleted")
 	if !ok {
 		return
 	}
@@ -201,25 +201,25 @@ func deleteUser(a *API, userID int32) error {
 	defer tx.Rollback(a.ctx)
 	txq := a.queries.WithTx(tx)
 
-	if err := txq.DeleteUser(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteUser(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteSettings(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteSettings(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteFoods(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteFoods(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteMeals(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteMeals(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteRecords(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteRecords(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteExercises(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteExercises(a.ctx, userID); err != nil {
 		return err
 	}
-	if err := txq.DeleteWorkouts(a.ctx, userID); err != nil {
+	if err := txq.HardDeleteWorkouts(a.ctx, userID); err != nil {
 		return err
 	}
 
@@ -239,7 +239,7 @@ func (a *API) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password, ok := getQueryString(w, r, "password")
+	password, ok := getQuery[string](w, r, "password")
 	if !ok {
 		return
 	}

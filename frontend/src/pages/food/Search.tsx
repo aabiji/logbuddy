@@ -22,7 +22,7 @@ export default function FoodSearchPage() {
   const { mealTag, dayTimestamp } = useParams<{ mealTag: string; dayTimestamp: string; }>();
   const date = Number(dayTimestamp);
 
-  const { meals, upsertMeals, upsertFood } = useAppState();
+  const { addNotification, meals, upsertMeals, upsertFood } = useAppState();
 
   const [query, setQuery] = useState("");
   const [searchFilter, setSearchFilter] = useState("all");
@@ -49,6 +49,7 @@ export default function FoodSearchPage() {
 
     const meal = { ...mealInfo, id: json.mealID };
     upsertMeals(date, [...meals.get(date)!, meal]);
+    addNotification({ message: `Created ${food.name}`, error: false });
   }
 
   const searchFood = async (search: string) => {
@@ -106,7 +107,7 @@ export default function FoodSearchPage() {
             </IonSelect>
 
             <IonButton
-              shape="round" fill="solid" color="primary" 
+              shape="round" fill="solid" color="primary"
               onClick={() => history.push("/food/view/-1")}>
               Create
             </IonButton>

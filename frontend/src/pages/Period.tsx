@@ -138,12 +138,8 @@ export default function PeriodPage() {
           )})}
         </div>
 
-        {!canMakePrediction && (
-          <div style={{ textAlign: "center" }}>
-            <p>There's not enough data to make a prediction.</p>
-            <p>Log a few more periods to see predictions.</p>
-          </div>
-        )}
+        {!canMakePrediction &&
+          <p style={{ textAlign: "center" }}>There's not enough data to make a prediction.</p>}
 
         {canMakePrediction && (
           <div style={{ textAlign: "center" }}>

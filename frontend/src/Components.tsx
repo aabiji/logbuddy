@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useAppState } from "./lib/state";
 
 import {
-  IonCheckbox, IonButton, IonIcon, IonModal, IonToast
+  IonCheckbox, IonButton, IonIcon, IonModal, IonToast,
+  IonInput
 } from "@ionic/react";
 import { add } from "ionicons/icons";
 import "./theme/styles.css";
@@ -36,6 +37,43 @@ export function Selection({ selections, setSelection }:
           ))}
         </div>
       </IonModal>
+    </div>
+  );
+}
+
+export function TimeInput({ setDuration }: { setDuration: (n: number) => void; }) {
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  return (
+    <div className="time-input">
+      <IonInput
+        fill="outline" placeholder="0"
+        type="number" label="h" min={0} max={24}
+        labelPlacement="end" value={hours}
+        onIonInput={(event) => {
+          setHours(Number(event.detail.value));
+          setDuration(hours * 60 + minutes + (seconds / 60));
+        }}
+      />
+      <IonInput
+        fill="outline" placeholder="0"
+        type="number" label="m" min={0} max={59}
+        labelPlacement="end" value={minutes}
+        onIonInput={(event) => {
+          setMinutes(Number(event.detail.value));
+          setDuration(hours * 60 + minutes + (seconds / 60));
+        }}
+      />
+      <IonInput
+        fill="outline" placeholder="0"
+        type="number" label="s" min={0} max={59}
+        labelPlacement="end" value={seconds}
+        onIonInput={(event) => {
+          setSeconds(Number(event.detail.value));
+          setDuration(hours * 60 + minutes + (seconds / 60));
+        }}
+      />
     </div>
   );
 }

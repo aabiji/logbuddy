@@ -11,32 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createExercise = `-- name: CreateExercise :one
-insert into exercises (userID, workoutID, name, weight, reps)
-values ($1, $2, $3, $4, $5) returning id
-`
-
-type CreateExerciseParams struct {
-	Userid    int32
-	Workoutid int32
-	Name      string
-	Weight    int32
-	Reps      []int32
-}
-
-func (q *Queries) CreateExercise(ctx context.Context, arg CreateExerciseParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createExercise,
-		arg.Userid,
-		arg.Workoutid,
-		arg.Name,
-		arg.Weight,
-		arg.Reps,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
 const createFood = `-- name: CreateFood :one
 insert into foods
 (userID, name, servingSizes, servingUnits, defaultServingIndex,
@@ -48,7 +22,7 @@ returning id
 type CreateFoodParams struct {
 	Userid              int32
 	Name                string
-	Servingsizes        []int32
+	Servingsizes        []float64
 	Servingunits        []string
 	Defaultservingindex int32
 	Calories            float64
@@ -91,7 +65,7 @@ type CreateMealParams struct {
 	Foodid   int32
 	Date     int64
 	Mealtag  string
-	Servings int32
+	Servings float64
 	Unit     string
 }
 
@@ -166,24 +140,6 @@ func (q *Queries) DeleteExercise(ctx context.Context, arg DeleteExerciseParams) 
 	return err
 }
 
-const deleteExercises = `-- name: DeleteExercises :exec
-delete from exercises where userID = $1
-`
-
-func (q *Queries) DeleteExercises(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteExercises, userid)
-	return err
-}
-
-const deleteFoods = `-- name: DeleteFoods :exec
-delete from foods where userID = $1
-`
-
-func (q *Queries) DeleteFoods(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteFoods, userid)
-	return err
-}
-
 const deleteMeal = `-- name: DeleteMeal :exec
 update meals set deleted = true, lastModified = $1
 where userID = $2 and id = $3
@@ -197,15 +153,6 @@ type DeleteMealParams struct {
 
 func (q *Queries) DeleteMeal(ctx context.Context, arg DeleteMealParams) error {
 	_, err := q.db.Exec(ctx, deleteMeal, arg.Lastmodified, arg.Userid, arg.ID)
-	return err
-}
-
-const deleteMeals = `-- name: DeleteMeals :exec
-delete from meals where userID = $1
-`
-
-func (q *Queries) DeleteMeals(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteMeals, userid)
 	return err
 }
 
@@ -224,36 +171,8 @@ func (q *Queries) DeleteRecord(ctx context.Context, arg DeleteRecordParams) erro
 	return err
 }
 
-const deleteRecords = `-- name: DeleteRecords :exec
-delete from records where userID = $1
-`
-
-func (q *Queries) DeleteRecords(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteRecords, userid)
-	return err
-}
-
-const deleteSettings = `-- name: DeleteSettings :exec
-delete from settings where userID = $1
-`
-
-func (q *Queries) DeleteSettings(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteSettings, userid)
-	return err
-}
-
-const deleteUser = `-- name: DeleteUser :exec
-delete from users where id = $1
-`
-
-func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteUser, id)
-	return err
-}
-
 const deleteWorkout = `-- name: DeleteWorkout :exec
-update workouts set deleted = true, lastModified = $1
-where userID = $2 and id = $3
+update workouts set deleted = true, lastModified = $1 where userID = $2 and id = $3
 `
 
 type DeleteWorkoutParams struct {
@@ -267,17 +186,8 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 	return err
 }
 
-const deleteWorkouts = `-- name: DeleteWorkouts :exec
-delete from workouts where userID = $1
-`
-
-func (q *Queries) DeleteWorkouts(ctx context.Context, userid int32) error {
-	_, err := q.db.Exec(ctx, deleteWorkouts, userid)
-	return err
-}
-
 const getExercises = `-- name: GetExercises :many
-select lastmodified, deleted, id, userid, workoutid, name, weight, reps from exercises
+select lastmodified, deleted, id, userid, workoutid, exercisetype, name, weight, reps, duration from exercises
 where userID = $1 and workoutID = $2
   and deleted = coalesce($3, deleted)
 `
@@ -303,9 +213,11 @@ func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]E
 			&i.ID,
 			&i.Userid,
 			&i.Workoutid,
+			&i.Exercisetype,
 			&i.Name,
 			&i.Weight,
 			&i.Reps,
+			&i.Duration,
 		); err != nil {
 			return nil, err
 		}
@@ -543,6 +455,69 @@ func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, e
 	return i, err
 }
 
+const hardDeleteExercises = `-- name: HardDeleteExercises :exec
+delete from exercises where userID = $1
+`
+
+func (q *Queries) HardDeleteExercises(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteExercises, userid)
+	return err
+}
+
+const hardDeleteFoods = `-- name: HardDeleteFoods :exec
+delete from foods where userID = $1
+`
+
+func (q *Queries) HardDeleteFoods(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteFoods, userid)
+	return err
+}
+
+const hardDeleteMeals = `-- name: HardDeleteMeals :exec
+delete from meals where userID = $1
+`
+
+func (q *Queries) HardDeleteMeals(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteMeals, userid)
+	return err
+}
+
+const hardDeleteRecords = `-- name: HardDeleteRecords :exec
+delete from records where userID = $1
+`
+
+func (q *Queries) HardDeleteRecords(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteRecords, userid)
+	return err
+}
+
+const hardDeleteSettings = `-- name: HardDeleteSettings :exec
+delete from settings where userID = $1
+`
+
+func (q *Queries) HardDeleteSettings(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteSettings, userid)
+	return err
+}
+
+const hardDeleteUser = `-- name: HardDeleteUser :exec
+delete from users where id = $1
+`
+
+func (q *Queries) HardDeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteUser, id)
+	return err
+}
+
+const hardDeleteWorkouts = `-- name: HardDeleteWorkouts :exec
+delete from workouts where userID = $1
+`
+
+func (q *Queries) HardDeleteWorkouts(ctx context.Context, userid int32) error {
+	_, err := q.db.Exec(ctx, hardDeleteWorkouts, userid)
+	return err
+}
+
 const searchFoods = `-- name: SearchFoods :many
 select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
 where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
@@ -667,7 +642,7 @@ set value = excluded.value, lastModified = $4
 type SetWeightParams struct {
 	Userid       int32
 	Date         int64
-	Value        int32
+	Value        float64
 	Lastmodified pgtype.Int8
 }
 
@@ -690,7 +665,7 @@ set value = 1 - excluded.value, lastModified = $4
 type TogglePeriodDateParams struct {
 	Userid       int32
 	Date         int64
-	Value        int32
+	Value        float64
 	Lastmodified pgtype.Int8
 }
 
@@ -714,7 +689,7 @@ where ID = $5
 type UpdateMealParams struct {
 	Lastmodified pgtype.Int8
 	Mealtag      string
-	Servings     int32
+	Servings     float64
 	Unit         string
 	ID           int32
 }

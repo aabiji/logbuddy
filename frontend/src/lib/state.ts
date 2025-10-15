@@ -1,7 +1,6 @@
 import { create, StateCreator } from "zustand";
 import { persist } from "zustand/middleware";
 import { AppStorage } from "./storage";
-import { notifications } from "ionicons/icons";
 
 // macro and micr nutrients are per 1 g
 export interface Food {
@@ -32,9 +31,11 @@ export interface Meal {
 export interface Exercise {
   id: number;
   workoutID: number;
+  exerciseType: string; // "strength" or "cardio"
   name: string;
   weight: number;
   reps: number[];
+  duration: number; // in minutes
 }
 
 export interface Workout {

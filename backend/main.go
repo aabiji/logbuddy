@@ -89,26 +89,31 @@ func parseRequest[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
 	return value, true
 }
 
-func getQueryString(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
+func getQuery[T any](w http.ResponseWriter, r *http.Request, name string) (T, bool) {
+	var value T
+
 	params := r.URL.Query()
 	param := params.Get(name)
 	if len(param) == 0 {
 		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: missing %s", name))
-		return "", false
-	}
-	return param, true
-}
-
-func getQueryInt(w http.ResponseWriter, r *http.Request, name string) (int64, bool) {
-	str, ok := getQueryString(w, r, name)
-	if !ok {
-		return 0, false
+		return value, false
 	}
 
-	value, err := strconv.ParseInt(str, 10, 64)
-	if err != nil {
-		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: %s is not int", name))
-		return 0, false
+	switch any(value).(type) {
+	case int64:
+		val, err := strconv.ParseInt(param, 10, 64)
+		if err != nil {
+			respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: %s is not int", name))
+			return value, false
+		}
+		value = any(val).(T)
+	case float64:
+		val, err := strconv.ParseFloat(param, 64)
+		if err != nil {
+			respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: %s is not float", name))
+			return value, false
+		}
+		value = any(val).(T)
 	}
 
 	return value, true

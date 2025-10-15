@@ -8,9 +8,9 @@ import {
   IonHeader, IonTitle, IonItem, IonLabel,
   IonTextarea, IonText, IonInput, IonToolbar,
   IonPage, IonButton, IonContent, IonButtons,
-  IonBackButton
+  IonBackButton,
 } from "@ionic/react";
-import { NotificationTray } from "../../Components";
+import { NotificationTray, TimeInput } from "../../Components";
 import "../../theme/styles.css";
 
 export default function WorkoutPage() {
@@ -54,7 +54,7 @@ export default function WorkoutPage() {
           </IonButtons>
           <IonTitle>{workout.name}</IonTitle>
           <IonButtons slot="end">
-            <IonButton color="primary"
+            <IonButton className="save-header-button"
               onClick={async () => { await create(); history.back(); }}>
               Save
             </IonButton>
@@ -75,13 +75,24 @@ export default function WorkoutPage() {
         {workout.exercises.map((e: Exercise, eIndex: number) => (
           <div key={eIndex}>
             <IonText><h3>{e.name} ({e.weight} lbs)</h3></IonText>
-
-            {e.reps.map((r: number, i: number) => (
+            {e.exerciseType == "cardio" &&
+              <TimeInput
+                setDuration={(n: number) => {
+                  setWorkout((prev: Workout) => {
+                    let copy = { ...prev };
+                    copy.exercises[eIndex].duration = n;
+                    return copy;
+                  })
+                }}
+              />
+            }
+            {e.exerciseType == "strength" && e.reps.map((r: number, i: number) => (
               <IonItem key={i}>
                 <IonLabel slot="start">Set #{i + 1}</IonLabel>
                 <IonInput
                   fill="outline" placeholder="0" type="number"
-                  slot="end" key={i} value={r}
+                  slot="end" key={i} value={r} label="reps"
+                  labelPlacement="end"
                   onIonInput={(event) => {
                     setWorkout((prev: Workout) => {
                       let copy = { ...prev };

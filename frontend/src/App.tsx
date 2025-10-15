@@ -35,7 +35,7 @@ import FoodViewPage from "./pages/food/View";
 setupIonicReact();
 
 function TabsWrapper() {
-  const { lastSyncTime, clearErrors, token, updateUserData } = useAppState();
+  const { lastSyncTime, clearNotifications, token, updateUserData } = useAppState();
   const authRequest = useAuthRequest();
 
   const history = useHistory();
@@ -50,7 +50,7 @@ function TabsWrapper() {
   }
 
   useEffect(() => {
-    clearErrors();
+    clearNotifications();
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");

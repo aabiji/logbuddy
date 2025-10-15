@@ -17,7 +17,7 @@ export default function FoodViewPage() {
   const history = useHistory();
   const authRequest = useAuthRequest();
   const { foodID } = useParams<{ foodID: string; }>();
-  const { addNotification, foods, upsertFood } = useAppState();
+  const { foods, upsertFood } = useAppState();
 
   const edit = foodID == "-1";
   const defaultFood = {
@@ -69,7 +69,6 @@ export default function FoodViewPage() {
           (normalizedFood[key as keyof Food] as number) /= servingSize;
       }
 
-      addNotification({ message: `Created ${food.name}`, error: false });
       setFood(normalizedFood);
       upsertFood(normalizedFood);
       history.goBack();
@@ -89,7 +88,7 @@ export default function FoodViewPage() {
           </IonTitle>
 
           {edit && <IonButtons slot="end">
-            <IonButton color="primary" onClick={createFood}>
+            <IonButton className="save-header-button" onClick={createFood}>
               Save
             </IonButton>
           </IonButtons>}

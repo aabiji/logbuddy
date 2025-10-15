@@ -5,12 +5,10 @@ import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp } from "../../lib/date";
 
 import {
-  IonHeader, IonTitle, IonItem, IonLabel,
-  IonItemOptions, IonItemSliding, IonInput, IonToolbar,
-  IonPage, IonItemOption, IonIcon, IonButton, IonContent,
-  IonButtons, IonBackButton,
+  IonHeader, IonTitle, IonInput, IonToolbar, IonPage,
+  IonIcon, IonButton, IonContent, IonButtons, IonBackButton
 } from "@ionic/react";
-import { NotificationTray } from "../../Components";
+import { NotificationTray, Selection } from "../../Components";
 import { trash } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -28,6 +26,7 @@ export default function TemplatePage() {
         isTemplate: true, exercises: [],
       } as Workout
   );
+   const exerciseTypes = ["strength", "cardio"];
 
   const remove = async () => {
     const response = await authRequest((jwt: string) =>
@@ -59,12 +58,20 @@ export default function TemplatePage() {
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
-          <IonTitle>Edit template</IonTitle>
+          <IonTitle>{creating ? "Create" : "Edit"} template</IonTitle>
           <IonButtons slot="end">
-            <IonButton color="primary"
-              onClick={async () => { await update(); history.back(); }}>
-                Save
+            {!creating &&
+              <IonButton
+                className="delete-header-button"
+                onClick={async () => { await remove(); history.back(); }}>
+                Delete
               </IonButton>
+            }
+
+            <IonButton className="save-header-button"
+              onClick={async () => { await update(); history.back(); }}>
+              Save
+            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -79,105 +86,85 @@ export default function TemplatePage() {
             onIonInput={(event) => setTemplate((prev: Workout) =>
               ({ ...prev, name: event.detail.value as string }))}
           />
-          {!creating &&
-            <IonButton
-              fill="clear" slot="end" size="default"
-              onClick={async () => { await remove(); history.back(); }}>
-              <IonIcon icon={trash} color="danger" />
-            </IonButton>
-          }
+          <Selection
+            selections={exerciseTypes}
+            setSelection={(value: string) => {
+              setTemplate((prev: Workout) => ({
+                ...prev,
+                exercises: [
+                  ...prev.exercises,
+                  {
+                    id: -1, workoutID: prev.id,
+                    exerciseType: value, name: "new exercise",
+                    weight: 0, reps: [], duration: 0,
+                  }
+                ]
+              }));
+            }}
+          />
         </div>
 
-        <div>
-          {template.exercises.map((e: Exercise, i: number) => (
+        {template.exercises.map((e: Exercise, i: number) => (
+          <div key={i}>
             <div>
-              <IonItemSliding key={i}>
-                <IonItem>
-                  <div>
-                    <IonItem>
-                      <IonInput
-                        placeholder="Name" value={e.name} fill="solid"
-                        onIonInput={(event) => setTemplate((prev: Workout) => ({
-                          ...prev,
-                          exercises: [
-                            ...prev.exercises.slice(0, i),
-                            { ...template.exercises[i], name: event.detail.value as string },
-                            ...prev.exercises.slice(i + 1)
-                          ]
-                        }))}
-                      />
-                    </IonItem>
+              <IonInput
+                placeholder="Name" value={e.name} fill="solid"
+                onIonInput={(event) => setTemplate((prev: Workout) => ({
+                  ...prev,
+                  exercises: [
+                    ...prev.exercises.slice(0, i),
+                    { ...template.exercises[i], name: event.detail.value as string },
+                    ...prev.exercises.slice(i + 1)
+                  ]
+                }))}
+              />
 
-                    <IonItem>
-                      <IonLabel slot="start">Number of sets</IonLabel>
-                      <IonInput
-                        fill="solid" value={e.reps.length}
-                        placeholder="0" type="number" slot="end"
-                        onIonInput={(event) => setTemplate((prev: Workout) => ({
-                          ...prev,
-                          exercises: [
-                            ...prev.exercises.slice(0, i),
-                            {
-                              ...template.exercises[i],
-                              reps: Array(Number(event.detail.value)).fill(0)
-                            },
-                            ...prev.exercises.slice(i + 1)
-                          ]
-                        }))}
-                      />
-                    </IonItem>
-
-                    <IonItem>
-                      <IonLabel slot="start">Weight</IonLabel>
-                      <IonInput
-                        placeholder="0" type="number" fill="solid"
-                        slot="end" value={e.weight} label="lbs" labelPlacement="end"
-                        onIonInput={(event) => setTemplate((prev: Workout) => ({
-                          ...prev,
-                          exercises: [
-                            ...prev.exercises.slice(0, i),
-                            { ...template.exercises[i], weight: Number(event.detail.value) },
-                            ...prev.exercises.slice(i + 1)
-                          ]
-                        }))}
-                      />
-                    </IonItem>
-                  </div>
-                </IonItem>
-
-                <IonItemOptions>
-                  <IonItemOption color="danger" onClick={() => {
-                    setTemplate((prev: Workout) => ({
-                      ...prev,
-                      exercises: [...prev.exercises.slice(0, i), ...prev.exercises.slice(i + 1)]
-                    }))
-                  }}>
-                    <IonIcon slot="icon-only" icon={trash} />
-                  </IonItemOption>
-                </IonItemOptions>
-              </IonItemSliding>
-
-              <hr />
+              <IonButton color="danger" onClick={() => {
+                setTemplate((prev: Workout) => ({
+                  ...prev,
+                  exercises: [...prev.exercises.slice(0, i), ...prev.exercises.slice(i + 1)]
+                }))
+              }}>
+                <IonIcon slot="icon-only" icon={trash} />
+              </IonButton>
             </div>
-          ))}
-        </div>
 
-        <IonButton
-          expand="full" size="default"
-          onClick={() => {
-            setTemplate((prev: Workout) => ({
-              ...prev,
-              exercises: [
-                ...prev.exercises,
-                {
-                  id: -1, workoutID: prev.id,
-                  name: "new exercise", weight: 0, reps: [],
-                }
-              ]
-            }));
-          }}>
-          Add exercise
-        </IonButton>
+            {e.exerciseType == "strength" &&
+              <div className="horizontal-strip">
+                <IonInput
+                  fill="solid" value={e.reps.length}
+                  label="sets" labelPlacement="end"
+                  placeholder="0" type="number"
+                  min={1} max={10}
+                  onIonInput={(event) => setTemplate((prev: Workout) => ({
+                    ...prev,
+                    exercises: [
+                      ...prev.exercises.slice(0, i),
+                      {
+                        ...template.exercises[i],
+                        reps: Array(Number(event.detail.value)).fill(0)
+                      },
+                      ...prev.exercises.slice(i + 1)
+                    ]
+                  }))}
+                />
+                <IonInput
+                  placeholder="0" type="number" fill="solid"
+                  slot="end" value={e.weight} label="lbs" labelPlacement="end"
+                  onIonInput={(event) => setTemplate((prev: Workout) => ({
+                    ...prev,
+                    exercises: [
+                      ...prev.exercises.slice(0, i),
+                      { ...template.exercises[i], weight: Number(event.detail.value) },
+                      ...prev.exercises.slice(i + 1)
+                    ]
+                  }))}
+                />
+              </div>
+            }
+            <hr />
+          </div>
+        ))}
       </IonContent>
     </IonPage>
   );

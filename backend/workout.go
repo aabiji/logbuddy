@@ -10,11 +10,13 @@ import (
 )
 
 type ExerciseJSON struct {
-	ID        int32   `json:"id"`
-	WorkoutID int32   `json:"workoutID"`
-	Name      string  `json:"name"`
-	Weight    int32   `json:"weight"`
-	Reps      []int32 `json:"reps"`
+	ID           int32   `json:"id"`
+	WorkoutID    int32   `json:"workoutID"`
+	ExerciseType string  `json:"exerciseType"`
+	Name         string  `json:"name"`
+	Weight       int32   `json:"weight"`
+	Reps         []int32 `json:"reps"`
+	Duration     float64 `json:"duration"`
 }
 
 type WorkoutJSON struct {
@@ -59,20 +61,31 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	params := []database.CreateExercisesParams{}
 	for i := range response.Exercises {
-		var err error
-		response.Exercises[i].ID, err = qtx.CreateExercise(a.ctx,
-			database.CreateExerciseParams{
-				Userid:    userID,
-				Workoutid: response.ID,
-				Name:      response.Exercises[i].Name,
-				Weight:    response.Exercises[i].Weight,
-				Reps:      response.Exercises[i].Reps,
-			})
+		params = append(params, database.CreateExercisesParams{
+			Userid:       userID,
+			Workoutid:    response.ID,
+			Exercisetype: response.Exercises[i].ExerciseType,
+			Name:         response.Exercises[i].Name,
+			Weight:       response.Exercises[i].Weight,
+			Reps:         response.Exercises[i].Reps,
+			Duration:     response.Exercises[i].Duration,
+		})
+	}
+	problem := false
+	qtx.CreateExercises(a.ctx, params).Query(func(i1 int, ids []int32, err error) {
 		if err != nil {
-			respond(w, http.StatusInternalServerError, "couldn't create workout")
+			problem = true
 			return
 		}
+		for i, id := range ids {
+			response.Exercises[i].ID = id
+		}
+	})
+	if problem {
+		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		return
 	}
 
 	if err := tx.Commit(a.ctx); err != nil {
@@ -87,7 +100,7 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	workoutID, ok := getQueryInt(w, r, "id")
+	workoutID, ok := getQuery[int64](w, r, "id")
 	if !ok {
 		return
 	}

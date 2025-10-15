@@ -14,9 +14,11 @@ type Exercise struct {
 	ID           int32
 	Userid       int32
 	Workoutid    int32
+	Exercisetype string
 	Name         string
 	Weight       int32
 	Reps         []int32
+	Duration     float64
 }
 
 type Food struct {
@@ -25,7 +27,7 @@ type Food struct {
 	Userid              int32
 	Name                string
 	Defaultservingindex int32
-	Servingsizes        []int32
+	Servingsizes        []float64
 	Servingunits        []string
 	Calories            float64
 	Carbohydrate        float64
@@ -44,7 +46,7 @@ type Meal struct {
 	Foodid       int32
 	Date         int64
 	Mealtag      string
-	Servings     int32
+	Servings     float64
 	Unit         string
 }
 
@@ -54,7 +56,7 @@ type Record struct {
 	Userid       int32
 	Recordtype   string
 	Date         int64
-	Value        int32
+	Value        float64
 }
 
 type Setting struct {

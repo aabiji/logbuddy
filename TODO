@@ -2,14 +2,15 @@
 [ ] paginate the workouts in the history view
 [ ] parse workout log to a json format i can import (add import button). document json format
 [ ] why do i have to login every time i open the app?
-[ ] add a cardio exercise type (improve the way you add exercises)
 [ ] change the apk icon to the one i set
 [ ] add "item" as a serving size
 [ ] search using incomplete terms (not have to type the whole name)
-[ ] add the filtering selection back to the search page (search as you type instead of having a button)
 [ ] populate the food database with the contents of another food database, so we don't have to define foods from scratch
 [ ] add screenshots of the app to the readme (repost on hackernews)
 [ ] update the meal item tags when you edit the meal
-[ ] cleanup some extraneous ui bugs
 [ ] show loading icon on buttons
-[ ] toggle dark mode
+[ ] Why aren't we showing toast notifications in the meal page (edit meal specifically)
+[ ] restyle all the workout pages, overhaul the styling completely (shouldn't look terrible)
+[ ] toggle dark mode in the settings
+[ ] Also add button to optionally record cardio session (should we time workout sessions also)
+[ ] Implement custom line graph and heatmap components (use svg for drawing)
