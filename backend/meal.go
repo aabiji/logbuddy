@@ -8,21 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type FoodJSON struct {
-	ID                  int32    `json:"id,omitempty"`
-	Name                string   `json:"name"`
-	ServingSizes        []float64  `json:"servingSizes"`
-	ServingUnits        []string `json:"servingUnits"`
-	DefaultServingIndex int32    `json:"defaultServingIndex"`
-	Calories            float64  `json:"calories"`
-	Carbohydrate        float64  `json:"carbohydrate"`
-	Protein             float64  `json:"protein"`
-	Fat                 float64  `json:"fat"`
-	Calcium             float64  `json:"calcium"`
-	Potassium           float64  `json:"potassium"`
-	Iron                float64  `json:"iron"`
-}
-
 func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
 	userID, ok := parseJWT(a, w, r)
 	if !ok {
@@ -122,17 +107,6 @@ func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]any{"food": foodRowToJson(row)}
 	respond(w, http.StatusOK, data)
-}
-
-type MealJSON struct {
-	Updating bool   `json:"updating"`
-	Deleted  bool   `json:"deleted"`
-	ID       int32  `json:"id,omitempty"`
-	Date     int64  `json:"date,omitempty"`
-	FoodID   int32  `json:"foodID,omitempty"`
-	MealTag  string `json:"mealTag"`
-	Servings float64  `json:"servings"`
-	Unit     string `json:"servingsUnit"`
 }
 
 func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {

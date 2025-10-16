@@ -9,26 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type ExerciseJSON struct {
-	ID           int32   `json:"id"`
-	WorkoutID    int32   `json:"workoutID"`
-	ExerciseType string  `json:"exerciseType"`
-	Name         string  `json:"name"`
-	Weight       int32   `json:"weight"`
-	Reps         []int32 `json:"reps"`
-	Duration     float64 `json:"duration"`
-}
-
-type WorkoutJSON struct {
-	Deleted    bool           `json:"deleted"`
-	ID         int32          `json:"id"`
-	Name       string         `json:"name"`
-	Notes      string         `json:"notes"`
-	Date       int64          `json:"date"`
-	IsTemplate bool           `json:"isTemplate"`
-	Exercises  []ExerciseJSON `json:"exercises"`
-}
-
 func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	userID, ok := parseJWT(a, w, r)
 	if !ok {

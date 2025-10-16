@@ -1,6 +1,6 @@
 import { create, StateCreator } from "zustand";
-import { persist } from "zustand/middleware";
-import { AppStorage } from "./storage";
+import { persist, StateStorage } from "zustand/middleware";
+import { Storage } from "@ionic/storage";
 
 // macro and micr nutrients are per 1 g
 export interface Food {
@@ -53,6 +53,7 @@ interface Settings {
   useImperial: boolean;
   trackPeriod: boolean;
   macroTargets: Record<string, number>;
+  darkMode: boolean;
 }
 
 interface RecordJSON {
@@ -83,6 +84,7 @@ export interface AppState {
   weightLog: Map<number, number>, // map date to weight
   periodDates: Map<number, boolean>, // map date to 'true'
   notifications: Notification[];
+  indexedbLoaded: boolean; // whether zustand has hydrated data from indexedb
 
   upsertFood: (food: Food) => void;
   removeMeal: (date: number, index: number) => void;
@@ -99,6 +101,7 @@ export interface AppState {
   addNotification: (n: Notification) => void;
   removeNotification: (index: number) => void;
   clearNotifications: () => void;
+  setIndexedbLoaded: (state: boolean) => void;
   resetState: () => void;
 }
 
@@ -116,8 +119,10 @@ const defaultProps = {
     macroTargets: {},
     useImperial: true,
     trackPeriod: true,
+    darkMode: false
   },
-  notifications: []
+  notifications: [],
+  indexedbLoaded: false,
 };
 
 const state: StateCreator<AppState> = (set, _) => ({
@@ -270,8 +275,40 @@ const state: StateCreator<AppState> = (set, _) => ({
       })),
 
     clearNotifications: () => set((state: AppState) => ({ ...state, notifications: [] })),
+
+    setIndexedbLoaded: (state: boolean) => set({ indexedbLoaded: state }),
 });
 
-const storage = new AppStorage();
-const options = { name: "app-state", storage: storage };
-export const useAppState = create(persist(state, options));
+const store = new Storage();
+const storagePromise = store.create();
+
+export const storage: StateStorage = {
+  getItem: (name: string) => {
+    return storagePromise.then(() => store.get(name)).then(val => val || null);
+  },
+  setItem: (name: string, value: string) => {
+    return storagePromise.then(() => store.set(name, value));
+  },
+  removeItem: (name: string) => {
+    return storagePromise.then(() => store.remove(name));
+  },
+};
+
+export const useAppState = create(persist(state, {
+  name: "app-state",
+  storage,
+  partialize: (state) => ({
+    token: state.token,
+    lastSyncTime: state.lastSyncTime,
+    settings: state.settings,
+    foods: state.foods,
+    meals: state.meals,
+    templates: state.templates,
+    workouts: state.workouts,
+    weightLog: state.weightLog,
+    periodDates: state.periodDates,
+    notifications: state.notifications,
+    indexedbLoaded: state.indexedbLoaded,
+  }),
+  onRehydrateStorage: () => (state) => { state?.setIndexedbLoaded(true); }
+}));

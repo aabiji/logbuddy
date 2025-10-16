@@ -66,6 +66,7 @@ type Setting struct {
 	Mealtags     []string
 	Macrotargets []byte
 	Useimperial  bool
+	Darkmode     bool
 	Trackperiod  bool
 }
 

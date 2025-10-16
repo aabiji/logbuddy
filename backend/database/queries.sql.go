@@ -437,7 +437,7 @@ func (q *Queries) GetUser(ctx context.Context, arg GetUserParams) (GetUserRow, e
 }
 
 const getUserSettings = `-- name: GetUserSettings :one
-select lastmodified, id, userid, mealtags, macrotargets, useimperial, trackperiod from settings where userID = $1
+select lastmodified, id, userid, mealtags, macrotargets, useimperial, darkmode, trackperiod from settings where userID = $1
 `
 
 func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, error) {
@@ -450,6 +450,7 @@ func (q *Queries) GetUserSettings(ctx context.Context, userid int32) (Setting, e
 		&i.Mealtags,
 		&i.Macrotargets,
 		&i.Useimperial,
+		&i.Darkmode,
 		&i.Trackperiod,
 	)
 	return i, err
@@ -605,12 +606,13 @@ func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams
 
 const setUserSettings = `-- name: SetUserSettings :exec
 insert into settings
-(userID, mealTags, macroTargets, useImperial, trackPeriod)
-values ($1, $2, $3, $4, $5)
+(userID, mealTags, macroTargets, useImperial, trackPeriod, darkMode)
+values ($1, $2, $3, $4, $5, $6)
 on conflict (userID) do update
 set mealTags = excluded.mealTags,
     macroTargets = excluded.macroTargets,
     useImperial = excluded.useImperial,
+    darkMode = excluded.darkMode,
     trackPeriod = excluded.trackPeriod
 `
 
@@ -620,6 +622,7 @@ type SetUserSettingsParams struct {
 	Macrotargets []byte
 	Useimperial  bool
 	Trackperiod  bool
+	Darkmode     bool
 }
 
 func (q *Queries) SetUserSettings(ctx context.Context, arg SetUserSettingsParams) error {
@@ -629,6 +632,7 @@ func (q *Queries) SetUserSettings(ctx context.Context, arg SetUserSettingsParams
 		arg.Macrotargets,
 		arg.Useimperial,
 		arg.Trackperiod,
+		arg.Darkmode,
 	)
 	return err
 }

@@ -8,13 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type RecordJSON struct {
-	Deleted  bool  `json:"deleted"`
-	IsPeriod bool  `json:"isPeriod"`
-	Date     int64 `json:"date"`
-	Value    float64 `json:"value"`
-}
-
 func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
 	userID, ok := parseJWT(a, w, r)
 	if !ok {

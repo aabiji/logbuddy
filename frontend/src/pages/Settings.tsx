@@ -85,9 +85,14 @@ export default function SettingsPage() {
       saveFile("logbuddy-export.json", JSON.stringify(json), "application/json");
   }
 
-  useEffect(() => () => {
-    authRequest((jwt: string) =>
-      request("POST", "/user/settings", { ...settings }, jwt));
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      authRequest((jwt: string) =>
+        request("POST", "/user/settings", { ...settings }, jwt));
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   return (
@@ -180,25 +185,39 @@ export default function SettingsPage() {
 
         <div>
           <h4> General </h4>
-          <IonCheckbox
-            className="list-item"
-            labelPlacement="end"
-            checked={settings.useImperial}
-            onIonChange={(event) => updateSettings({
-              useImperial: event.detail.checked
-            })}>
-            Use imperial units
-          </IonCheckbox>
+          <div>
+            <IonCheckbox
+              className="list-item"
+              labelPlacement="end"
+              checked={settings.useImperial}
+              onIonChange={(event) => updateSettings({
+                useImperial: event.detail.checked
+              })}>
+              Use imperial units
+            </IonCheckbox>
 
-          <IonCheckbox
-            className="list-item"
-            labelPlacement="end"
-            checked={settings.trackPeriod}
-            onIonChange={(event) => updateSettings({
-              trackPeriod: event.detail.checked
-            })}>
-            Enable period tracking feature
-          </IonCheckbox>
+            <IonCheckbox
+              className="list-item"
+              labelPlacement="end"
+              checked={settings.darkMode}
+              onIonChange={(event) => {
+                const checked = event.detail.checked;
+                updateSettings({ darkMode: checked });
+                document.body.classList.toggle('dark', checked);
+              }}>
+              Dark mode
+            </IonCheckbox>
+
+            <IonCheckbox
+              className="list-item"
+              labelPlacement="end"
+              checked={settings.trackPeriod}
+              onIonChange={(event) => updateSettings({
+                trackPeriod: event.detail.checked
+              })}>
+              Enable period tracking feature
+            </IonCheckbox>
+          </div>
 
           <div className="horizontal-strip control-btns">
             <IonButton onClick={exportData}>

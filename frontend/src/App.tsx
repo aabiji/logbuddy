@@ -8,7 +8,7 @@ import {
   IonApp, IonIcon, IonRouterOutlet, IonTabBar,
   IonTabButton, IonTabs, setupIonicReact
 } from "@ionic/react";
-import { barbell, fastFood, scale, settings, water } from "ionicons/icons";
+import { barbell, fastFood, scale, settings as settingsIcon, water } from "ionicons/icons";
 
 import "@ionic/react/css/core.css";
 import "@ionic/react/css/normalize.css";
@@ -35,7 +35,10 @@ import FoodViewPage from "./pages/food/View";
 setupIonicReact();
 
 function TabsWrapper() {
-  const { lastSyncTime, clearNotifications, token, updateUserData } = useAppState();
+  const {
+    lastSyncTime, clearNotifications, settings,
+    indexedbLoaded, token, updateUserData
+  } = useAppState();
   const authRequest = useAuthRequest();
 
   const history = useHistory();
@@ -50,13 +53,17 @@ function TabsWrapper() {
   }
 
   useEffect(() => {
+    if (!indexedbLoaded) return;
+
     clearNotifications();
+    document.body.classList.toggle('dark', settings.darkMode);
+
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");
     if (token.length !== 0 && location.pathname != "/auth")
       syncUserData();
-  }, []);
+  }, [indexedbLoaded]);
 
   return (
     <IonTabs>
@@ -90,7 +97,7 @@ function TabsWrapper() {
             <IonIcon aria-hidden="true" icon={water} />
           </IonTabButton>
           <IonTabButton tab="settings" href="/settings">
-            <IonIcon aria-hidden="true" icon={settings} />
+            <IonIcon aria-hidden="true" icon={settingsIcon} />
           </IonTabButton>
         </IonTabBar>
       )}

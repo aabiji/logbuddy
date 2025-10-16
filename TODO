@@ -1,7 +1,6 @@
 [ ] consider paginating the /user/data endpoint response
 [ ] paginate the workouts in the history view
 [ ] parse workout log to a json format i can import (add import button). document json format
-[ ] why do i have to login every time i open the app?
 [ ] change the apk icon to the one i set
 [ ] add "item" as a serving size
 [ ] search using incomplete terms (not have to type the whole name)
@@ -11,6 +10,5 @@
 [ ] show loading icon on buttons
 [ ] Why aren't we showing toast notifications in the meal page (edit meal specifically)
 [ ] restyle all the workout pages, overhaul the styling completely (shouldn't look terrible)
-[ ] toggle dark mode in the settings
 [ ] Also add button to optionally record cardio session (should we time workout sessions also)
 [ ] Implement custom line graph and heatmap components (use svg for drawing)

@@ -3,12 +3,13 @@ insert into users (email, password) values ($1, $2) returning id;
 
 -- name: SetUserSettings :exec
 insert into settings
-(userID, mealTags, macroTargets, useImperial, trackPeriod)
-values ($1, $2, $3, $4, $5)
+(userID, mealTags, macroTargets, useImperial, trackPeriod, darkMode)
+values ($1, $2, $3, $4, $5, $6)
 on conflict (userID) do update
 set mealTags = excluded.mealTags,
     macroTargets = excluded.macroTargets,
     useImperial = excluded.useImperial,
+    darkMode = excluded.darkMode,
     trackPeriod = excluded.trackPeriod;
 
 -- name: GetUserSettings :one

@@ -33,19 +33,13 @@ func newUser(a *API, email string, hashedPassword string) (int32, error) {
 		Mealtags:     []string{"Breakfast", "Lunch", "Dinner"},
 		Useimperial:  true,
 		Trackperiod:  true,
+		Darkmode:     false,
 		Macrotargets: encoded,
 	}); err != nil {
 		return -1, err
 	}
 
 	return id, tx.Commit(a.ctx)
-}
-
-type SettingsJSON struct {
-	MealTags     []string       `json:"mealTags"`
-	UseImperial  bool           `json:"useImperial"`
-	TrackPeriod  bool           `json:"trackPeriod"`
-	MacroTargets map[string]int `json:"macroTargets"`
 }
 
 func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
@@ -140,7 +134,10 @@ func (a *API) UpdatedUserData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	settings := SettingsJSON{
-		MealTags: row.Mealtags, UseImperial: row.Useimperial, TrackPeriod: row.Trackperiod,
+		MealTags:    row.Mealtags,
+		UseImperial: row.Useimperial,
+		TrackPeriod: row.Trackperiod,
+		DarkMode:    row.Darkmode,
 	}
 	if err := json.Unmarshal(row.Macrotargets, &settings.MacroTargets); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to fetch settings")
@@ -183,6 +180,7 @@ func (a *API) UpdateUserSettings(w http.ResponseWriter, r *http.Request) {
 		Mealtags:     settings.MealTags,
 		Useimperial:  settings.UseImperial,
 		Trackperiod:  settings.TrackPeriod,
+		Darkmode:     settings.DarkMode,
 		Macrotargets: encoded,
 	}); err != nil {
 		respond(w, http.StatusInternalServerError, "failed to update settings")

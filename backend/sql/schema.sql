@@ -14,6 +14,7 @@ create table if not exists Settings (
     mealTags text[] not null,
     macroTargets jsonb not null,
     useImperial boolean not null,
+    darkMode boolean not null,
     trackPeriod boolean not null,
 
     unique (userID)
