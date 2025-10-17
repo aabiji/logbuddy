@@ -5,10 +5,11 @@ import { useAppState } from "./../lib/state";
 import { saveFile } from "../lib/filesystem";
 
 import {
-  IonContent, IonPage, IonCheckbox, IonButton, IonIcon,
-  IonInput, IonModal, IonInputPasswordToggle
+  IonContent, IonPage, IonCheckbox, IonButton,
+  IonIcon, IonModal, IonItemOption, IonItemOptions,
+  IonItem, IonItemSliding
 } from "@ionic/react";
-import { NotificationTray, Selection } from "../Components";
+import { Input, NotificationTray, Selection } from "../Components";
 import { add, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
@@ -46,14 +47,12 @@ function AccountDeletion() {
             be able to recover any of your data!
           </p>
           <p>Enter your password to confirm:</p>
-          <IonInput
-            type="password"
+          <Input
+            inputType="password"
             placeholder="Password"
-            value={password} fill="outline"
-            onIonInput={(event) => setPassword(event.detail.value as string)}>
-            <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-          </IonInput>
-
+            value={password}
+            setValue={(value: string) => setPassword(value)}
+          />
           <IonButton
             color="danger"
             onClick={deleteUser}
@@ -117,30 +116,35 @@ export default function SettingsPage() {
             const deletable = key != "calories";
             return (
               <div key={i} className="horizontal-strip list-item">
-                <div className="horizontal-strip" style={{ flexGrow: 1 }}>
-                  <p>{name}</p>
-                  <IonInput
+                <IonItemSliding key={i}>
+                  <IonItem>
+                    <p>{name}</p>
+                    <Input
                     labelPlacement="end"
-                    inputMode="numeric" fill="solid"
+                    inputType="number"
                     label={deletable ? "g" : ""}
                     value={settings.macroTargets[key]}
-                    onIonInput={(event) => updateSettings({
+                    setValue={(value: string) => updateSettings({
                       macroTargets: {
                         ...settings.macroTargets,
-                        [key]: Number(event.detail.value)
+                        [key]: Number(value)
                       }
                     })}
-                  />
-                </div>
-                {deletable && (
-                  <IonButton fill="clear" onClick={() => {
-                    const copy = JSON.parse(JSON.stringify(settings.macroTargets));
-                    delete copy[key];
-                    updateSettings({ macroTargets: copy });
-                  }}>
-                    <IonIcon slot="icon-only" color="danger" icon={trash} size="small" />
-                  </IonButton>
-                )}
+                    />
+                  </IonItem>
+                  {deletable && <IonItemOptions>
+                    <IonItemOption
+                      color="danger"
+                      onClick={() => {
+                        const copy = JSON.parse(JSON.stringify(settings.macroTargets));
+                        delete copy[key];
+                        updateSettings({ macroTargets: copy });
+                      }}>
+                        <IonIcon aria-hidden="true" icon={trash} />
+                      </IonItemOption>
+                  </IonItemOptions>
+                  }
+                </IonItemSliding>
               </div>
             )})}
         </div>
@@ -158,26 +162,32 @@ export default function SettingsPage() {
             </IonButton>
           </div>
           {settings.mealTags.map((_, i) => (
-            <div key={i} className="horizontal-strip list-item">
-              <IonInput
-                value={settings.mealTags[i]} fill="solid"
-                onIonInput={(event) => updateSettings({
-                  mealTags: [
-                    ...settings.mealTags.slice(0, i),
-                    event.detail.value as string,
-                    ...settings.mealTags.slice(i + 1)
-                  ]
-                })}
-              />
-              <IonButton fill="clear" onClick={() => updateSettings({
-                mealTags: [
-                  ...settings.mealTags.slice(0, i),
-                  ...settings.mealTags.slice(i + 1),
-                ]
-              })}>
-                <IonIcon slot="icon-only" color="danger" icon={trash} size="default" />
-              </IonButton>
-            </div>
+            <IonItemSliding key={i}>
+              <IonItem>
+                <Input
+                  value={settings.mealTags[i]}
+                  setValue={(value: string) => updateSettings({
+                    mealTags: [
+                      ...settings.mealTags.slice(0, i),
+                      value,
+                      ...settings.mealTags.slice(i + 1)
+                    ]
+                  })}
+                />
+              </IonItem>
+              <IonItemOptions>
+                <IonItemOption
+                  color="danger"
+                  onClick={() => updateSettings({
+                    mealTags: [
+                      ...settings.mealTags.slice(0, i),
+                      ...settings.mealTags.slice(i + 1),
+                    ]
+                  })}>
+                  <IonIcon aria-hidden="true" icon={trash} />
+                </IonItemOption>
+              </IonItemOptions>
+            </IonItemSliding>
           ))}
         </div>
 

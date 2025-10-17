@@ -3,9 +3,8 @@ import { useHistory } from 'react-router';
 import { request } from '../lib/request';
 import { useAppState, UserDataUpdate } from '../lib/state';
 
-import {
-  IonButton, IonContent, IonPage, IonInput, IonInputPasswordToggle,
-} from '@ionic/react';
+import { IonButton, IonContent, IonPage } from '@ionic/react';
+import { Input } from "../Components";
 import "../theme/styles.css";
 
 export default function AuthPage() {
@@ -54,18 +53,16 @@ export default function AuthPage() {
           <h1>LogBuddy</h1>
           {error !== undefined && <p className='error-message'>{error}</p>}
 
-          <IonInput
-            value={email}
-            type="email" placeholder="Email" fill="outline"
-            onIonInput={(event) => setEmail(event.detail.value as string)}
+          <Input
+            value={email} inputType="email" placeholder="Email"
+            setValue={(value: string) => setEmail(value)}
           />
 
-          <IonInput
+          <Input
             value={password}
-            type="password" placeholder="Password" fill="outline"
-            onIonInput={(event) => setPassword(event.detail.value as string)}>
-            <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-          </IonInput>
+            inputType="password" placeholder="Password"
+            setValue={(value: string) => setPassword(value)}
+          />
 
           <IonButton expand="full" size="default"  shape="round"onClick={authenticate}>
             {isLogin ? "Login" : "Create account"}

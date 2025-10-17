@@ -18,8 +18,8 @@ var (
 
 const createExercises = `-- name: CreateExercises :batchmany
 insert into exercises
-(userID, workoutID, exerciseType, name, weight, reps, duration)
-values ($1, $2, $3, $4, $5, $6, $7) returning id
+(userID, workoutID, exerciseType, name, weight, weightUnit, reps, duration)
+values ($1, $2, $3, $4, $5, $6, $7, $8) returning id
 `
 
 type CreateExercisesBatchResults struct {
@@ -34,6 +34,7 @@ type CreateExercisesParams struct {
 	Exercisetype string
 	Name         string
 	Weight       int32
+	Weightunit   string
 	Reps         []int32
 	Duration     float64
 }
@@ -47,6 +48,7 @@ func (q *Queries) CreateExercises(ctx context.Context, arg []CreateExercisesPara
 			a.Exercisetype,
 			a.Name,
 			a.Weight,
+			a.Weightunit,
 			a.Reps,
 			a.Duration,
 		}

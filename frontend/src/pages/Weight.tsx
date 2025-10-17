@@ -5,26 +5,24 @@ import { useAppState } from "./../lib/state";
 
 import {
   IonContent, IonPage, IonList, IonItem, IonItemSliding,
-  IonIcon, IonItemOptions, IonItemOption, IonInput,
-  IonButton, IonModal, IonDatetime, IonCheckbox,
-  IonRadioGroup, IonRadio,
+  IonIcon, IonItemOptions, IonItemOption, IonButton,
+  IonModal, IonCheckbox, IonRadioGroup, IonRadio,
 } from "@ionic/react";
 import { LineGraph, Point } from "./exercise/Graph";
-import { NotificationTray } from "../Components";
+import { Input, NotificationTray } from "../Components";
 import { add, pencil, trash } from "ionicons/icons";
 import "../theme/styles.css";
 
 export default function WeightPage() {
   const authRequest = useAuthRequest();
-  const { removeWeight, setWeight, weightLog } = useAppState();
+  const { removeWeight, setWeight, weightLog, settings } = useAppState();
   const [viewHorizon, setViewHorizon] = useState("thisMonth");
   const [groupWeekly, setGroupWeekly] = useState(false);
   const [showViewPicker, setShowViewPicker] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // get the indexes of points whose dates mark a new month
   const getMonthStartIndexes = (points: Point[]): number[] => {
-    let monthStarts = [0];
+    const monthStarts = [0];
     for (let i = 1; i < points.length; i++) {
       if (!isSameMonth(points[i - 1].date, points[i].date))
         monthStarts.push(i);
@@ -35,7 +33,7 @@ export default function WeightPage() {
   const getWeeklyAverages = (points: Point[]): Point[] => {
     if (points.length == 0) return [];
     let week = [points[0]] as Point[];
-    let weeklyAverages = [] as Point[];
+    const weeklyAverages = [] as Point[];
 
     for (let i = 1; i < points.length; i++) {
       if (isSameWeek(points[i - 1].date, points[i].date)) {
@@ -96,7 +94,6 @@ export default function WeightPage() {
     const t = dayUnixTimestamp(date);
     if (isNew && weightLog.get(t)) return; // can't have duplicate dates
     setWeight(t, value);
-    setShowDatePicker(false);
 
     if (timerRefs.current[t]) clearTimeout(timerRefs.current[t]);
     const newTimeout = setTimeout(async () => {
@@ -116,23 +113,10 @@ export default function WeightPage() {
 
           <div className="horizontal-strip" style={{ width: "25%" }}>
             <IonButton
-              onClick={() => setShowDatePicker(true)}
+              onClick={() => editWeight(new Date(), 0, true)}
               className="icon-btn-square">
               <IonIcon slot="icon-only" color="light" icon={add} />
             </IonButton>
-            <IonModal
-              className="centered-modal"
-              onDidDismiss={() => setShowDatePicker(false)}
-              initialBreakpoint={undefined}
-              breakpoints={undefined}
-              isOpen={showDatePicker}>
-              <IonDatetime
-                presentation="date"
-                onIonChange={(event) =>
-                  editWeight(new Date(event.detail.value as string), 0, true)}
-              />
-            </IonModal>
-
             <IonButton
               onClick={() => setShowViewPicker(true)}
               className="icon-btn-square">
@@ -170,13 +154,12 @@ export default function WeightPage() {
             {sortedWeightLogs.map(v => (
               <IonItemSliding key={v[0]}>
                 <IonItem className="weight-value">
-                  <IonInput
-                    slot="start" fill="solid"
+                  <Input
                     min={0} max={500} value={v[1]}
-                    type="number" placeholder="0"
-                    label="lbs" labelPlacement="end"
-                    onIonInput={(event) =>
-                      editWeight(new Date(v[0]), Number(event.detail.value), false)}
+                    inputType="number" placeholder="0"
+                    label={settings.useImperial ? "lbs" : "kg"} labelPlacement="end"
+                    setValue={(value: string) =>
+                      setWeight(new Date(v[0]), Number(value), false)}
                   />
                   <p slot="end">{formatDate(new Date(v[0]))}</p>
                 </IonItem>

@@ -5,16 +5,16 @@ import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp } from "../../lib/date";
 
 import {
-  IonHeader, IonTitle, IonInput, IonToolbar, IonPage,
+  IonHeader, IonTitle, IonToolbar, IonPage,
   IonIcon, IonButton, IonContent, IonButtons, IonBackButton
 } from "@ionic/react";
-import { NotificationTray, Selection } from "../../Components";
+import { Input, NotificationTray, Selection } from "../../Components";
 import { trash } from "ionicons/icons";
 import "../../theme/styles.css";
 
 export default function TemplatePage() {
   const authRequest = useAuthRequest();
-  const { workouts, removeWorkout, upsertWorkout } = useAppState();
+  const { workouts, removeWorkout, upsertWorkout, settings } = useAppState();
   const { id } = useParams<{ id: string }>();
   const creating = id === "-1";
   const [template, setTemplate] = useState(
@@ -38,7 +38,7 @@ export default function TemplatePage() {
   const update = async () => {
     if (!creating) await remove();
 
-    let payload = JSON.parse(JSON.stringify(template));
+    const payload = JSON.parse(JSON.stringify(template));
     payload.date = dayUnixTimestamp(new Date());
     payload.id = -1;
     for (let i = 0; i < payload.exercises.length; i++) {
@@ -80,11 +80,9 @@ export default function TemplatePage() {
         <NotificationTray />
 
         <div className="horizontal-strip">
-          <IonInput
-            fill="outline"
+          <Input
             placeholder="Template name" value={template.name}
-            onIonInput={(event) => setTemplate((prev: Workout) =>
-              ({ ...prev, name: event.detail.value as string }))}
+            setValue={(value: string) => setTemplate((prev: Workout) => ({ ...prev, name: value }))}
           />
           <Selection
             selections={exerciseTypes}
@@ -96,7 +94,8 @@ export default function TemplatePage() {
                   {
                     id: -1, workoutID: prev.id,
                     exerciseType: value, name: "new exercise",
-                    weight: 0, reps: [], duration: 0,
+                    weight: 0, weightUnit: settings.useImperial ? "lbs" : "kg",
+                    reps: [], duration: 0,
                   }
                 ]
               }));
@@ -107,13 +106,13 @@ export default function TemplatePage() {
         {template.exercises.map((e: Exercise, i: number) => (
           <div key={i}>
             <div>
-              <IonInput
-                placeholder="Name" value={e.name} fill="solid"
-                onIonInput={(event) => setTemplate((prev: Workout) => ({
+              <Input
+                placeholder="Name" value={e.name}
+                setValue={(value: string) => setTemplate((prev: Workout) => ({
                   ...prev,
                   exercises: [
                     ...prev.exercises.slice(0, i),
-                    { ...template.exercises[i], name: event.detail.value as string },
+                    { ...template.exercises[i], name: value },
                     ...prev.exercises.slice(i + 1)
                   ]
                 }))}
@@ -131,31 +130,31 @@ export default function TemplatePage() {
 
             {e.exerciseType == "strength" &&
               <div className="horizontal-strip">
-                <IonInput
-                  fill="solid" value={e.reps.length}
+                <Input
+                  value={e.reps.length}
                   label="sets" labelPlacement="end"
-                  placeholder="0" type="number"
+                  placeholder="0" inputType="number"
                   min={1} max={10}
-                  onIonInput={(event) => setTemplate((prev: Workout) => ({
+                  setValue={(value: string) => setTemplate((prev: Workout) => ({
                     ...prev,
                     exercises: [
                       ...prev.exercises.slice(0, i),
                       {
                         ...template.exercises[i],
-                        reps: Array(Number(event.detail.value)).fill(0)
+                        reps: Array(Number(value)).fill(0)
                       },
                       ...prev.exercises.slice(i + 1)
                     ]
                   }))}
                 />
-                <IonInput
-                  placeholder="0" type="number" fill="solid"
-                  slot="end" value={e.weight} label="lbs" labelPlacement="end"
-                  onIonInput={(event) => setTemplate((prev: Workout) => ({
+                <Input
+                  placeholder="0" inputType="number"
+                  value={e.weight} label={e.weightUnit} labelPlacement="end"
+                  setValue={(value: string) => setTemplate((prev: Workout) => ({
                     ...prev,
                     exercises: [
                       ...prev.exercises.slice(0, i),
-                      { ...template.exercises[i], weight: Number(event.detail.value) },
+                      { ...template.exercises[i], weight: Number(value) },
                       ...prev.exercises.slice(i + 1)
                     ]
                   }))}

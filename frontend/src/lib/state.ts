@@ -1,5 +1,5 @@
 import { create, StateCreator } from "zustand";
-import { persist, StateStorage } from "zustand/middleware";
+import { persist, PersistStorage, StorageValue } from "zustand/middleware";
 import { Storage } from "@ionic/storage";
 
 // macro and micr nutrients are per 1 g
@@ -34,6 +34,7 @@ export interface Exercise {
   exerciseType: string; // "strength" or "cardio"
   name: string;
   weight: number;
+  weightUnit: string;
   reps: number[];
   duration: number; // in minutes
 }
@@ -105,6 +106,21 @@ export interface AppState {
   resetState: () => void;
 }
 
+// Define the persisted state type
+interface PersistedState {
+  token: string;
+  lastSyncTime: number;
+  settings: Settings;
+  foods: Map<number, Food>;
+  meals: Map<number, Meal[]>;
+  templates: number[];
+  workouts: Map<number, Workout>;
+  weightLog: Map<number, number>;
+  periodDates: Map<number, boolean>;
+  notifications: Notification[];
+  indexedbLoaded: boolean;
+}
+
 const defaultProps = {
   token: "",
   lastSyncTime: 0,
@@ -174,7 +190,7 @@ const state: StateCreator<AppState> = (set, _) => ({
 
   upsertWorkout: (w: Workout) =>
     set((state: AppState) => {
-      let templates = [...state.templates];
+      const templates = [...state.templates];
       if (w.isTemplate && !templates.includes(w.id))
         templates.push(w.id);
 
@@ -189,7 +205,7 @@ const state: StateCreator<AppState> = (set, _) => ({
       const isTemplate = workouts.get(id)?.isTemplate;
       workouts.delete(id)
 
-      let templates = [...state.templates];
+      const templates = [...state.templates];
       if (isTemplate) templates.splice(templates.indexOf(id), 1);
       return { ...state, workouts, templates };
     }),
@@ -282,22 +298,26 @@ const state: StateCreator<AppState> = (set, _) => ({
 const store = new Storage();
 const storagePromise = store.create();
 
-export const storage: StateStorage = {
-  getItem: (name: string) => {
-    return storagePromise.then(() => store.get(name)).then(val => val || null);
+export const storage: PersistStorage<PersistedState> = {
+  getItem: async (name: string) => {
+    await storagePromise;
+    const val = await store.get(name);
+    return val || null;
   },
-  setItem: (name: string, value: string) => {
-    return storagePromise.then(() => store.set(name, value));
+  setItem: async (name: string, value: StorageValue<PersistedState>) => {
+    await storagePromise;
+    await store.set(name, value);
   },
-  removeItem: (name: string) => {
-    return storagePromise.then(() => store.remove(name));
+  removeItem: async (name: string) => {
+    await storagePromise;
+    await store.remove(name);
   },
 };
 
 export const useAppState = create(persist(state, {
   name: "app-state",
   storage,
-  partialize: (state) => ({
+  partialize: (state): PersistedState => ({
     token: state.token,
     lastSyncTime: state.lastSyncTime,
     settings: state.settings,

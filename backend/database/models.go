@@ -17,6 +17,7 @@ type Exercise struct {
 	Exercisetype string
 	Name         string
 	Weight       int32
+	Weightunit   string
 	Reps         []int32
 	Duration     float64
 }

@@ -6,9 +6,9 @@ import { dayUnixTimestamp, formatDate } from "../../lib/date";
 
 import {
   IonContent, IonPage, IonIcon, IonButton, IonProgressBar,
-  IonModal, IonInput, IonSelect, IonSelectOption
+  IonModal, IonSelect, IonSelectOption
 } from "@ionic/react";
-import { NotificationTray } from "../../Components";
+import { Input, NotificationTray } from "../../Components";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -62,16 +62,15 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
               </IonSelect>
 
               <div style={{ display: "flex", alignItems: "center", gap: 25 }}>
-                <IonInput
-                  fill="solid"
-                  type="number"
+                <Input
+                  inputType="number"
                   placeholder="0"
                   labelPlacement="end"
                   label="Servings"
                   min={0.1}
                   value={meal.servings}
-                  onIonInput={(event) => {
-                    update({ ...meal, servings: Number(event.detail.value) });
+                  setValue={(value: string) => {
+                    update({ ...meal, servings: Number(value) });
                   }}
                 />
 

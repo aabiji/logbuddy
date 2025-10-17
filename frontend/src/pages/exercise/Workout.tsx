@@ -6,11 +6,10 @@ import { dayUnixTimestamp } from "../../lib/date";
 
 import {
   IonHeader, IonTitle, IonItem, IonLabel,
-  IonTextarea, IonText, IonInput, IonToolbar,
-  IonPage, IonButton, IonContent, IonButtons,
-  IonBackButton,
+  IonText, IonToolbar, IonPage, IonButton,
+  IonContent, IonButtons, IonBackButton,
 } from "@ionic/react";
-import { NotificationTray, TimeInput } from "../../Components";
+import { Input, NotificationTray, TimeInput } from "../../Components";
 import "../../theme/styles.css";
 
 export default function WorkoutPage() {
@@ -21,7 +20,7 @@ export default function WorkoutPage() {
   const derivedWorkout = (templateID: number) => {
     // Create a new workout using the template as a base
     const base = workouts.get(templateID)!;
-    let value = JSON.parse(JSON.stringify(base));
+    const value = JSON.parse(JSON.stringify(base));
     value.date = dayUnixTimestamp(new Date());
     value.isTemplate = false;
     value.id = -1;
@@ -34,7 +33,7 @@ export default function WorkoutPage() {
   const [workout, setWorkout] = useState(derivedWorkout(Number(templateID)));
 
   const create = async () => {
-    let payload = { ...workout, id: -1, date: dayUnixTimestamp(new Date()) };
+    const payload = { ...workout, id: -1, date: dayUnixTimestamp(new Date()) };
     for (let i = 0; i < payload.exercises.length; i++) {
       payload.exercises[i].id = -1;
     }
@@ -65,16 +64,16 @@ export default function WorkoutPage() {
       <IonContent className="inner-page">
         <NotificationTray />
 
-        <IonTextarea
-          label="Notes" autoGrow={true}
-          labelPlacement="stacked" placeholder="Notes"
-          onIonInput={(event) =>
-            setWorkout((prev: Workout) => ({ ...prev, notes: event.detail.value }))}
+        <Input
+          placeholder="Notes"
+          value={workout.notes}
+          setValue={(value) =>
+            setWorkout((prev: Workout) => ({ ...prev, notes: value }))}
         />
 
         {workout.exercises.map((e: Exercise, eIndex: number) => (
           <div key={eIndex}>
-            <IonText><h3>{e.name} ({e.weight} lbs)</h3></IonText>
+            <IonText><h3>{e.name} ({e.weight} {e.weightUnit})</h3></IonText>
             {e.exerciseType == "cardio" &&
               <TimeInput
                 setDuration={(n: number) => {
@@ -89,14 +88,14 @@ export default function WorkoutPage() {
             {e.exerciseType == "strength" && e.reps.map((r: number, i: number) => (
               <IonItem key={i}>
                 <IonLabel slot="start">Set #{i + 1}</IonLabel>
-                <IonInput
-                  fill="outline" placeholder="0" type="number"
-                  slot="end" key={i} value={r} label="reps"
+                <Input
+                  placeholder="0" inputType="number"
+                  key={i} value={r} label="reps"
                   labelPlacement="end"
-                  onIonInput={(event) => {
+                  setValue={(value: string) => {
                     setWorkout((prev: Workout) => {
-                      let copy = { ...prev };
-                      copy.exercises[eIndex].reps[i] = Number(event.detail.value);
+                      const copy = { ...prev };
+                      copy.exercises[eIndex].reps[i] = Number(value);
                       return copy;
                     })
                   }}

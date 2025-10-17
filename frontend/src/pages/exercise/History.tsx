@@ -11,7 +11,7 @@ import {
 import { NotificationTray } from "../../Components";
 
 export default function HistoryPage() {
-  const { workouts } = useAppState();
+  const { workouts, settings } = useAppState();
 
   const entries = useMemo(() => {
     const values = Array.from(workouts.values()) as Workout[] ?? [];
@@ -50,7 +50,7 @@ export default function HistoryPage() {
                   {workout.exercises.map((e, i) => (
                     <IonItem slot="header" key={i}>
                       <IonText>
-                        <p>{e.name} ({e.weight} lbs) {e.reps.join(", ")}</p>
+                        <p>{e.name} ({e.weight} {settings.useImperial ? "lbs" : "kg"}) {e.reps.join(", ")}</p>
                       </IonText>
                     </IonItem>
                   ))}

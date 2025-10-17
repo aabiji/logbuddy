@@ -6,10 +6,10 @@ import { request, useAuthRequest } from "../../lib/request";
 
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonButtons, IonItem, IonLabel, IonBackButton, IonInput,
-  IonButton, IonSelect, IonSelectOption, IonIcon, IonText
+  IonButtons, IonItem, IonLabel, IonBackButton, IonButton,
+  IonSelect, IonSelectOption, IonIcon, IonText
 } from "@ionic/react";
-import { NotificationTray } from "../../Components";
+import { Input, NotificationTray } from "../../Components";
 import { add, trash, star } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -99,15 +99,11 @@ export default function FoodViewPage() {
         <NotificationTray />
 
         {edit
-          ? <IonInput
+          ? <Input
             value={food.name}
-            fill="outline"
-            className="food-view-name"
             placeholder="Food name"
-            onChange={(event) => {
-              const value = event.currentTarget.value as string ?? "";
-              setFood((prev: Food) => ({ ...prev, name: value }));
-            }}
+            setValue={(value: string) =>
+              setFood((prev: Food) => ({ ...prev, name: value }))}
           />
           : <IonText><h3>{food.name}</h3></IonText>
         }
@@ -137,18 +133,14 @@ export default function FoodViewPage() {
         {edit && food.servingSizes.map((_, i) => (
           <IonItem key={i} className="serving-size">
             <div className="horizontal-strip">
-              <IonInput
-                className="nutrient-input"
-                slot="start"
-                type="number"
+              <Input
+                inputType="number"
                 placeholder="0"
-                fill="solid"
                 value={food.servingSizes[i]}
-                onIonInput={(event) => {
-                  const value = Number(event.detail.value);
+                setValue={(value: string) => {
                   setFood((prev) => {
                     const newServings = [...prev.servingSizes];
-                    newServings[i] = value;
+                    newServings[i] = Number(value);
                     return { ...prev, servingSizes: newServings };
                   });
                 }}
@@ -223,20 +215,13 @@ export default function FoodViewPage() {
                 {key[0].toUpperCase() + key.slice(1)}
               </IonLabel>
               {edit
-                ? <IonInput
-                  className="nutrient-input"
-                  slot="end"
-                  type="number"
+                ? <Input
+                  inputType="number"
                   label={unit}
                   labelPlacement="end"
-                  fill="solid"
                   placeholder="0"
-                  required={key == "calories"}
                   value={food[key] as number}
-                  onIonInput={(event) => {
-                    const value = Number(event.detail.value);
-                    setFood(prev => ({ ...prev, [key]: value }));
-                  }}
+                  setValue={(value: string) => setFood(prev => ({ ...prev, [key]: Number(value) }))}
                 />
                 : <b>{(food[key as keyof Food] as number) * food.servingSizes[currentServing]}</b>
               }

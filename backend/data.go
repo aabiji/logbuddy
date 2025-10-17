@@ -14,6 +14,7 @@ type ExerciseJSON struct {
 	ExerciseType string  `json:"exerciseType"`
 	Name         string  `json:"name"`
 	Weight       int32   `json:"weight"`
+	WeightUnit   string  `json:"weightUnit"`
 	Reps         []int32 `json:"reps"`
 	Duration     float64 `json:"duration"`
 }

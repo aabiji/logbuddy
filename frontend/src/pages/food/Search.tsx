@@ -8,10 +8,10 @@ import { request, useAuthRequest } from "../../lib/request";
 import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
-  IonLabel, IonBackButton, IonIcon, IonInput,
-  IonButton, IonText, IonSelect, IonSelectOption
+  IonLabel, IonBackButton, IonIcon, IonButton,
+  IonText, IonSelect, IonSelectOption
 } from "@ionic/react";
-import { NotificationTray } from "../../Components";
+import { Input, NotificationTray } from "../../Components";
 import { add } from "ionicons/icons";
 import "../../theme/styles.css";
 
@@ -93,10 +93,9 @@ export default function FoodSearchPage() {
         <NotificationTray />
 
         <div className="search-controls">
-          <IonInput
-            placeholder="Search food"
-            value={query} fill="outline"
-            onChange={(e) => updateSearchQuery(e.currentTarget.value as string)}
+          <Input
+            placeholder="Search food" value={query}
+            setValue={(value: string) => updateSearchQuery(value)}
           />
           <div className="horizontal-strip">
             <IonSelect

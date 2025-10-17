@@ -49,6 +49,7 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 			Exercisetype: response.Exercises[i].ExerciseType,
 			Name:         response.Exercises[i].Name,
 			Weight:       response.Exercises[i].Weight,
+			Weightunit:   response.Exercises[i].WeightUnit,
 			Reps:         response.Exercises[i].Reps,
 			Duration:     response.Exercises[i].Duration,
 		})
@@ -134,7 +135,8 @@ func getWorkout(
 	for _, row := range rows {
 		workout.Exercises = append(workout.Exercises, ExerciseJSON{
 			ID: row.ID, WorkoutID: w.ID, Name: row.Name,
-			Weight: row.Weight, Reps: row.Reps,
+			Weight: row.Weight, WeightUnit: row.Weightunit,
+			Reps: row.Reps,
 		})
 	}
 	return workout, nil

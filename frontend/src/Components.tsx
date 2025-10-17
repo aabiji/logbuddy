@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useAppState } from "./lib/state";
 
-import {
-  IonCheckbox, IonButton, IonIcon, IonModal, IonToast,
-  IonInput
-} from "@ionic/react";
+import { IonCheckbox, IonButton, IonIcon, IonModal, IonToast } from "@ionic/react";
 import { add } from "ionicons/icons";
 import "./theme/styles.css";
 
@@ -41,36 +38,73 @@ export function Selection({ selections, setSelection }:
   );
 }
 
+interface InputProps {
+  inputType?: string;
+  value: string | number;
+  setValue: (val: string) => void;
+  placeholder?: string;
+  label?: string;
+  labelPlacement?: string;
+  min?: number;
+  max?: number;
+  textarea?: boolean;
+};
+
+export function Input({
+  inputType, min, max, value, setValue, placeholder, label,
+  labelPlacement, textarea
+}: InputProps) {
+  const placement = labelPlacement ? "end" : labelPlacement;
+  const t = inputType ?? "text";
+  return (
+    <div className="custom-input">
+      {label && placement == "start" && <p>{label}</p>}
+
+      {textarea && <textarea
+          placeholder={placeholder ?? ""} value={`${value}`}
+          onInput={(event) => setValue(event.target.value)} />}
+
+      {!textarea && <input
+        type={t} placeholder={placeholder ?? ""} min={min} max={max}
+        value={`${value}`} onInput={(event) => setValue(event.target.value)} />}
+
+      {label && placement == "end" && <p>{label}</p>}
+    </div>
+  );
+}
+
 export function TimeInput({ setDuration }: { setDuration: (n: number) => void; }) {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
   return (
     <div className="time-input">
-      <IonInput
-        fill="outline" placeholder="0"
-        type="number" label="h" min={0} max={24}
+      <Input
+        placeholder="0"
+        inputType="number" label="h"
+        min={0} max={24}
         labelPlacement="end" value={hours}
-        onIonInput={(event) => {
-          setHours(Number(event.detail.value));
+        setValue={(value: string) => {
+          setHours(Number(value));
           setDuration(hours * 60 + minutes + (seconds / 60));
         }}
       />
-      <IonInput
-        fill="outline" placeholder="0"
-        type="number" label="m" min={0} max={59}
+      <Input
+        placeholder="0"
+        inputType="number"
+        label="m" min={0} max={59}
         labelPlacement="end" value={minutes}
-        onIonInput={(event) => {
-          setMinutes(Number(event.detail.value));
+        setValue={(value: string) => {
+          setMinutes(Number(value));
           setDuration(hours * 60 + minutes + (seconds / 60));
         }}
       />
-      <IonInput
-        fill="outline" placeholder="0"
-        type="number" label="s" min={0} max={59}
+      <Input
+        placeholder="0"
+        inputType="number" label="s" min={0} max={59}
         labelPlacement="end" value={seconds}
-        onIonInput={(event) => {
-          setSeconds(Number(event.detail.value));
+        setValue={(value: string) => {
+          setSeconds(Number(value));
           setDuration(hours * 60 + minutes + (seconds / 60));
         }}
       />

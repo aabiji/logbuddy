@@ -62,8 +62,8 @@ values ($1, $2, $3, $4, $5) returning id;
 
 -- name: CreateExercises :batchmany
 insert into exercises
-(userID, workoutID, exerciseType, name, weight, reps, duration)
-values ($1, $2, $3, $4, $5, $6, $7) returning id;
+(userID, workoutID, exerciseType, name, weight, weightUnit, reps, duration)
+values ($1, $2, $3, $4, $5, $6, $7, $8) returning id;
 
 -- name: DeleteWorkout :exec
 update workouts set deleted = true, lastModified = $1 where userID = $2 and id = $3;

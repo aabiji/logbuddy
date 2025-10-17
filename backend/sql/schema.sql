@@ -64,6 +64,7 @@ create table if not exists Exercises (
 
     name text not null,
     weight int not null,
+    weightUnit text not null,
     reps int[] not null, -- number of reps in each set
     duration float not null -- in minutes
 );

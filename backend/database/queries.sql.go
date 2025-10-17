@@ -187,7 +187,7 @@ func (q *Queries) DeleteWorkout(ctx context.Context, arg DeleteWorkoutParams) er
 }
 
 const getExercises = `-- name: GetExercises :many
-select lastmodified, deleted, id, userid, workoutid, exercisetype, name, weight, reps, duration from exercises
+select lastmodified, deleted, id, userid, workoutid, exercisetype, name, weight, weightunit, reps, duration from exercises
 where userID = $1 and workoutID = $2
   and deleted = coalesce($3, deleted)
 `
@@ -216,6 +216,7 @@ func (q *Queries) GetExercises(ctx context.Context, arg GetExercisesParams) ([]E
 			&i.Exercisetype,
 			&i.Name,
 			&i.Weight,
+			&i.Weightunit,
 			&i.Reps,
 			&i.Duration,
 		); err != nil {
