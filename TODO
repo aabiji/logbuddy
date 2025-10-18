@@ -5,7 +5,5 @@
 [ ] populate the food database with the contents of another food database, so we don't have to define foods from scratch
 [ ] add screenshots of the app to the readme (repost on hackernews)
 [ ] update the meal item tags when you edit the meal
-[ ] show loading icon on buttons
-[ ] restyle all the workout pages, overhaul the styling completely (shouldn't look terrible)
 [ ] Also add button to optionally record cardio session (should we time workout sessions also)
 [ ] Implement custom line graph and heatmap components (use svg for drawing)

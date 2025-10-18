@@ -93,11 +93,7 @@ export default function FoodSearchPage() {
         <NotificationTray />
 
         <div className="search-controls">
-          <Input
-            placeholder="Search food" value={query}
-            setValue={(value: string) => updateSearchQuery(value)}
-          />
-          <div className="horizontal-strip">
+          <div className="horizontal-strip" style={{ marginBottom: "10px" }}>
             <IonSelect
               value={searchFilter}
               onIonChange={(e) => setSearchFilter(e.detail.value)}>
@@ -111,6 +107,10 @@ export default function FoodSearchPage() {
               Create
             </IonButton>
           </div>
+          <Input
+            placeholder="Search food" value={query}
+            setValue={(value: string) => updateSearchQuery(value)}
+          />
         </div>
 
         {results.length == 0

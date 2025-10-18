@@ -51,7 +51,7 @@ export default function AuthPage() {
       <IonContent>
         <div className="auth-box">
           <h1>LogBuddy</h1>
-          {error !== undefined && <p className='error-message'>{error}</p>}
+          {error !== undefined && error.length > 0 && <p className='error-message'>{error}</p>}
 
           <Input
             value={email} inputType="email" placeholder="Email"

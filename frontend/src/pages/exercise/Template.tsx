@@ -5,8 +5,9 @@ import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp } from "../../lib/date";
 
 import {
-  IonHeader, IonTitle, IonToolbar, IonPage,
-  IonIcon, IonButton, IonContent, IonButtons, IonBackButton
+  IonHeader, IonTitle, IonToolbar, IonPage, IonItemSliding,
+  IonIcon, IonButton, IonContent, IonButtons, IonBackButton,
+  IonItem, IonItemOptions, IonItemOption
 } from "@ionic/react";
 import { Input, NotificationTray, Selection } from "../../Components";
 import { trash } from "ionicons/icons";
@@ -104,65 +105,68 @@ export default function TemplatePage() {
         </div>
 
         {template.exercises.map((e: Exercise, i: number) => (
-          <div key={i}>
-            <div>
-              <Input
-                placeholder="Name" value={e.name}
-                setValue={(value: string) => setTemplate((prev: Workout) => ({
-                  ...prev,
-                  exercises: [
-                    ...prev.exercises.slice(0, i),
-                    { ...template.exercises[i], name: value },
-                    ...prev.exercises.slice(i + 1)
-                  ]
-                }))}
-              />
-
-              <IonButton color="danger" onClick={() => {
-                setTemplate((prev: Workout) => ({
-                  ...prev,
-                  exercises: [...prev.exercises.slice(0, i), ...prev.exercises.slice(i + 1)]
-                }))
-              }}>
-                <IonIcon slot="icon-only" icon={trash} />
-              </IonButton>
-            </div>
-
-            {e.exerciseType == "strength" &&
-              <div className="horizontal-strip">
+          <IonItemSliding key={i}>
+            <IonItem>
+              <div>
                 <Input
-                  value={e.reps.length}
-                  label="sets" labelPlacement="end"
-                  placeholder="0" inputType="number"
-                  min={1} max={10}
+                  placeholder="Name" value={e.name}
                   setValue={(value: string) => setTemplate((prev: Workout) => ({
                     ...prev,
                     exercises: [
                       ...prev.exercises.slice(0, i),
-                      {
-                        ...template.exercises[i],
-                        reps: Array(Number(value)).fill(0)
-                      },
-                      ...prev.exercises.slice(i + 1)
-                    ]
-                  }))}
-                />
-                <Input
-                  placeholder="0" inputType="number"
-                  value={e.weight} label={e.weightUnit} labelPlacement="end"
-                  setValue={(value: string) => setTemplate((prev: Workout) => ({
-                    ...prev,
-                    exercises: [
-                      ...prev.exercises.slice(0, i),
-                      { ...template.exercises[i], weight: Number(value) },
+                      { ...template.exercises[i], name: value },
                       ...prev.exercises.slice(i + 1)
                     ]
                   }))}
                 />
               </div>
-            }
-            <hr />
-          </div>
+              {e.exerciseType == "strength" &&
+                <div className="horizontal-strip">
+                  <Input
+                    value={e.reps.length}
+                    label="sets" labelPlacement="end"
+                    placeholder="0" inputType="number"
+                    min={1} max={10}
+                    setValue={(value: string) => setTemplate((prev: Workout) => ({
+                      ...prev,
+                      exercises: [
+                        ...prev.exercises.slice(0, i),
+                        {
+                          ...template.exercises[i],
+                          reps: Array(Number(value)).fill(0)
+                        },
+                        ...prev.exercises.slice(i + 1)
+                      ]
+                    }))}
+                  />
+                  <Input
+                    placeholder="0" inputType="number"
+                    value={e.weight} label={e.weightUnit} labelPlacement="end"
+                    setValue={(value: string) => setTemplate((prev: Workout) => ({
+                      ...prev,
+                      exercises: [
+                        ...prev.exercises.slice(0, i),
+                        { ...template.exercises[i], weight: Number(value) },
+                        ...prev.exercises.slice(i + 1)
+                      ]
+                    }))}
+                  />
+                </div>
+              }
+              <hr />
+            </IonItem>
+
+            <IonItemOptions>
+              <IonItemOption
+                color="danger"
+                onClick={() => setTemplate((prev: Workout) => ({
+                  ...prev,
+                  exercises: [...prev.exercises.slice(0, i), ...prev.exercises.slice(i + 1)]
+                }))}>
+                  <IonIcon aria-hidden="true" icon={trash} />
+              </IonItemOption>
+            </IonItemOptions>
+          </IonItemSliding>
         ))}
       </IonContent>
     </IonPage>

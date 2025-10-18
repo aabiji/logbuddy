@@ -115,37 +115,37 @@ export default function SettingsPage() {
             const name = key[0].toUpperCase() + key.slice(1);
             const deletable = key != "calories";
             return (
-              <div key={i} className="horizontal-strip list-item">
-                <IonItemSliding key={i}>
-                  <IonItem>
-                    <p>{name}</p>
+              <IonItemSliding key={i}>
+                <IonItem>
+                  <p style={{ fontSize: "13px" }}>{name}</p>
+                  <div style={{ width: "30%", marginLeft: "auto" }}>
                     <Input
-                    labelPlacement="end"
-                    inputType="number"
-                    label={deletable ? "g" : ""}
-                    value={settings.macroTargets[key]}
-                    setValue={(value: string) => updateSettings({
-                      macroTargets: {
-                        ...settings.macroTargets,
-                        [key]: Number(value)
-                      }
-                    })}
+                      labelPlacement="end"
+                      inputType="number"
+                      label={deletable ? "g" : ""}
+                      value={settings.macroTargets[key]}
+                      setValue={(value: string) => updateSettings({
+                        macroTargets: {
+                          ...settings.macroTargets,
+                          [key]: Number(value)
+                        }
+                      })}
                     />
-                  </IonItem>
-                  {deletable && <IonItemOptions>
-                    <IonItemOption
-                      color="danger"
-                      onClick={() => {
-                        const copy = JSON.parse(JSON.stringify(settings.macroTargets));
-                        delete copy[key];
-                        updateSettings({ macroTargets: copy });
-                      }}>
-                        <IonIcon aria-hidden="true" icon={trash} />
-                      </IonItemOption>
-                  </IonItemOptions>
-                  }
-                </IonItemSliding>
-              </div>
+                  </div>
+                </IonItem>
+                {deletable && <IonItemOptions>
+                  <IonItemOption
+                    color="danger"
+                    onClick={() => {
+                      const copy = JSON.parse(JSON.stringify(settings.macroTargets));
+                      delete copy[key];
+                      updateSettings({ macroTargets: copy });
+                    }}>
+                      <IonIcon aria-hidden="true" icon={trash} />
+                    </IonItemOption>
+                </IonItemOptions>
+                }
+              </IonItemSliding>
             )})}
         </div>
 
