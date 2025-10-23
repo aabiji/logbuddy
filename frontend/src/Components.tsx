@@ -10,7 +10,7 @@ export function Selection({ selections, setSelection }:
   const [showModal, setShowModal] = useState(false);
   return (
     <div>
-      <IonButton className="icon-btn-square" onClick={() => setShowModal(true)}>
+      <IonButton onClick={() => setShowModal(true)}>
         <IonIcon slot="icon-only" color="white" icon={add} />
       </IonButton>
       <IonModal
@@ -48,11 +48,12 @@ interface InputProps {
   min?: number;
   max?: number;
   textarea?: boolean;
+  style?: object;
 };
 
 export function Input({
   inputType, min, max, value, setValue, placeholder, label,
-  labelPlacement, textarea
+  labelPlacement, textarea, style
 }: InputProps) {
   const placement = labelPlacement ? "end" : labelPlacement;
   const t = inputType ?? "text";
@@ -60,11 +61,11 @@ export function Input({
     <div className="custom-input">
       {label && placement == "start" && <p>{label}</p>}
 
-      {textarea && <textarea
+      {textarea && <textarea style={style}
           placeholder={placeholder ?? ""} value={`${value}`}
           onInput={(event) => setValue(event.target.value)} />}
 
-      {!textarea && <input
+      {!textarea && <input style={style}
         type={t} placeholder={placeholder ?? ""} min={min} max={max}
         value={`${value}`} onInput={(event) => setValue(event.target.value)} />}
 

@@ -57,17 +57,17 @@ ion-item-sliding {
 }
 
 ion-item {
-  --padding-start: 10px;
-  --padding-end: 10px;
+  --padding-start: 0px;
+  --padding-end: 0px;
   --inner-padding-start: 10px;
   --inner-padding-end: 10px;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
+  --padding-top: 4px;
+  --padding-bottom: 4px;
   --background: var(--ion-card-background);
-  --min-height: 40px;
   --border-color: transparent;
   margin-bottom: 2px;
   border-radius: 4px;
+  width: 100%;
 }
 
 ion-item-options {
@@ -76,8 +76,7 @@ ion-item-options {
 }
 
 ion-item-option {
-  height: 100%;
-  min-height: 100%;
+  height: 96%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +85,7 @@ ion-item-option {
 }
 
 ion-item-option ion-icon {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 ion-input[fill="solid"] {
@@ -118,6 +117,7 @@ ion-input[fill="solid"][inputmode="numeric"] {
 
 .custom-input {
   display: flex;
+  flex: 1;
   align-items: center;
   gap: 8px;
   background: #E8E8E8;
@@ -159,6 +159,18 @@ ion-input[fill="solid"][inputmode="numeric"] {
 .custom-input textarea::placeholder {
   color: var(--ion-color-medium);
   opacity: 0.5;
+}
+
+.exercise-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.exercise-input .header {
+  font-size: 9px;
+  color: var(--ion-color-medium);
 }
 
 ion-button {
@@ -218,19 +230,6 @@ ion-button[slot="icon-only"] {
 
 ion-button ion-icon {
   font-size: 24px;
-  color: var(--ion-color-light);
-}
-
-.icon-btn-square {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  --padding: 0;
-  --border-radius: 4px;
-  margin: 0;
-  font-size: 100px;
-  --background: var(--ion-color-primary);
   color: var(--ion-color-light);
 }
 

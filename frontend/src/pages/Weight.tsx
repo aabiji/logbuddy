@@ -111,15 +111,13 @@ export default function WeightPage() {
         <div className="horizontal-strip">
           <h6>Weight graph</h6>
 
-          <div className="horizontal-strip" style={{ width: "25%" }}>
+          <div className="horizontal-strip" style={{ width: "35%" }}>
             <IonButton
-              onClick={() => editWeight(new Date(), 0, true)}
-              className="icon-btn-square">
+              onClick={() => editWeight(new Date(), 0, true)}>
               <IonIcon slot="icon-only" color="light" icon={add} />
             </IonButton>
             <IonButton
-              onClick={() => setShowViewPicker(true)}
-              className="icon-btn-square">
+              onClick={() => setShowViewPicker(true)}>
               <IonIcon slot="icon-only" color="light" icon={pencil} />
             </IonButton>
             <IonModal
@@ -128,6 +126,12 @@ export default function WeightPage() {
               initialBreakpoint={undefined}
               breakpoints={undefined}
               isOpen={showViewPicker}>
+              <IonCheckbox
+                labelPlacement="start"
+                checked={groupWeekly}
+                onIonChange={(event) => setGroupWeekly(event.detail.checked)}>
+                Group weekly
+                </IonCheckbox>
               <IonRadioGroup
                 value={viewHorizon}
                 onIonChange={(event) => setViewHorizon(event.detail.value)}>
@@ -135,17 +139,12 @@ export default function WeightPage() {
                 <IonRadio labelPlacement="start" value="thisYear">Last year</IonRadio>
                 <IonRadio labelPlacement="start" value="allTime">All time</IonRadio>
               </IonRadioGroup>
-              <IonCheckbox
-                labelPlacement="start"
-                checked={groupWeekly}
-                onIonChange={(event) => setGroupWeekly(event.detail.checked)}>
-                Group weekly
-              </IonCheckbox>
             </IonModal>
           </div>
         </div>
 
         <LineGraph data={plotData} />
+        <hr />
 
         {sortedWeightLogs.length == 0 &&
           <p style={{ textAlign: "center" }}>No weight logged</p>}
@@ -154,14 +153,14 @@ export default function WeightPage() {
             {sortedWeightLogs.map(v => (
               <IonItemSliding key={v[0]}>
                 <IonItem className="weight-value">
+                  <p slot="start" style={{ paddingLeft: 6 }}>{formatDate(new Date(v[0]))}</p>
                   <Input
                     min={0} max={500} value={v[1]}
                     inputType="number" placeholder="0"
                     label={settings.useImperial ? "lbs" : "kg"} labelPlacement="end"
                     setValue={(value: string) =>
-                      setWeight(new Date(v[0]), Number(value), false)}
+                      editWeight(new Date(v[0]), Number(value), false)}
                   />
-                  <p slot="end">{formatDate(new Date(v[0]))}</p>
                 </IonItem>
 
                 <IonItemOptions>

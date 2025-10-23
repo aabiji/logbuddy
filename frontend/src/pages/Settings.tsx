@@ -41,15 +41,12 @@ function AccountDeletion() {
         initialBreakpoint={undefined}
         breakpoints={undefined}
         isOpen={showModal}>
-        <div>
-          <p>
-            Once your account is deleted you will <b> NOT </b>
-            be able to recover any of your data!
-          </p>
-          <p>Enter your password to confirm:</p>
+        <div style={{ textAlign: "center" }}>
+          <p>Your data will be <b>irrecoverable!</b></p>
+          <p style={{ fontSize: "12px" }}>Confirm deletion:</p>
           <Input
             inputType="password"
-            placeholder="Password"
+            placeholder="Your password"
             value={password}
             setValue={(value: string) => setPassword(value)}
           />
@@ -154,7 +151,7 @@ export default function SettingsPage() {
         <div>
           <div className="horizontal-strip">
             <h4> Meals </h4>
-            <IonButton className="icon-btn-square"
+            <IonButton
               onClick={() => updateSettings({
                 mealTags: [...settings.mealTags, "New meal"]
               })}>

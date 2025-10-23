@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -65,6 +66,7 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	query = fmt.Sprintf("%s:*", query)
 	var results []database.Food
 	if filterUser == "true" {
 		// only get foods the user has created that match the query

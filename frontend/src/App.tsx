@@ -61,8 +61,10 @@ function TabsWrapper() {
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")
       history.replace("/auth");
-    if (token.length !== 0 && location.pathname != "/auth")
+    if (token.length !== 0 && location.pathname != "/auth") {
       syncUserData();
+      history.replace("/exercise");
+    }
   }, [indexedbLoaded]);
 
   return (
