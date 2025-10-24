@@ -2,10 +2,10 @@ import { useHistory } from "react-router";
 import { useAppState } from "../../lib/state";
 
 import {
-  IonContent, IonPage, IonButton, IonList, IonText, IonIcon
+  IonContent, IonPage, IonButton, IonList, IonIcon
 } from "@ionic/react";
 import { NotificationTray } from "../../Components";
-import { add, pencil } from "ionicons/icons";
+import { add, pencil, barChart, arrowRedo, list } from "ionicons/icons";
 import "../../theme/styles.css";
 
 export default function ExercisePage() {
@@ -17,32 +17,33 @@ export default function ExercisePage() {
       <IonContent>
         <NotificationTray />
 
-        <div
-          style={{
-            display: "flex", flexDirection: "row",
-            justifyContent: "space-between"
-           }}>
+        <div className="horizontal-strip">
+          <h2>Workout time!</h2>
+
+         <div>
           <IonButton
             fill="clear" color="primary"
             onClick={() => history.push("/exercise/progress")}>
-            <b>Progress</b>
+            <IonIcon slot="icon-only" color="white" icon={barChart} />
           </IonButton>
 
           <IonButton
             fill="clear" color="primary"
             onClick={() => history.push("/exercise/history")}>
-            <b>Workouts</b>
+            <IonIcon slot="icon-only" color="white" icon={list} />
           </IonButton>
 
           <IonButton
             fill="clear" color="primary"
             onClick={async () => history.push(`/exercise/template/-1`)}>
-            <b>Template</b>
+            <IonIcon slot="icon-only" color="white" icon={add} />
           </IonButton>
+         </div>
         </div>
+        <hr />
 
         {templates.length == 0
-          ? <IonText><p style={{ textAlign: "center" }}>No templates</p></IonText>
+          ? <p style={{ textAlign: "center" }}>No templates</p>
           : <IonList style={{ background: "transparent" }}>
             {templates.map((id: number, i: number) => (
               <div key={i} className="template-item">

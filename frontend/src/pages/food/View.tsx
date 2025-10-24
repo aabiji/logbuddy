@@ -7,7 +7,7 @@ import { request, useAuthRequest } from "../../lib/request";
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
   IonButtons, IonItem, IonLabel, IonBackButton, IonButton,
-  IonSelect, IonSelectOption, IonIcon, IonText
+  IonSelect, IonSelectOption, IonIcon
 } from "@ionic/react";
 import { Input, NotificationTray } from "../../Components";
 import { add, trash, star } from "ionicons/icons";
@@ -63,7 +63,7 @@ export default function FoodViewPage() {
       // normalize the nutrient values down to per 1 g
       // (or whatever the default serving unit is)
       const servingSize = food.servingSizes[food.defaultServingIndex];
-      let normalizedFood = { ...food, id: json.id } as Food;
+      const normalizedFood = { ...food, id: json.id } as Food;
       for (const key of Object.keys(food)) {
         if (!excludedKeys.includes(key))
           (normalizedFood[key as keyof Food] as number) /= servingSize;
@@ -95,7 +95,7 @@ export default function FoodViewPage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="inner-page">
+      <IonContent>
         <NotificationTray />
 
         {edit
@@ -105,7 +105,7 @@ export default function FoodViewPage() {
             setValue={(value: string) =>
               setFood((prev: Food) => ({ ...prev, name: value }))}
           />
-          : <IonText><h3>{food.name}</h3></IonText>
+          : <h3>{food.name}</h3>
         }
         {error !== undefined &&
           <p style={{ color: "red", fontSize: "0.9rem" }}>{error}</p>}
@@ -163,14 +163,14 @@ export default function FoodViewPage() {
               </IonSelect>
             </div>
 
-            <div className="wtf">
+            <div>
               <IonButton
                 fill="clear" slot="end" size="small"
                 onClick={() => {
                   setFood((prev: Food) => ({ ...prev, defaultServingIndex: i }));
                 }}>
                 <IonIcon
-                  icon={star} slot="icon-only"
+                  icon={star} slot="icon-only" style={{ fontSize: 16 }}
                   color={food.defaultServingIndex == i ? "warning" : "medium"}
                 />
               </IonButton>
@@ -185,7 +185,7 @@ export default function FoodViewPage() {
                   }));
                 }}
               >
-                <IonIcon slot="icon-only" color="danger" icon={trash} />
+                <IonIcon slot="icon-only" color="danger" icon={trash} style={{ fontSize: 16 }} />
               </IonButton>
             </div>
           </IonItem>

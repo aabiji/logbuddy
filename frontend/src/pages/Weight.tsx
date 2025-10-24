@@ -4,7 +4,7 @@ import { dayUnixTimestamp, formatDate, isSameMonth, isSameWeek } from "./../lib/
 import { useAppState } from "./../lib/state";
 
 import {
-  IonContent, IonPage, IonList, IonItem, IonItemSliding,
+  IonContent, IonPage, IonItem, IonItemSliding,
   IonIcon, IonItemOptions, IonItemOption, IonButton,
   IonModal, IonCheckbox, IonRadioGroup, IonRadio,
 } from "@ionic/react";
@@ -149,7 +149,7 @@ export default function WeightPage() {
         {sortedWeightLogs.length == 0 &&
           <p style={{ textAlign: "center" }}>No weight logged</p>}
         {sortedWeightLogs.length > 0 &&
-          <IonList>
+          <div>
             {sortedWeightLogs.map(v => (
               <IonItemSliding key={v[0]}>
                 <IonItem className="weight-value">
@@ -172,7 +172,7 @@ export default function WeightPage() {
                 </IonItemOptions>
               </IonItemSliding>
             ))}
-          </IonList>
+          </div>
         }
       </IonContent>
     </IonPage>

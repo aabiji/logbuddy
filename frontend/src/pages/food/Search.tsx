@@ -9,7 +9,7 @@ import {
   IonContent, IonHeader, IonPage, IonTitle,
   IonToolbar, IonButtons, IonItem, IonList,
   IonLabel, IonBackButton, IonIcon, IonButton,
-  IonText, IonSelect, IonSelectOption
+  IonSelect, IonSelectOption
 } from "@ionic/react";
 import { Input, NotificationTray } from "../../Components";
 import { add } from "ionicons/icons";
@@ -89,7 +89,7 @@ export default function FoodSearchPage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="inner-page">
+      <IonContent>
         <NotificationTray />
 
         <div className="search-controls">
@@ -114,7 +114,7 @@ export default function FoodSearchPage() {
         </div>
 
         {results.length == 0
-          ? <IonText>No results</IonText>
+          ? <p>No results</p>
           : <IonList>
             {results.map((r: Food, i: number) => (
               <IonItem key={i}>

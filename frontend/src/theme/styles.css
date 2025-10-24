@@ -142,9 +142,10 @@ ion-input[fill="solid"][inputmode="numeric"] {
 }
 
 .custom-input textarea {
-  resize: vertical;
   min-height: 50px;
   padding: 4px 0;
+  overflow: hidden;
+  resize: none;
 }
 
 .custom-input p {
@@ -241,20 +242,19 @@ ion-content {
   font-size: 13px !important;
 }
 
-ion-content.inner-page {
-  --padding-top: 16px !important;
-  background-color: blue;
-}
-
 ion-header {
   box-shadow: none !important;
-  margin-top: 10px
+  margin-top: 10px;
 }
 
 ion-toolbar {
   --border-width: 0;
   --background: var(--ion-background-color);
   border-bottom: 1px solid var(--ion-border-color);
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
 }
 
 ion-title {
@@ -447,16 +447,6 @@ ion-tab-button ion-icon {
   letter-spacing: 1px;
 }
 
-.auth-box .error-message {
-  color: var(--ion-color-danger);
-  font-weight: 700;
-  text-align: center;
-  font-size: 12px;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-.auth-box .auth-toggle {
   font-size: 12px;
   font-weight: 700;
   margin-left: auto;
@@ -612,6 +602,37 @@ ion-tab-button ion-icon {
   align-items: center;
   margin: 10px 0;
 }
+
+.sticky-controls {
+  position: sticky;
+  top: -16px;
+  background: var(--ion-background-color);
+  z-index: 10;
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-weight: 700;
+  text-align: center;
+  margin-top: -8px;
+}
+
+.workout-entry {
+  padding: 4px 8px;
+  border: 1px solid var(--ion-border-color);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.exercise-entry {
+  border-top: 1px solid var(--ion-border-color);
+}
+
+.view-chooser ion-segment-button {
+  --indicator-box-shadow: none;
+}
+
+.view-chooser b { font-size: 17px; }
 
 @media (max-width: 360px) {
   ion-content {

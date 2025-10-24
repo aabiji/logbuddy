@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppState } from "./lib/state";
 
 import { IonCheckbox, IonButton, IonIcon, IonModal, IonToast } from "@ionic/react";
@@ -39,7 +39,7 @@ export function Selection({ selections, setSelection }:
 }
 
 interface InputProps {
-  inputType?: string;
+  inputType?: "text" | "number";
   value: string | number;
   setValue: (val: string) => void;
   placeholder?: string;
@@ -49,25 +49,49 @@ interface InputProps {
   max?: number;
   textarea?: boolean;
   style?: object;
-};
+}
 
 export function Input({
   inputType, min, max, value, setValue, placeholder, label,
   labelPlacement, textarea, style
 }: InputProps) {
   const placement = labelPlacement ? "end" : labelPlacement;
-  const t = inputType ?? "text";
+
+  const ref = useRef(null);
+  const autoResize = () => {
+    if (textarea && ref.current) {
+      const textarea = ref.current as HTMLTextAreaElement;
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+  }
+  useEffect(() => { autoResize() }, []);
+
+  const setInput = (event: React.FormEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const str = event.target.value;
+    let valid = true;
+
+    if (inputType == "number") {
+      if (min && Number(str) < min) valid = false;
+      if (max && Number(str) > max) valid = false;
+    }
+
+    if (valid) setValue(str);
+    if (textarea) autoResize();
+  }
+
   return (
     <div className="custom-input">
       {label && placement == "start" && <p>{label}</p>}
 
-      {textarea && <textarea style={style}
-          placeholder={placeholder ?? ""} value={`${value}`}
-          onInput={(event) => setValue(event.target.value)} />}
+      {textarea && <textarea style={style} ref={ref}
+        placeholder={placeholder ?? ""} value={`${value}`}
+        onInput={setInput} />}
 
       {!textarea && <input style={style}
-        type={t} placeholder={placeholder ?? ""} min={min} max={max}
-        value={`${value}`} onInput={(event) => setValue(event.target.value)} />}
+        type={inputType ?? "text"} placeholder={placeholder ?? ""}
+        min={min} max={max}
+        value={`${value}`} onInput={setInput} />}
 
       {label && placement == "end" && <p>{label}</p>}
     </div>
@@ -86,8 +110,9 @@ export function TimeInput({ setDuration }: { setDuration: (n: number) => void; }
         min={0} max={24}
         labelPlacement="end" value={hours}
         setValue={(value: string) => {
-          setHours(Number(value));
-          setDuration(hours * 60 + minutes + (seconds / 60));
+          const n = Number(value);
+          setHours(n);
+          setDuration(n * 60 + minutes + (seconds / 60));
         }}
       />
       <Input
@@ -96,8 +121,9 @@ export function TimeInput({ setDuration }: { setDuration: (n: number) => void; }
         label="m" min={0} max={59}
         labelPlacement="end" value={minutes}
         setValue={(value: string) => {
-          setMinutes(Number(value));
-          setDuration(hours * 60 + minutes + (seconds / 60));
+          const n = Number(value);
+          setMinutes(n);
+          setDuration(hours * 60 + n + (seconds / 60));
         }}
       />
       <Input
@@ -105,8 +131,9 @@ export function TimeInput({ setDuration }: { setDuration: (n: number) => void; }
         inputType="number" label="s" min={0} max={59}
         labelPlacement="end" value={seconds}
         setValue={(value: string) => {
-          setSeconds(Number(value));
-          setDuration(hours * 60 + minutes + (seconds / 60));
+          const n = Number(value);
+          setSeconds(n);
+          setDuration(hours * 60 + minutes + (n / 60));
         }}
       />
     </div>

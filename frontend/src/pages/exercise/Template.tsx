@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { Exercise, Workout, useAppState } from "../../lib/state";
 import { request, useAuthRequest } from "../../lib/request";
 import { dayUnixTimestamp } from "../../lib/date";
@@ -15,28 +15,64 @@ import "../../theme/styles.css";
 
 export default function TemplatePage() {
   const authRequest = useAuthRequest();
-  const { workouts, removeWorkout, upsertWorkout, settings } = useAppState();
+  const history = useHistory();
+  const { workouts, removeWorkout, upsertWorkout, settings, templates } = useAppState();
+
   const { id } = useParams<{ id: string }>();
   const creating = id === "-1";
+  const [error, setError] = useState("");
   const [template, setTemplate] = useState(
     !creating
       ? workouts.get(Number(id))!
       : {
-        id: -1, name: "New template", notes: "",
+        id: -1, name: "", notes: "",
         date: dayUnixTimestamp(new Date()),
         isTemplate: true, exercises: [],
       } as Workout
   );
-   const exerciseTypes = ["strength", "cardio"];
+
+  const validateForm = () => {
+    const templateName = template.name.trim();
+    const existingTemplates = templates.map(id => workouts.get(id)!.name);
+
+    if (creating && existingTemplates.includes(templateName)) {
+      setError("Template already exists");
+      return false;
+    }
+    if (templateName.length == 0) {
+      setError("Template must have a name");
+      return false;
+    }
+    if (template.exercises.length == 0) {
+      setError("Template must have exercises");
+      return false;
+    }
+    for (const e of template.exercises) {
+      if (e.name.trim().length == 0) {
+        setError("Exercises must be named");
+        return false;
+      }
+      if (e.exerciseType == "strength" && e.reps.length == 0) {
+        setError("Exercises must have sets");
+        return false;
+      }
+    }
+
+    setError("");
+    return true;
+  }
 
   const remove = async () => {
     const response = await authRequest((jwt: string) =>
       request("DELETE", `/workout/delete?id=${template.id}`, undefined, jwt));
     if (response !== undefined)
       removeWorkout(template.id);
+
+    history.replace("/exercise");
   }
 
   const update = async () => {
+    if (!validateForm()) return;
     if (!creating) await remove();
 
     const payload = JSON.parse(JSON.stringify(template));
@@ -50,6 +86,8 @@ export default function TemplatePage() {
       request("POST", "/workout/create", payload, jwt)) as { workout: Workout; };
     if (json !== undefined)
       upsertWorkout(json.workout);
+
+    history.replace("/exercise");
   }
 
   return (
@@ -59,18 +97,14 @@ export default function TemplatePage() {
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
           </IonButtons>
-          <IonTitle>{creating ? "Create" : "Edit"} template</IonTitle>
+          <IonTitle>{creating ? "New" : "Edit"} template</IonTitle>
           <IonButtons slot="end">
             {!creating &&
-              <IonButton
-                className="delete-header-button"
-                onClick={async () => { await remove(); history.back(); }}>
+              <IonButton className="delete-header-button" onClick={remove}>
                 Delete
               </IonButton>
             }
-
-            <IonButton className="save-header-button"
-              onClick={async () => { await update(); history.back(); }}>
+            <IonButton className="save-header-button" onClick={update}>
               Save
             </IonButton>
           </IonButtons>
@@ -79,29 +113,34 @@ export default function TemplatePage() {
 
       <IonContent>
         <NotificationTray />
-
-        <div className="horizontal-strip">
-          <Input
-            placeholder="Template name" value={template.name} style={{ fontWeight: "bold", fontSize: 14 }}
-            setValue={(value: string) => setTemplate((prev: Workout) => ({ ...prev, name: value }))}
-          />
-          <Selection
-            selections={exerciseTypes}
-            setSelection={(value: string) => {
-              setTemplate((prev: Workout) => ({
-                ...prev,
-                exercises: [
-                  ...prev.exercises,
-                  {
-                    id: -1, workoutID: prev.id,
-                    exerciseType: value, name: "new exercise",
-                    weight: 0, weightUnit: settings.useImperial ? "lbs" : "kg",
-                    reps: [], duration: 0,
-                  }
-                ]
-              }));
-            }}
-          />
+        <div className="sticky-controls">
+          {error.length > 0 && <p className="error-message">{error}</p>}
+          <div className="horizontal-strip">
+            <Input
+              placeholder="Template name" value={template.name} style={{ fontWeight: "bold", fontSize: 14 }}
+              setValue={(value: string) => setTemplate((prev: Workout) => ({ ...prev, name: value }))}
+            />
+            <Selection
+              selections={["strength", "cardio"]}
+              setSelection={(exerciseType: string) => {
+                setTemplate((prev: Workout) => {
+                  const reps = exerciseType == "strength" ? [0] : [];
+                  return {
+                    ...prev,
+                    exercises: [
+                      ...prev.exercises,
+                      {
+                        id: -1, workoutID: prev.id, reps, exerciseType,
+                        name: "", weight: 0, duration: 0,
+                        weightUnit: settings.useImperial ? "lbs" : "kg",
+                      }
+                    ]
+                  };
+                });
+              }}
+            />
+          </div>
+          <hr />
         </div>
 
         {template.exercises.length == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}
@@ -130,7 +169,7 @@ export default function TemplatePage() {
                       value={e.reps.length}
                       label="sets" labelPlacement="end"
                       placeholder="0" inputType="number"
-                      min={1} max={10}
+                      min={0} max={10}
                       setValue={(value: string) => setTemplate((prev: Workout) => ({
                         ...prev,
                         exercises: [

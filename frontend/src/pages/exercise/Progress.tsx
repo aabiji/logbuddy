@@ -16,14 +16,14 @@ function aggregateExerciseDataPoints(
   workouts: Map<number, Workout>
 ): Map<string, ExerciseData> { // map exercise name to data points
   // group data points by exercises
-  let plotData = new Map<string, ExerciseData>();
+  const plotData = new Map<string, ExerciseData>();
   for (const id of workouts.keys()) {
     const workout = workouts.get(id)!;
 
     for (const e of workout.exercises) {
-      let existing = plotData.get(e.name);
-      let weightPoints = existing ? existing.weightPoints : [];
-      let repPoints = existing ? existing.repPoints : [];
+      const existing = plotData.get(e.name);
+      const weightPoints = existing ? existing.weightPoints : [];
+      const repPoints = existing ? existing.repPoints : [];
 
       const averageReps =
         Math.floor(e.reps.reduce((a, b) => a + b, 0) / e.reps.length);
@@ -60,7 +60,7 @@ export default function ProgressPage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="inner-page">
+      <IonContent>
         <NotificationTray />
 
         {plotData.size == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}
@@ -69,24 +69,26 @@ export default function ProgressPage() {
           const view = views[exerciseName] || "weight";
           return (
             <div key={i}>
-              <div>
-                <h4 style={{ textAlign: "center" }}>{exerciseName}</h4>
-                <IonSegment
-                  style={{ fontSize: "10px" }}
-                  value={view} mode="ios"
-                  onIonChange={(e) =>
-                    setViews({
-                      ...views,
-                      [exerciseName]: e.detail.value as string
-                    })
-                  }>
-                  <IonSegmentButton value="weight">
-                    <IonLabel>Weight</IonLabel>
-                  </IonSegmentButton>
-                  <IonSegmentButton value="reps">
-                    <IonLabel>Reps</IonLabel>
-                  </IonSegmentButton>
-                </IonSegment>
+              <div className="view-chooser horizontal-strip">
+                <h4>{exerciseName[0].toUpperCase() + exerciseName.slice(1)}</h4>
+                <div style={{ width: "60%" }}>
+                  <IonSegment
+                    style={{ fontSize: "10px" }}
+                    value={view} mode="ios"
+                    onIonChange={(e) =>
+                      setViews({
+                        ...views,
+                        [exerciseName]: e.detail.value as string
+                      })
+                    }>
+                    <IonSegmentButton value="weight">
+                      <IonLabel>Weight</IonLabel>
+                    </IonSegmentButton>
+                    <IonSegmentButton value="reps">
+                      <IonLabel>Reps</IonLabel>
+                    </IonSegmentButton>
+                  </IonSegment>
+                </div>
               </div>
               <LineGraph data={
                 view == "weight"
