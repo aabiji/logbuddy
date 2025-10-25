@@ -146,8 +146,6 @@ export default function SettingsPage() {
             )})}
         </div>
 
-        <hr />
-
         <div>
           <div className="horizontal-strip">
             <h4> Meals </h4>
@@ -187,8 +185,6 @@ export default function SettingsPage() {
             </IonItemSliding>
           ))}
         </div>
-
-        <hr />
 
         <div>
           <h4> General </h4>
@@ -233,8 +229,6 @@ export default function SettingsPage() {
             <AccountDeletion />
           </div>
         </div>
-
-        <hr />
 
         <div className="copyright-info">
           <p>© LogBuddy {copyrightDate}, Abigail Adegbiji </p>

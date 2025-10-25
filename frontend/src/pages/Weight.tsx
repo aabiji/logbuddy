@@ -144,7 +144,6 @@ export default function WeightPage() {
         </div>
 
         <LineGraph data={plotData} />
-        <hr />
 
         {sortedWeightLogs.length == 0 &&
           <p style={{ textAlign: "center" }}>No weight logged</p>}
