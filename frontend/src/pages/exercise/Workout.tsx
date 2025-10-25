@@ -14,7 +14,7 @@ import "../../theme/styles.css";
 export default function WorkoutPage() {
   const authRequest = useAuthRequest();
   const history = useHistory();
-  const { workouts, upsertWorkout } = useAppState();
+  const { addNotification, workouts, upsertWorkout } = useAppState();
   const { templateID } = useParams<{ templateID: string }>();
 
   const derivedWorkout = (templateID: number) => {
@@ -31,19 +31,17 @@ export default function WorkoutPage() {
   }
 
   const [workout, setWorkout] = useState(derivedWorkout(Number(templateID)));
-  const [error, setError] = useState("");
 
   const create = async () => {
     for (const e of workout.exercises) {
       if ((e.exerciseType == "strength" && e.reps.includes(0)) ||
         (e.exerciseType == "cardio" && e.duration == 0)) {
         console.log(e);
-        setError("Incomplete workout");
+        addNotification({ message: "Incomplete workout", error: true });
         return;
       }
     }
 
-    setError("");
     const payload = { ...workout, id: -1, date: dayUnixTimestamp(new Date()) };
     for (let i = 0; i < payload.exercises.length; i++) {
       payload.exercises[i].id = -1;
@@ -73,21 +71,17 @@ export default function WorkoutPage() {
 
       <IonContent>
         <NotificationTray />
-        {error.length > 0 && <p className="error-message">{error}</p>}
 
-        <div className="workout-entry">
-          <p style={{ fontWeight: "bold "}}>Notes</p>
-          <Input
-            placeholder="Notes"
-            value={workout.notes}
-            textarea
-            setValue={(value) =>
-              setWorkout((prev: Workout) => ({ ...prev, notes: value }))}
-          />
-        </div>
+        <Input
+          placeholder="Notes"
+          value={workout.notes}
+          textarea
+          setValue={(value) =>
+            setWorkout((prev: Workout) => ({ ...prev, notes: value }))}
+        />
 
         {workout.exercises.map((e: Exercise, eIndex: number) => (
-          <div key={eIndex} className="workout-entry">
+          <div key={eIndex} className="workout-entry" style={{ marginTop: 10 }}>
             <p style={{ fontWeight: "bold "}}>{e.name} ({e.weight} {e.weightUnit})</p>
             {e.exerciseType == "cardio" &&
               <TimeInput
@@ -102,7 +96,7 @@ export default function WorkoutPage() {
             }
             {e.exerciseType == "strength" && e.reps.map((r: number, i: number) => (
               <div className="horizontal-strip">
-                <p>Set #{i + 1} reps</p>
+                <p>Set {i + 1} reps</p>
                 <div style={{ width: "30%" }}>
                   <Input
                     placeholder="0"

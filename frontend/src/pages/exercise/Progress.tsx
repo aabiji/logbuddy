@@ -70,7 +70,7 @@ export default function ProgressPage() {
           return (
             <div key={i}>
               <div className="view-chooser horizontal-strip">
-                <h4>{exerciseName[0].toUpperCase() + exerciseName.slice(1)}</h4>
+                <h6>{exerciseName[0].toUpperCase() + exerciseName.slice(1)}</h6>
                 <div style={{ width: "60%" }}>
                   <IonSegment
                     style={{ fontSize: "10px" }}

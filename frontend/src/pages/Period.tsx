@@ -28,8 +28,8 @@ function groupIntoPeriods(sortedTimestamps: number[]) {
 
 // get the average cycle length and the average length of a period
 function calculateLengthStats(periods: number[][]) {
-  let cycleLengths = [];
-  let periodLengths = [];
+  const cycleLengths = [];
+  const periodLengths = [];
 
   for (let i = 0; i < periods.length - 1; i++) {
     // the number of days between the first day of each menstrual cycle
@@ -120,12 +120,13 @@ export default function PeriodPage() {
           </IonButton>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        <div className="period-calendar">
           {Array.from({ length: monthLength() }, (_, i) => {
             const d = new Date(date.getFullYear(), date.getMonth(), i + 1);
             const t = dayUnixTimestamp(d);
             return (
               <IonButton
+                className="period-tile"
                 key={i} shape="round" size="small"
                 color={periodDates.get(t) ? "danger" : undefined}
                 fill={periodDates.get(t) ? "solid" : "clear"}

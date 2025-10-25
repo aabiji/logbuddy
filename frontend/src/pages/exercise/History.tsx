@@ -46,22 +46,23 @@ export default function HistoryPage() {
             {entries.map((workout: Workout, i: number) => (
               <div key={i} className="workout-entry">
                 <div className="horizontal-strip">
-                  <h5>{workout.name}</h5>
-                  <p style={{ color: "var(--ion-color-medium)" }}>
-                    {formatDate(new Date(workout.date))}
-                  </p>
+                  <h6>{workout.name}</h6>
+                  <p className="workout-date"> {formatDate(new Date(workout.date))} </p>
                 </div>
 
                 {workout.exercises.map((e, i) => (
                   <div key={i} className="exercise-entry">
                     {e.exerciseType == "strength" ?
-                      <div className="horizontal-strip" style={{ fontSize: 15 }}>
+                      <div className="horizontal-strip">
                         <p>{e.name}</p>
-                        <i>{e.weight} {settings.useImperial ? "lbs" : "kg"}</i>
-                        <p> reps:</p>
-                        <b>{e.reps.join(", ")}</b>
+                        <div>
+                          <p className="description">
+                            {e.reps.length} set{e.reps.length > 1 ? "s" : ""} × {e.weight} {settings.useImperial ? "lbs" : "kg"}
+                          </p>
+                          <p>{e.reps.join(", ")} reps</p>
+                        </div>
                       </div>
-                      : <div className="horizontal-strip" style={{ fontSize: 15 }}>
+                      : <div className="horizontal-strip">
                         <p>{e.name} duration: </p>
                         <b>{formatDuration(e.duration)}</b>
                       </div>
@@ -70,9 +71,8 @@ export default function HistoryPage() {
                 ))}
 
                 {workout.notes.length > 0 && (
-                  <div className="exercise-entry" style={{ paddingTop: 8 }}>
-                    <i>Notes:</i>
-                    <p style={{ fontSize: 15 }}>{workout.notes}</p>
+                  <div className="exercise-entry" style={{ fontStyle: "italic" }}>
+                    <p>{workout.notes}</p>
                   </div>
                 )}
               </div>

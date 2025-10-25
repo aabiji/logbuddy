@@ -48,8 +48,8 @@ export class MinHeap {
 
     // heapify the tree (walk up the tree and move smaller values to the top)
     while (true) {
-      let leftChild = 2 * index + 1;
-      let rightChild = 2 * index + 2;
+      const leftChild = 2 * index + 1;
+      const rightChild = 2 * index + 2;
       let smallest = index;
 
       if (leftChild < this.values.length &&
@@ -97,7 +97,7 @@ function visvalingamWhyattAlgorithm(data: Point[], targetLength: number) {
     heap.insert({ area, indexA: i - 1, indexB: i, indexC: i + 1 });
   }
 
-  let arr = [...data] as (Point | null)[];
+  const arr = [...data] as (Point | null)[];
   let removedCount = 0;
 
   // iteratively remove the point that has the smallest triangle area

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAppState } from "./lib/state";
 
 import { IonCheckbox, IonButton, IonIcon, IonModal, IonToast } from "@ionic/react";
-import { add } from "ionicons/icons";
+import { add, eye, eyeOff } from "ionicons/icons";
 import "./theme/styles.css";
 
 export function Selection({ selections, setSelection }:
@@ -39,7 +39,7 @@ export function Selection({ selections, setSelection }:
 }
 
 interface InputProps {
-  inputType?: "text" | "number";
+  inputType?: "text" | "number" | "email" | "password";
   value: string | number;
   setValue: (val: string) => void;
   placeholder?: string;
@@ -56,6 +56,7 @@ export function Input({
   labelPlacement, textarea, style
 }: InputProps) {
   const placement = labelPlacement ? "end" : labelPlacement;
+  const [showPassword, setShowPassword] = useState(false);
 
   const ref = useRef(null);
   const autoResize = () => {
@@ -88,12 +89,23 @@ export function Input({
         placeholder={placeholder ?? ""} value={`${value}`}
         onInput={setInput} />}
 
-      {!textarea && <input style={style}
-        type={inputType ?? "text"} placeholder={placeholder ?? ""}
-        min={min} max={max}
-        value={`${value}`} onInput={setInput} />}
+      {!textarea &&
+          <input style={style}
+            type={
+              inputType == "password"
+              ? showPassword ? "text" : "password"
+              : inputType ?? "text"}
+            placeholder={placeholder ?? ""} min={min} max={max}
+            value={`${value}`} onInput={setInput} />}
 
       {label && placement == "end" && <p>{label}</p>}
+
+      {inputType == "password" &&
+        <IonButton
+          className="password-toggle"
+          onClick={() => setShowPassword(!showPassword)}>
+          <IonIcon icon={showPassword ? eyeOff : eye} color="white" size="small" />
+        </IonButton>}
     </div>
   );
 }
@@ -148,7 +160,7 @@ export function NotificationTray() {
         <IonToast
           key={i}
           isOpen={true}
-          duration={5000}
+          duration={2000}
           message={n.message}
           onDidDismiss={() => removeNotification(i)}
           className={n.error ? "error-toast" : "info-toast"}

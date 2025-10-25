@@ -48,31 +48,35 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
           const meal = meals.get(date)![index];
           const food = foods.get(meal.foodID)!;
           return (
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-              <IonSelect
-                label="Move to"
-                aria-label="Move to meal"
-                value={meal.mealTag}
-                onIonChange={(event) => {
-                  update({ ...meal, mealTag: event.detail.value, });
-                  setPreviousMealTag(event.detail.value);
-                }}>
-                {settings.mealTags.map((t: string, i: number) =>
-                  <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
-              </IonSelect>
+            <div className="meal-edit">
+              <div className="horizontal-strip">
+                <p>Move to</p>
+                <IonSelect
+                  style={{ width: "45%" }}
+                  value={meal.mealTag}
+                  onIonChange={(event) => {
+                    update({ ...meal, mealTag: event.detail.value, });
+                    setPreviousMealTag(event.detail.value);
+                  }}>
+                  {settings.mealTags.map((t: string, i: number) =>
+                    <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
+                </IonSelect>
+              </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 25 }}>
-                <Input
-                  inputType="number"
-                  placeholder="0"
-                  labelPlacement="end"
-                  label="Servings"
-                  min={0.1}
-                  value={meal.servings}
-                  setValue={(value: string) => {
-                    update({ ...meal, servings: Number(value) });
-                  }}
-                />
+              <div className="horizontal-strip">
+                <div style={{ width: "50% "}}>
+                  <Input
+                    inputType="number"
+                    placeholder="0"
+                    labelPlacement="end"
+                    label="Servings"
+                    min={0.1}
+                    value={meal.servings}
+                    setValue={(value: string) => {
+                      update({ ...meal, servings: Number(value) });
+                    }}
+                  />
+                </div>
 
                 <IonSelect
                   aria-label="Serving unit"
@@ -89,7 +93,10 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
                 </IonSelect>
               </div>
 
-              <IonButton size="default" color="danger" onClick={remove}>
+              <IonButton
+                size="default"
+                color="danger"
+                onClick={remove} style={{ width: "100%" }}>
                 Remove meal
               </IonButton>
             </div>
@@ -219,12 +226,12 @@ export default function FoodPage() {
           const max = settings.macroTargets[t];
           const percentage = value / max;
           return (
-            <div key={i}>
+            <div key={i} className="horizontal-strip">
+              <p><b>{max - value > 0 ? max - value : 0}</b> {t} left</p>
               <IonProgressBar
-                value={percentage}
+                value={percentage} style={{ width: "65%" }}
                 color={percentage < 0.7 ? "success" : percentage < 0.98 ? "warning" : "danger"}
               />
-              <p><b>{max - value}</b> {t} left</p>
             </div>
         )})}
         <hr />
@@ -248,15 +255,15 @@ export default function FoodPage() {
                 const servingIndex = food.servingUnits.indexOf(meal.servingsUnit);
                 return (
                   <div key={j} className="food-item">
-                    <div>
+                    <div onClick={() => history.push(`/food/view/${food.id}`)}>
                       <b style={{ fontSize: 14 }}>{food.name}</b>
                       <p>{food.calories * food.servingSizes[servingIndex]} calories</p>
                     </div>
 
                     <IonButton
-                      shape="round" size="default" fill="clear"
+                      shape="round" size="small" fill="clear"
                       onClick={() => setCurrentMealIndex(j)}>
-                      <IonIcon slot="icon-only" color="success" icon={pencil}></IonIcon>
+                      <IonIcon slot="icon-only" size="small" color="success" icon={pencil} />
                     </IonButton>
                   </div>
                 );

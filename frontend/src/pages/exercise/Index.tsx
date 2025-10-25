@@ -5,7 +5,7 @@ import {
   IonContent, IonPage, IonButton, IonList, IonIcon
 } from "@ionic/react";
 import { NotificationTray } from "../../Components";
-import { add, pencil, barChart, arrowRedo, list } from "ionicons/icons";
+import { add, barChart, list } from "ionicons/icons";
 import "../../theme/styles.css";
 
 export default function ExercisePage() {
@@ -18,9 +18,9 @@ export default function ExercisePage() {
         <NotificationTray />
 
         <div className="horizontal-strip">
-          <h2>Workout time!</h2>
+          <h4>Your workouts</h4>
 
-         <div>
+         <div className="horizontal-strip">
           <IonButton
             fill="clear" color="primary"
             onClick={() => history.push("/exercise/progress")}>
@@ -40,7 +40,6 @@ export default function ExercisePage() {
           </IonButton>
          </div>
         </div>
-        <hr />
 
         {templates.length == 0
           ? <p style={{ textAlign: "center" }}>No templates</p>
@@ -52,14 +51,12 @@ export default function ExercisePage() {
                   <IonButton
                     style={{ gap: "15px" }} color="tertiary"
                     onClick={async () => history.push(`/exercise/workout/${id}`)}>
-                    <IonIcon aria-hidden="true" icon={add} color="light" />
                     Start
                   </IonButton>
 
                   <IonButton
                     color="success" style={{ gap: "15px" }}
                     onClick={() => history.push(`/exercise/template/${id}`)}>
-                    <IonIcon aria-hidden="true" icon={pencil} color="light" />
                     Edit
                   </IonButton>
                 </div>

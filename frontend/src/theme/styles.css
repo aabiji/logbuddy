@@ -132,6 +132,7 @@ ion-input[fill="solid"][inputmode="numeric"] {
 
 .custom-input input,
 .custom-input textarea {
+  min-width: 20px;
   flex: 1;
   border: none;
   outline: none;
@@ -310,7 +311,6 @@ ion-select {
   font-size: 13px;
   font-weight: 500;
   min-height: 36px;
-  background: #E8E8E8;
   border-bottom: 2px solid var(--ion-color-primary);
 }
 
@@ -347,15 +347,12 @@ ion-select-popover ion-item {
   font-weight: 500;
 }
 
-.error-toast {
-  --background: var(--ion-color-danger);
-  --color: white;
-  --border-radius: 4px;
-  font-weight: 600;
-}
+.error-toast { --background: var(--ion-color-danger); }
 
-.info-toast {
-  --background: var(--ion-color-tertiary);
+.info-toast { --background: var(--ion-color-tertiary); }
+
+ion-toast {
+  --box-shadow: none;
   --color: white;
   --border-radius: 4px;
   font-weight: 600;
@@ -447,13 +444,22 @@ ion-tab-button ion-icon {
   letter-spacing: 1px;
 }
 
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: auto;
-  width: fit-content;
-  color: var(--ion-color-medium);
-  cursor: pointer;
-  letter-spacing: 0.5px;
+.password-toggle {
+  --background: transparent;
+  --background-hover: transparent;
+  --background-activated: transparent;
+  --color: var(--ion-color-primary);
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  padding: 0;
+  position: absolute;
+  right: 30px;
+  margin: 0;
+  height: 30px;
+  min-height: 30px;
+  width: 30px;
 }
 
 .auth-box ion-button {
@@ -529,13 +535,8 @@ ion-tab-button ion-icon {
 .nutrient-input {
   font-size: 13px !important;
   font-weight: 500;
-}
-
-.serving-size {
-  --padding-start: 10px;
-  --padding-end: 6px;
-  --inner-padding-end: 6px;
-  --inner-padding-start: 0;
+  width: 98%;
+  margin: 0 auto;
 }
 
 .food-item {
@@ -571,7 +572,6 @@ ion-tab-button ion-icon {
   position: sticky;
   top: 0;
   background: var(--ion-background-color);
-  padding: 10px 0;
   z-index: 10;
   margin-bottom: 10px;
 }
@@ -622,10 +622,24 @@ ion-tab-button ion-icon {
   border: 1px solid var(--ion-border-color);
   border-radius: 4px;
   margin-bottom: 15px;
+  font-size: 15px;
+}
+
+.workout-date {
+  color: var(--ion-color-medium);
+  font-size: 11px;
+
 }
 
 .exercise-entry {
   border-top: 1px solid var(--ion-border-color);
+  font-size: 13px;
+  padding-bottom: 4px;
+}
+
+.exercise-entry .description {
+    font-size: 11px;
+    align-items: center;
 }
 
 .view-chooser ion-segment-button {
@@ -633,6 +647,33 @@ ion-tab-button ion-icon {
 }
 
 .view-chooser b { font-size: 17px; }
+
+.period-tile {
+   width: 14%;
+   aspect-ratio: 1;
+}
+
+.period-calendar {
+  display: "grid";
+  grid-template-columns: "repeat(7, 1fr)";
+  margin: 0 auto;
+}
+
+.food-item {
+  border: 1px solid var(--ion-border-color);
+  margin-bottom: 10px;
+}
+
+.food-name {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.meal-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 @media (max-width: 360px) {
   ion-content {

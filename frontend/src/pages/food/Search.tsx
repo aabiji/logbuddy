@@ -7,9 +7,8 @@ import { request, useAuthRequest } from "../../lib/request";
 
 import {
   IonContent, IonHeader, IonPage, IonTitle,
-  IonToolbar, IonButtons, IonItem, IonList,
-  IonLabel, IonBackButton, IonIcon, IonButton,
-  IonSelect, IonSelectOption
+  IonToolbar, IonButtons, IonBackButton, IonIcon,
+  IonButton, IonSelect, IonSelectOption
 } from "@ionic/react";
 import { Input, NotificationTray } from "../../Components";
 import { add } from "ionicons/icons";
@@ -49,7 +48,7 @@ export default function FoodSearchPage() {
 
     const meal = { ...mealInfo, id: json.mealID };
     upsertMeals(date, [...meals.get(date)!, meal]);
-    addNotification({ message: `Created ${food.name}`, error: false });
+    addNotification({ message: `Added ${food.name}`, error: false });
   }
 
   const searchFood = async (search: string) => {
@@ -75,6 +74,8 @@ export default function FoodSearchPage() {
     timeout.current = setTimeout(async () => {
       if (str.trim().length > 0)
         await searchFood(str);
+      else if (str.trim().length == 0)
+        setResults(Array.from(useAppState.getState().foods.values()));
     }, 300);
   }
 
@@ -82,9 +83,14 @@ export default function FoodSearchPage() {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle className="centered-title">Search</IonTitle>
           <IonButtons slot="start">
             <IonBackButton defaultHref="#" />
+          </IonButtons>
+          <IonTitle className="centered-title">Search</IonTitle>
+          <IonButtons slot="end">
+            <IonButton className="save-header-button" onClick={() => history.push("/food/view/-1")}>
+              Create
+            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -92,35 +98,27 @@ export default function FoodSearchPage() {
       <IonContent>
         <NotificationTray />
 
-        <div className="search-controls">
-          <div className="horizontal-strip" style={{ marginBottom: "10px" }}>
-            <IonSelect
-              value={searchFilter}
-              onIonChange={(e) => setSearchFilter(e.detail.value)}>
-              <IonSelectOption value="all">All</IonSelectOption>
-              <IonSelectOption value="onlyUser">Your foods</IonSelectOption>
-            </IonSelect>
-
-            <IonButton
-              shape="round" fill="solid" color="primary"
-              onClick={() => history.push("/food/view/-1")}>
-              Create
-            </IonButton>
-          </div>
+        <div className="search-controls horizontal-strip">
           <Input
             placeholder="Search food" value={query}
             setValue={(value: string) => updateSearchQuery(value)}
           />
+          <IonSelect
+            value={searchFilter}
+            onIonChange={(e) => setSearchFilter(e.detail.value)}>
+            <IonSelectOption value="all">All</IonSelectOption>
+            <IonSelectOption value="onlyUser">Your foods</IonSelectOption>
+          </IonSelect>
         </div>
 
         {results.length == 0
           ? <p>No results</p>
-          : <IonList>
+          : <div>
             {results.map((r: Food, i: number) => (
-              <IonItem key={i}>
-                <IonLabel
+              <div key={i} className="food-item">
+                <div
                   onClick={() => history.push(`/food/view/${r.id}`)}>
-                  <h2>{r.name}</h2>
+                  <p className="food-name">{r.name}</p>
                   <div style={{ display: "flex", flexDirection: "row", gap: "2px" }}>
                     <p>
                       {r.servingSizes[r.defaultServingIndex]}
@@ -130,7 +128,7 @@ export default function FoodSearchPage() {
                     <p> {r.calories * r.servingSizes[r.defaultServingIndex]} </p>
                     <p> calories </p>
                   </div>
-                </IonLabel>
+                </div>
 
                 <IonButton
                   onClick={() => createMeal(r)}
@@ -140,9 +138,9 @@ export default function FoodSearchPage() {
                     icon={add} className="bold-icon"
                   />
                 </IonButton>
-              </IonItem>
+              </div>
             ))}
-          </IonList>
+          </div>
         }
       </IonContent>
     </IonPage>

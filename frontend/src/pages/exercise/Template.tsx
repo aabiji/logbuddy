@@ -16,11 +16,12 @@ import "../../theme/styles.css";
 export default function TemplatePage() {
   const authRequest = useAuthRequest();
   const history = useHistory();
-  const { workouts, removeWorkout, upsertWorkout, settings, templates } = useAppState();
+  const {
+    addNotification, workouts, removeWorkout,
+    upsertWorkout, settings, templates } = useAppState();
 
   const { id } = useParams<{ id: string }>();
   const creating = id === "-1";
-  const [error, setError] = useState("");
   const [template, setTemplate] = useState(
     !creating
       ? workouts.get(Number(id))!
@@ -36,29 +37,27 @@ export default function TemplatePage() {
     const existingTemplates = templates.map(id => workouts.get(id)!.name);
 
     if (creating && existingTemplates.includes(templateName)) {
-      setError("Template already exists");
+      addNotification({ message: "Template already exists", error: true });
       return false;
     }
     if (templateName.length == 0) {
-      setError("Template must have a name");
+      addNotification({ message: "Template must have a name", error: true });
       return false;
     }
     if (template.exercises.length == 0) {
-      setError("Template must have exercises");
+      addNotification({ message: "Template must have exercises", error: true });
       return false;
     }
     for (const e of template.exercises) {
       if (e.name.trim().length == 0) {
-        setError("Exercises must be named");
+        addNotification({ message: "Exercises must be named", error: true });
         return false;
       }
       if (e.exerciseType == "strength" && e.reps.length == 0) {
-        setError("Exercises must have sets");
+        addNotification({ message: "Exercises must have sets", error: true });
         return false;
       }
     }
-
-    setError("");
     return true;
   }
 
@@ -114,7 +113,6 @@ export default function TemplatePage() {
       <IonContent>
         <NotificationTray />
         <div className="sticky-controls">
-          {error.length > 0 && <p className="error-message">{error}</p>}
           <div className="horizontal-strip">
             <Input
               placeholder="Template name" value={template.name} style={{ fontWeight: "bold", fontSize: 14 }}
