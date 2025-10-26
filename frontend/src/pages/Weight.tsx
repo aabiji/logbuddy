@@ -8,7 +8,8 @@ import {
   IonIcon, IonItemOptions, IonItemOption, IonButton,
   IonModal, IonCheckbox, IonRadioGroup, IonRadio,
 } from "@ionic/react";
-import { LineGraph, Point } from "./exercise/Graph";
+import { LineGraph, Heatmap } from "./exercise/Graph";
+import { Point } from "../lib/simplify";
 import { Input, NotificationTray } from "../Components";
 import { add, pencil, trash } from "ionicons/icons";
 import "../theme/styles.css";
@@ -143,7 +144,12 @@ export default function WeightPage() {
           </div>
         </div>
 
-        <LineGraph data={plotData} />
+        <LineGraph
+          data={plotData}
+          spacingY={20} padding={{ x: 20, y: 20 }}
+          maxNumPoints={10}
+          unit={settings.useImperial ? "lbs" : "kg"}
+        />
 
         {sortedWeightLogs.length == 0 &&
           <p style={{ textAlign: "center" }}>No weight logged</p>}

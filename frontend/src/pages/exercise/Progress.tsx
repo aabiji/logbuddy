@@ -7,14 +7,17 @@ import {
   IonSegmentButton, IonLabel
 } from "@ionic/react";
 import { NotificationTray } from "../../Components";
-import { LineGraph, Point } from "./Graph";
+import { LineGraph, Heatmap } from "../exercise/Graph";
+import { Point } from "../../lib/simplify";
 import "../../theme/styles.css";
 
-type ExerciseData = { weightPoints: Point[], repPoints: Point[] };
+interface ExerciseData {
+  weightPoints: Point[];
+  repPoints: Point[];
+  durationPoints: Point[];
+}
 
-function aggregateExerciseDataPoints(
-  workouts: Map<number, Workout>
-): Map<string, ExerciseData> { // map exercise name to data points
+function aggregateExerciseDataPoints(workouts: Map<number, Workout>): Map<string, ExerciseData> { 
   // group data points by exercises
   const plotData = new Map<string, ExerciseData>();
   for (const id of workouts.keys()) {
@@ -22,20 +25,26 @@ function aggregateExerciseDataPoints(
 
     for (const e of workout.exercises) {
       const existing = plotData.get(e.name);
+
       const weightPoints = existing ? existing.weightPoints : [];
       const repPoints = existing ? existing.repPoints : [];
+      const durationPoints = existing ? existing.durationPoints : [];
 
       const averageReps =
         Math.floor(e.reps.reduce((a, b) => a + b, 0) / e.reps.length);
-      const newData = {
-        weightPoints: [
-          ...weightPoints,
-          { date: new Date(workout.date), value: e.weight }
-        ],
-        repPoints: [
-          ...repPoints,
-          { date: new Date(workout.date), value: averageReps }
+
+      const newData: ExerciseData = { weightPoints: [], repPoints: [], durationPoints: [] };
+      if (e.exerciseType == "strength") {
+          newData.weightPoints = [
+          ...weightPoints, { date: new Date(workout.date), value: e.weight }
+        ];
+          newData.repPoints = [
+          ...repPoints, { date: new Date(workout.date), value: averageReps }
         ]
+      } else {
+        newData.durationPoints = [
+          ...durationPoints, { date: new Date(workout.date), value: e.duration }
+        ];
       }
 
       plotData.set(e.name, newData);
@@ -45,9 +54,12 @@ function aggregateExerciseDataPoints(
 }
 
 export default function ProgressPage() {
-  const { workouts } = useAppState();
+  const { settings, workouts } = useAppState();
   const [views, setViews] = useState<Record<string, string>>({});
   const plotData = useMemo(() => aggregateExerciseDataPoints(workouts), []);
+
+  // TODO: show this component for cardio exercise instead
+  // <Heatmap data={plotData} padding={{ x: 20, y: 20 }} innerPadding={2} />
 
   return (
     <IonPage>
@@ -90,10 +102,16 @@ export default function ProgressPage() {
                   </IonSegment>
                 </div>
               </div>
-              <LineGraph data={
-                view == "weight"
-                  ? plotData.get(exerciseName)!.weightPoints
-                  : plotData.get(exerciseName)!.repPoints}
+
+              <LineGraph
+                data={
+                  view == "weight"
+                    ? plotData.get(exerciseName)!.weightPoints
+                    : plotData.get(exerciseName)!.repPoints
+                }
+                spacingY={20} padding={{ x: 20, y: 20 }}
+                maxNumPoints={10}
+                unit={settings.useImperial ? "lbs" : "kg"}
               />
             </div>
           );

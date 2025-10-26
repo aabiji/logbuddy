@@ -1,173 +1,208 @@
-import { useMemo } from "react";
-import { formatDate } from "../../lib/date";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { visvalingamWhyattAlgorithm, Point, Vec2 } from "../../lib/simplify";
+import { dayOfYear, yearLength, formatDate } from "../../lib/date";
 
-import {
-  Chart as ChartJS, CategoryScale, PointElement,
-  LineElement, Tooltip, TimeScale, ChartOptions,
-  LinearScale
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-import "chartjs-adapter-date-fns";
-
-ChartJS.register(CategoryScale, LinearScale, TimeScale, PointElement, LineElement, Tooltip);
-
-export class MinHeap {
-  values: any[];
-  smallerThan: (a: any, b: any) => boolean;
-  constructor(cmp: (a: any, b: any) => boolean) {
-    this.values = [];
-    this.smallerThan = cmp;
-  }
-
-  private swap(a: number, b: number) {
-    const temp = this.values[a];
-    this.values[a] = this.values[b];
-    this.values[b] = temp;
-  }
-
-  insert(value: any) {
-    this.values.push(value);
-
-    // moving up the tree, swap nodes that violate the min heap property
-    let index = this.values.length - 1;
-    while (index > 0) {
-      const parent = Math.floor((index - 1) / 2);
-      if (this.smallerThan(this.values[parent], this.values[index])) break;
-      this.swap(index, parent);
-      index = parent;
-    }
-  }
-
-  empty(): boolean { return this.values.length == 0; }
-
-  pop(): any {
-    let index = 0; // remove root
-    const removed = this.values[index];
-    this.values[index] = this.values[this.values.length - 1];
-    this.values.pop();
-
-    // heapify the tree (walk up the tree and move smaller values to the top)
-    while (true) {
-      const leftChild = 2 * index + 1;
-      const rightChild = 2 * index + 2;
-      let smallest = index;
-
-      if (leftChild < this.values.length &&
-        this.smallerThan(this.values[leftChild], this.values[smallest]))
-        smallest = leftChild;
-      if (rightChild < this.values.length &&
-        this.smallerThan(this.values[rightChild], this.values[smallest]))
-        smallest = rightChild;
-
-      if (smallest != index) {
-        this.swap(index, smallest);
-        index = smallest;
-      } else {
-        break;
-      }
-    }
-    return removed;
-  }
+interface LineGraphProps {
+  data: Point[];
+  spacingY: number;
+  maxNumPoints: number;
+  padding: Vec2;
+  unit: string;
 }
 
-export type Point = { date: Date, value: number };
-type Vec2 = { x: number, y: number };
-type HeapValue = { area: number, indexA: number, indexB: number, indexC: number; }
+export function LineGraph({ data, padding, spacingY, maxNumPoints, unit }: LineGraphProps) {
+  const divRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [numTicksY, setNumTicksY] = useState(0);
+  const [srcSize, setSrcSize] = useState({
+    min: { x: 0, y: 0 }, max: { x: 0, y: 0 }
+  }); // min/max values of the dataset
 
-// helper functions
-const toVec2 = (p: Point): Vec2 => ({ x: p.date.getTime(), y: p.value });
-const cmpHeapValues = (a: HeapValue, b: HeapValue): boolean => a.area < b.area;
+  useEffect(() => {
+    if (divRef.current) {
+      const width = divRef.current.parentElement!.getBoundingClientRect().width;
+      const realWidth = Math.max(0, width - padding.x * 2);
+      setWidth(realWidth);
 
-// get the area of the triangle formed by a, b, c
-const getArea = (a: Vec2, b: Vec2, c: Vec2) =>
-  0.5 * Math.abs(a.x * b.y + b.x * c.y + c.x * a.y - a.x * c.y - b.x * a.y - c.x * b.y);
+      const height = window.screen.height / 4;
+      const realHeight = Math.max(0, height - padding.y * 2);
+      setHeight(realHeight);
 
-const nearestPoint = (data: (Point | null)[], index: number, direction: number) => {
-  while (data[index] === null)
-    index += direction;
-  return index;
-}
-
-// Reduce the number of points in the dataset iteratively until the target length is reached
-function visvalingamWhyattAlgorithm(data: Point[], targetLength: number) {
-  // insert the initial triangle areas into the heap
-  const heap = new MinHeap(cmpHeapValues);
-  for (let i = 1; i < data.length - 1; i++) {
-    const area = getArea(toVec2(data[i - 1]), toVec2(data[i]), toVec2(data[i + 1]));
-    heap.insert({ area, indexA: i - 1, indexB: i, indexC: i + 1 });
-  }
-
-  const arr = [...data] as (Point | null)[];
-  let removedCount = 0;
-
-  // iteratively remove the point that has the smallest triangle area
-  while (!heap.empty() && removedCount < (data.length - targetLength)) {
-    // only get the min area from points that still exist
-    let value = heap.pop() as HeapValue;
-    if (!value) break;
-    while (!arr[value.indexA] || !arr[value.indexB] || !arr[value.indexC])
-      value = heap.pop();
-
-    // remove the point
-    arr[value.indexB] = null;
-    removedCount++;
-
-    // recompute the triangle areas for the neighboring points
-    const prev = nearestPoint(arr, value.indexA - 1, -1);
-    if (prev >= 0) {
-      const [a, b, c] = [prev, value.indexA, value.indexC];
-      const newArea = getArea(toVec2(arr[a]!), toVec2(arr[b]!), toVec2(arr[c]!));
-      heap.insert({ area: newArea, indexA: a, indexB: b, indexC: c });
+      setNumTicksY(Math.round(height / spacingY) + 1);
     }
-
-    const next = nearestPoint(arr, value.indexC + 1, 1);
-    if (next < arr.length) {
-      const [a, b, c] = [value.indexA, value.indexC, next];
-      const newArea = getArea(toVec2(arr[a]!), toVec2(arr[b]!), toVec2(arr[c]!));
-      heap.insert({ area: newArea, indexA: a, indexB: b, indexC: c });
-    }
-  }
-
-  // return the new data
-  return arr.filter(a => a != null) as Point[];
-}
-
-export function LineGraph({ data }: { data: Point[]; }) {
-  const targetLength = 50;
+  }, [padding.x, padding.y, spacingY]);
 
   const points = useMemo(() => {
     if (data.length == 0) return [];
-    const simplified = visvalingamWhyattAlgorithm(data, targetLength);
-    simplified.sort((a, b) => a.date.getTime() - b.date.getTime());
-    return simplified.map(p => ({ x : p.date, y: p.value }));
-  }, [data]);
+    return visvalingamWhyattAlgorithm(data, maxNumPoints);
+  }, [data, maxNumPoints]);
 
-  const dataset = {
-    data: points,
-    label: "Graph",
-    borderColor: "#00B8A9",
-    pointHoverRadius: 4,
-    pointRadius: 2,
-  };
-
-  const options: ChartOptions<'line'> = {
-    responsive: true,
-    interaction: { intersect: false },
-    scales: {
-      x: {
-        type: 'time',
-        ticks: {
-          callback: (value: string | number) =>
-            formatDate(new Date(value), true),
-        }
-      },
+  useEffect(() => {
+    const size = {
+      min: { x: Number.MAX_VALUE, y: Number.MAX_VALUE },
+      max: { x: 0, y: 0 }
+    };
+    for (const p of points) {
+      size.min.x = Math.min(p.date.getTime(), size.min.x);
+      size.max.x = Math.max(p.date.getTime(), size.max.x);
+      size.min.y = Math.min(p.value, size.min.y);
+      size.max.y = Math.max(p.value, size.max.y);
     }
-  };
+    setSrcSize(size);
+  }, [points, spacingY, height]);
+
+  const svgPath = useMemo(() => {
+    if (points.length == 0) return "";
+    if (srcSize.min.x == 0 && srcSize.max.x == 0 &&
+      srcSize.min.y == 0 && srcSize.max.y == 0) return "";
+
+    const domain = srcSize.max.x - srcSize.min.x;
+    const range = srcSize.max.y - srcSize.min.y;
+
+    let path = "";
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const xPercent = (p.date.getTime() - srcSize.min.x) / domain;
+      const x = padding.x + xPercent * width;
+
+      const yPercent = (p.value - srcSize.min.y) / range;
+      const y = padding.y + yPercent * height;
+
+      const prefix = i == 0 ? "M" : "L"; // move to or line to
+      path += ` ${prefix} ${x} ${y}`;
+    }
+
+    return path + " Z"; // end the path at the end
+  }, [height, padding.x, padding.y, points, width, srcSize]);
 
   return (
-    <div>
-      {points.length > 0 &&
-        <Line options={options} data={{ datasets: [dataset] }} />}
+    <div ref={divRef}>
+      {points.length > 0 && (
+        <svg
+          width="100%" height="100%"
+          viewBox={`0 0 ${width + padding.x * 2} ${height + padding.y * 2}`}
+          xmlns="http://www.w3.org/2000/svg">
+
+          {/* X axis point labels */}
+          {Array.from({ length: points.length }, (_, i) => {
+            const domain = srcSize.max.x - srcSize.min.x;
+            const xPercent = (points[i].date.getTime() - srcSize.min.x) / domain;
+            const x = padding.x + xPercent * width;
+            return (
+              <text key={i} x={x} y={padding.y * 2 + height} textAnchor="middle">
+                {formatDate(points[i].date, true)}
+              </text>
+            );
+          })}
+
+          {/* Y axis spacing lines and tick values */}
+          {Array.from({ length: numTicksY }, (_, i) => {
+            const y = (padding.y + height) - i * spacingY; // draw bottom up
+            const step = Math.round((srcSize.max.y - srcSize.min.y) / numTicksY);
+            const value = srcSize.min.y + i * step;
+
+            return (
+              <g key={i}>
+                <line className="spacing-line"
+                  x1={padding.x} y1={y} x2={width + padding.x} y2={y} />
+                <text x={padding.x} y={y} textAnchor="end" dominantBaseline="middle">
+                  {value} {unit}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* (x, y) axis and the data */}
+          <line x1={padding.x} y1={height + padding.y} x2={width + padding.x} y2={height + padding.y} />
+          <line x1={padding.x} y1={height + padding.y} x2={padding.x} y2={padding.y} />
+          <path d={svgPath}></path>
+        </svg>
+      )}
+    </div>
+  );
+}
+
+function interpolateHSL(hsl1: string, hsl2: string, percent: number) {
+  const parse = (hsl: string) => {
+    const match = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/)!;
+    return { h: parseInt(match[1]), s: parseInt(match[2]), l: parseInt(match[3]) };
+  };
+
+  const [c1, c2] = [parse(hsl1), parse(hsl2)];
+  const h = Math.round(c1.h + (c2.h - c1.h) * percent);
+  const s = Math.round(c1.s + (c2.s - c1.s) * percent);
+  const l = Math.round(c1.l + (c2.l - c1.l) * percent);
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+interface HeatmapProps {
+  data: Point[];
+  padding: Vec2;
+  innerPadding: number;
+}
+
+export function Heatmap({ data, padding, innerPadding }: HeatmapProps) {
+  const divRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ x: 0, y: 0 });
+  const [realSize, setRealSize] = useState({ x: 0, y: 0 });
+  const [valueRange, setValueRange] = useState({ min: 0, max: 0 });
+
+  useEffect(() => {
+    if (divRef.current) {
+      // account for the outer padding and the padding gaps
+      // 52 gaps between 53 columsn and 6 gaps between 7 rows
+      const height = window.screen.height / 4;
+      const width = divRef.current.parentElement!.getBoundingClientRect().width;
+      const realWidth = Math.max(0, width - padding.x * 2 - innerPadding * 52);
+      const realHeight = Math.max(0, height - padding.y * 2 - innerPadding * 5);
+
+      setRealSize({ x: width, y: height });
+      setSize({ x: realWidth, y: realHeight });
+    }
+  }, [padding.x, padding.y]);
+
+  useEffect(() => {
+    const range = { min: Number.MAX_VALUE, max: 0 };
+    for (const p of data) {
+      range.min = Math.min(p.value, range.min);
+      range.max = Math.max(p.value, range.max);
+    }
+    setValueRange(range);
+  }, [data]);
+
+  const createTile = (dayIndex: number, value: number) => {
+    const tileSize = { x: size.x / 53, y: size.y / 7 };
+    const week = Math.floor(dayIndex / 7);
+    const day = dayIndex % 7;
+
+    let color = "#E0E5E8";
+    if (value > 0) {
+      const colorStart = "hsl(202, 98%, 80%)";  // #9AD9FE
+      const colorEnd = "hsl(199, 98%, 37%)";    // #0277BD
+      const percent = (value - valueRange.min) / (valueRange.max - valueRange.min);
+      color = interpolateHSL(colorStart, colorEnd, percent);
+    }
+
+    return (
+      <rect
+        key={dayIndex} fill={color}
+        width={tileSize.x} height={tileSize.y}
+        x={padding.x + week * tileSize.x + week * innerPadding}
+        y={padding.y + day * tileSize.y + day * innerPadding}
+     />
+    );
+  }
+
+  return (
+    <div ref={divRef}>
+      <svg
+        width="100%" height="100%"
+        viewBox={`0 0 ${realSize.x} ${realSize.y}`}
+        xmlns="http://www.w3.org/2000/svg">
+          {Array.from({ length: yearLength() }, (_, i) => createTile(i, -1))}
+          {data.map((p, _) => createTile(dayOfYear(p.date), p.value))}
+      </svg>
     </div>
   );
 }

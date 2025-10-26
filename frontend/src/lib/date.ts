@@ -28,3 +28,15 @@ export const isSameWeek = (a: Date, b: Date): boolean => {
 
 export const elapsedDays = (timestampA: number, timestampB: number) =>
   Math.floor((timestampA - timestampB) / 86400000);
+
+export const yearLength = () => {
+  const year = new Date().getFullYear();
+  const leapYear = (year % 4 == 0 && year % 100 > 0) || (year % 400 == 0);
+  return leapYear ? 366 : 365;
+}
+
+export const dayOfYear = (date: Date) => {
+  const dayMs = 1000 * 60 * 60 * 24;
+  const start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date.getTime() - start.getTime()) / dayMs);
+}

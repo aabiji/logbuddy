@@ -138,7 +138,6 @@ export default function TemplatePage() {
               }}
             />
           </div>
-          <hr />
         </div>
 
         {template.exercises.length == 0 && <p style={{ textAlign: "center" }}>No exercises</p>}

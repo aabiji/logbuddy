@@ -234,7 +234,6 @@ export default function FoodPage() {
               />
             </div>
         )})}
-        <hr />
 
         {index != -1 &&
           <EditMeal
