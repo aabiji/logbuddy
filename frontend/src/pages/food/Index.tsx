@@ -256,7 +256,7 @@ export default function FoodPage() {
                   <div key={j} className="food-item">
                     <div onClick={() => history.push(`/food/view/${food.id}`)}>
                       <b style={{ fontSize: 14 }}>{food.name}</b>
-                      <p>{food.calories * food.servingSizes[servingIndex]} calories</p>
+                      <p>{meal.servings * food.calories * food.servingSizes[servingIndex]} calories</p>
                     </div>
 
                     <IonButton

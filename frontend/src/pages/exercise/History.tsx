@@ -18,13 +18,11 @@ export default function HistoryPage() {
   }, [workouts]);
 
   const formatDuration = (totalMinutes: number) => {
-    const hours = totalMinutes / 60;
-    const minutes = Math.floor(totalMinutes - hours * 60);
-    const seconds = (totalMinutes - hours * 60 - minutes) * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+    const seconds = Math.round((totalMinutes % 1) * 60);
     return `${hours} h : ${minutes} m : ${seconds} s`;
   }
-
-  // TODO: delete workout
 
   return (
     <IonPage>
