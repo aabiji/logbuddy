@@ -1,8 +1,9 @@
 export function formatDate(date: Date, shortened?: boolean) {
+  if (shortened)
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+
   const formatter = new Intl.DateTimeFormat('en-US', {
-    month: shortened ? "short" as const : "long" as const,
-    year: shortened ? undefined : "numeric" as const,
-    day: "numeric" as const
+    month: "long" as const, year: "numeric" as const, day: "numeric" as const
   });
   return formatter.format(date);
 }
@@ -29,10 +30,9 @@ export const isSameWeek = (a: Date, b: Date): boolean => {
 export const elapsedDays = (timestampA: number, timestampB: number) =>
   Math.floor((timestampA - timestampB) / 86400000);
 
-export const yearLength = () => {
-  const year = new Date().getFullYear();
-  const leapYear = (year % 4 == 0 && year % 100 > 0) || (year % 400 == 0);
-  return leapYear ? 366 : 365;
+export const yearLength = (year: number): number => {
+  const y = year || new Date().getFullYear();
+  return ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365;
 }
 
 export const dayOfYear = (date: Date) => {

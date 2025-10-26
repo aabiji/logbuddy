@@ -133,7 +133,7 @@ export default function WeightPage() {
                 checked={groupWeekly}
                 onIonChange={(event) => setGroupWeekly(event.detail.checked)}>
                 Group weekly
-                </IonCheckbox>
+              </IonCheckbox>
               <IonRadioGroup
                 value={viewHorizon}
                 onIonChange={(event) => setViewHorizon(event.detail.value)}>
@@ -147,7 +147,7 @@ export default function WeightPage() {
 
         <LineGraph
           data={plotData}
-          spacingY={20} padding={{ x: 20, y: 20 }}
+          spacingY={20} padding={{ x: 50, y: 20 }}
           maxNumPoints={10}
           unit={settings.useImperial ? "lbs" : "kg"}
         />
@@ -155,7 +155,7 @@ export default function WeightPage() {
         {sortedWeightLogs.length == 0 &&
           <p style={{ textAlign: "center" }}>No weight logged</p>}
         {sortedWeightLogs.length > 0 &&
-          <div>
+          <div style={{ marginTop: 15 }}>
             {sortedWeightLogs.map(v => (
               <IonItemSliding key={v[0]}>
                 <IonItem className="weight-value">

@@ -395,12 +395,17 @@ ion-tab-button ion-icon {
   border-radius: 4px;
 }
 
+svg { margin: 0 auto; }
+
 svg path {
   stroke: var(--ion-color-tertiary);
+  stroke-width: 2;
 }
 
 svg line { stroke: var(--ion-text-color); }
 .spacing-line { stroke: var(--ion-border-color); }
+
+svg circle { fill: var(--ion-color-tertiary); }
 
 .auth-box h1 {
   text-align: center;
