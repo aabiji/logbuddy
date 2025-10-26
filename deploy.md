@@ -21,6 +21,7 @@ cd /path/to/logbuddy/backend && go build .
 lftp -u <user> ftp-<user>.alwaysdata.net
 # in the ftp prompt now...
 put logbuddy
+chmod +x logbuddy
 mirror -R sql sql
 ```
 

@@ -23,13 +23,14 @@ ionic serve --host=0.0.0.0 --port=3000
 
 Create an android production build:
 ```bash
-cd path/to/logbuddy/frontend
+bun remove capacitor-assets 2>/dev/null || true
+bun add -D @capacitor/assets
 
-bun install && bun run build
-
-bunx capacitor-assets generate --iconBackgroundColor "#4A90E2"
+bunx cap add android
+bun install
+bun run build
+bunx @capacitor/assets generate --iconBackgroundColor "#00BCD4"
 bunx cap sync android
-
 cd android && ./gradlew assembleDebug && cd ..
 
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk

@@ -68,7 +68,7 @@ export function Input({
   }
   useEffect(() => { autoResize() }, []);
 
-  const setInput = (event: React.FormEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const setInput = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const str = event.target.value;
     let valid = true;
 
@@ -87,7 +87,7 @@ export function Input({
 
       {textarea && <textarea style={style} ref={ref}
         placeholder={placeholder ?? ""} value={`${value}`}
-        onInput={setInput} />}
+        onChange={setInput} />}
 
       {!textarea &&
           <input style={style}
@@ -96,7 +96,7 @@ export function Input({
               ? showPassword ? "text" : "password"
               : inputType ?? "text"}
             placeholder={placeholder ?? ""} min={min} max={max}
-            value={`${value}`} onInput={setInput} />}
+            value={`${value}`} onChange={setInput} />}
 
       {label && placement == "end" && <p>{label}</p>}
 

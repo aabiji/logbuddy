@@ -17,7 +17,7 @@ fi
 # Create a default .env file for the frontend if one doesn't exist:
 if [ ! -f frontend/.env ]; then
   cat > frontend/.env << EOF
-BACKEND_API_URL=<BACKEND ADDRESS>:8100
+BACKEND_API_URL=<BACKEND ADDRESS>
 USER_SUPPORT_EMAIL=<YOUR EMAIL>
 EOF
 fi

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useIonViewWillLeave } from '@ionic/react';
+import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router";
 import { request, useAuthRequest } from "./../lib/request";
 import { useAppState } from "./../lib/state";
@@ -66,6 +67,14 @@ export default function SettingsPage() {
   const authRequest = useAuthRequest();
   const { settings, updateSettings } = useAppState();
 
+  const settingsRef = useRef(settings);
+  useEffect(() => { settingsRef.current = settings; }, [settings]);
+
+  useIonViewWillLeave(() => {
+    authRequest((jwt: string) =>
+      request("POST", "/user/settings", { ...settingsRef.current }, jwt))
+  });
+  
   const possibleMacroTargets = () => ["carbohydrate", "protein", "fat"]
     .filter(t => !Object.keys(settings.macroTargets).includes(t));
 
@@ -80,16 +89,6 @@ export default function SettingsPage() {
     if (json)
       saveFile("logbuddy-export.json", JSON.stringify(json), "application/json");
   }
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      authRequest((jwt: string) =>
-        request("POST", "/user/settings", { ...settings }, jwt));
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
 
   return (
     <IonPage>
