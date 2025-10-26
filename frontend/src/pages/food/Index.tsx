@@ -70,7 +70,7 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
                     placeholder="0"
                     labelPlacement="end"
                     label="Servings"
-                    min={0.1}
+                    min={0}
                     value={meal.servings}
                     setValue={(value: string) => {
                       update({ ...meal, servings: Number(value) });

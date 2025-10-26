@@ -2,7 +2,7 @@ import { useHistory } from "react-router";
 import { useAppState } from "../../lib/state";
 
 import {
-  IonContent, IonPage, IonButton, IonList, IonIcon
+  IonContent, IonPage, IonButton, IonIcon
 } from "@ionic/react";
 import { NotificationTray } from "../../Components";
 import { add, barChart, list } from "ionicons/icons";
@@ -43,7 +43,7 @@ export default function ExercisePage() {
 
         {templates.length == 0
           ? <p style={{ textAlign: "center" }}>No templates</p>
-          : <IonList style={{ background: "transparent" }}>
+          : <div>
             {templates.map((id: number, i: number) => (
               <div key={i} className="template-item">
                 <h6>{workouts.get(id)!.name}</h6>
@@ -62,7 +62,7 @@ export default function ExercisePage() {
                 </div>
               </div>
             ))}
-          </IonList>
+          </div>
         }
       </IonContent>
     </IonPage>

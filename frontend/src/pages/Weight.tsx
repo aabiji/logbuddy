@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { startTransition, useMemo, useRef, useState } from "react";
 import { request, useAuthRequest } from "./../lib/request";
 import { dayUnixTimestamp, formatDate, isSameMonth, isSameWeek } from "./../lib/date";
 import { useAppState } from "./../lib/state";
@@ -8,7 +8,7 @@ import {
   IonIcon, IonItemOptions, IonItemOption, IonButton,
   IonModal, IonCheckbox, IonRadioGroup, IonRadio,
 } from "@ionic/react";
-import { LineGraph, Heatmap } from "./exercise/Graph";
+import { LineGraph } from "./exercise/Graph";
 import { Point } from "../lib/simplify";
 import { Input, NotificationTray } from "../Components";
 import { add, pencil, trash } from "ionicons/icons";
@@ -83,9 +83,10 @@ export default function WeightPage() {
 
   const removeEntry = async (date: Date) => {
     const t = dayUnixTimestamp(date);
-    const response = await authRequest((jwt: string) =>
-      request("DELETE", `/weight/delete?date=${t}`, undefined, jwt));
-    if (response !== undefined) removeWeight(t);
+    removeWeight(t);
+    startTransition(() => {
+      authRequest((jwt: string) => request("DELETE", `/weight/delete?date=${t}`, undefined, jwt));
+    });
   }
 
   // map weight log dates to their update timeout values

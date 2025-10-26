@@ -157,17 +157,19 @@ export default function SettingsPage() {
             </IonButton>
           </div>
           {settings.mealTags.map((_, i) => (
-            <IonItemSliding key={i}>
-              <Input
-                value={settings.mealTags[i]}
-                setValue={(value: string) => updateSettings({
-                  mealTags: [
-                    ...settings.mealTags.slice(0, i),
-                    value,
-                    ...settings.mealTags.slice(i + 1)
-                  ]
-                })}
-              />
+            <IonItemSliding key={i} className="meal-input">
+              <IonItem className="meal-input">
+                <Input
+                  value={settings.mealTags[i]}
+                  setValue={(value: string) => updateSettings({
+                    mealTags: [
+                      ...settings.mealTags.slice(0, i),
+                      value,
+                      ...settings.mealTags.slice(i + 1)
+                    ]
+                  })}
+                />
+              </IonItem>
               <IonItemOptions>
                 <IonItemOption
                   color="danger"

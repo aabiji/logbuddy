@@ -1,9 +1,0 @@
-[ ] consider paginating the /user/data endpoint response
-[ ] paginate the workouts in the history view
-[ ] change the apk icon to the one i set
-[ ] search using incomplete terms (not have to type the whole name)
-[ ] populate the food database with the contents of another food database, so we don't have to define foods from scratch
-[ ] add screenshots of the app to the readme (repost on hackernews)
-[ ] update the meal item tags when you edit the meal
-[ ] Also add button to optionally record cardio session (should we time workout sessions also)
-[ ] Implement custom line graph and heatmap components (use svg for drawing)

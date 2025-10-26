@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -93,13 +94,15 @@ func getQuery[T any](w http.ResponseWriter, r *http.Request, name string) (T, bo
 	var value T
 
 	params := r.URL.Query()
-	param := params.Get(name)
+	param := strings.TrimSpace(params.Get(name))
 	if len(param) == 0 {
 		respond(w, http.StatusBadRequest, fmt.Sprintf("bad request: missing %s", name))
 		return value, false
 	}
 
 	switch any(value).(type) {
+	case string:
+		value = any(param).(T)
 	case int64:
 		val, err := strconv.ParseInt(param, 10, 64)
 		if err != nil {

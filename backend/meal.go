@@ -34,7 +34,7 @@ func (a *API) CreateFood(w http.ResponseWriter, r *http.Request) {
 		Iron:                req.Iron,
 	})
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create food")
+		respond(w, http.StatusInternalServerError, "Couldn't create food")
 		return
 	}
 
@@ -66,15 +66,15 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query = fmt.Sprintf("%s:*", query)
+	query = fmt.Sprintf("%s:*", query) // support full or partial query matching
 	var results []database.Food
 	if filterUser == "true" {
 		// only get foods the user has created that match the query
 		var err error
-		params := database.SearchUserFoodsParams{WebsearchToTsquery: query, Userid: userID}
+		params := database.SearchUserFoodsParams{ToTsquery: query, Userid: userID}
 		results, err = a.queries.SearchUserFoods(a.ctx, params)
 		if err != nil {
-			respond(w, http.StatusInternalServerError, "failed to search")
+			respond(w, http.StatusInternalServerError, "Failed to search")
 			return
 		}
 	} else {
@@ -82,7 +82,7 @@ func (a *API) SearchFood(w http.ResponseWriter, r *http.Request) {
 		var err error
 		results, err = a.queries.SearchFoods(a.ctx, query)
 		if err != nil {
-			respond(w, http.StatusInternalServerError, "failed to search")
+			respond(w, http.StatusInternalServerError, "Failed to search")
 			return
 		}
 	}
@@ -103,7 +103,7 @@ func (a *API) GetFood(w http.ResponseWriter, r *http.Request) {
 
 	row, err := a.queries.GetFoodByID(a.ctx, int32(foodID))
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "failed to find food")
+		respond(w, http.StatusInternalServerError, "Failed to find food")
 		return
 	}
 
@@ -129,7 +129,7 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 			Unit:         req.Unit,
 			ID:           req.ID,
 		}); err != nil {
-			respond(w, http.StatusInternalServerError, "couldn't update meal")
+			respond(w, http.StatusInternalServerError, "Couldn't update meal")
 			return
 		}
 		respond(w, http.StatusOK, nil)
@@ -145,7 +145,7 @@ func (a *API) SetMeal(w http.ResponseWriter, r *http.Request) {
 		Unit:     req.Unit,
 	})
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create meal")
+		respond(w, http.StatusInternalServerError, "Couldn't create meal")
 		return
 	}
 	respond(w, http.StatusOK, map[string]int32{"mealID": id})
@@ -167,7 +167,7 @@ func (a *API) DeleteMeal(w http.ResponseWriter, r *http.Request) {
 		Userid:       userID,
 		ID:           int32(mealID),
 	}); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't delete meal")
+		respond(w, http.StatusInternalServerError, "Couldn't delete meal")
 		return
 	}
 	respond(w, http.StatusOK, nil)
@@ -187,7 +187,7 @@ func (a *API) GetMeals(w http.ResponseWriter, r *http.Request) {
 	params := database.GetMealsForDayParams{Date: date, Userid: userID}
 	rows, err := a.queries.GetMealsForDay(a.ctx, params)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't get meals")
+		respond(w, http.StatusInternalServerError, "Couldn't get meals")
 		return
 	}
 

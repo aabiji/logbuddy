@@ -22,7 +22,7 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 
 	tx, err := a.conn.Begin(a.ctx)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		respond(w, http.StatusInternalServerError, "Couldn't create workout")
 		return
 	}
 	defer tx.Rollback(a.ctx)
@@ -37,7 +37,7 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		Istemplate: req.IsTemplate,
 	})
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		respond(w, http.StatusInternalServerError, "Couldn't create workout")
 		return
 	}
 
@@ -65,12 +65,12 @@ func (a *API) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		}
 	})
 	if problem {
-		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		respond(w, http.StatusInternalServerError, "Couldn't create workout")
 		return
 	}
 
 	if err := tx.Commit(a.ctx); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create workout")
+		respond(w, http.StatusInternalServerError, "Couldn't create workout")
 		return
 	}
 	respond(w, http.StatusOK, map[string]any{"workout": response})
@@ -88,7 +88,7 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 
 	tx, err := a.conn.Begin(a.ctx)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't delete workout")
+		respond(w, http.StatusInternalServerError, "Couldn't delete workout")
 		return
 	}
 	defer tx.Rollback(a.ctx)
@@ -99,7 +99,7 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		Userid:       userID,
 		ID:           int32(workoutID),
 	}); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't delete workout")
+		respond(w, http.StatusInternalServerError, "Couldn't delete workout")
 		return
 	}
 
@@ -108,12 +108,12 @@ func (a *API) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		Userid:       userID,
 		Workoutid:    int32(workoutID),
 	}); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't delete workout")
+		respond(w, http.StatusInternalServerError, "Couldn't delete workout")
 		return
 	}
 
 	if err := tx.Commit(a.ctx); err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't delete workout")
+		respond(w, http.StatusInternalServerError, "Couldn't delete workout")
 		return
 	}
 	respond(w, http.StatusOK, nil)

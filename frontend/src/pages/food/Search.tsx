@@ -67,14 +67,15 @@ export default function FoodSearchPage() {
   }
 
   const timeout = useRef<NodeJS.Timeout | null>(null);
-  const updateSearchQuery = (str: string) => {
-    setQuery(str);
+  const updateSearchQuery = (input: string) => {
+    setQuery(input);
     // debounced search
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(async () => {
-      if (str.trim().length > 0)
+      const str = input.trim();
+      if (str.length > 0)
         await searchFood(str);
-      else if (str.trim().length == 0)
+      else if (str.length == 0)
         setResults(Array.from(useAppState.getState().foods.values()));
     }, 300);
   }

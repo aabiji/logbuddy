@@ -522,11 +522,11 @@ func (q *Queries) HardDeleteWorkouts(ctx context.Context, userid int32) error {
 
 const searchFoods = `-- name: SearchFoods :many
 select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100
+where to_tsvector(name) @@ to_tsquery($1) limit 100
 `
 
-func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([]Food, error) {
-	rows, err := q.db.Query(ctx, searchFoods, websearchToTsquery)
+func (q *Queries) SearchFoods(ctx context.Context, toTsquery string) ([]Food, error) {
+	rows, err := q.db.Query(ctx, searchFoods, toTsquery)
 	if err != nil {
 		return nil, err
 	}
@@ -562,16 +562,16 @@ func (q *Queries) SearchFoods(ctx context.Context, websearchToTsquery string) ([
 
 const searchUserFoods = `-- name: SearchUserFoods :many
 select lastmodified, id, userid, name, defaultservingindex, servingsizes, servingunits, calories, carbohydrate, protein, fat, calcium, potassium, iron from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2 limit 100
+where to_tsvector(name) @@ to_tsquery($1) and userID = $2 limit 100
 `
 
 type SearchUserFoodsParams struct {
-	WebsearchToTsquery string
-	Userid             int32
+	ToTsquery string
+	Userid    int32
 }
 
 func (q *Queries) SearchUserFoods(ctx context.Context, arg SearchUserFoodsParams) ([]Food, error) {
-	rows, err := q.db.Query(ctx, searchUserFoods, arg.WebsearchToTsquery, arg.Userid)
+	rows, err := q.db.Query(ctx, searchUserFoods, arg.ToTsquery, arg.Userid)
 	if err != nil {
 		return nil, err
 	}

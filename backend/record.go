@@ -27,7 +27,7 @@ func (a *API) SetWeightEntry(w http.ResponseWriter, r *http.Request) {
 		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 	}
 	if err := a.queries.SetWeight(a.ctx, v); err != nil {
-		respond(w, http.StatusInternalServerError, "failed to set weight entry")
+		respond(w, http.StatusInternalServerError, "Failed to set weight entry")
 		return
 	}
 
@@ -46,7 +46,7 @@ func (a *API) DeleteWeightEntry(w http.ResponseWriter, r *http.Request) {
 
 	v := database.DeleteRecordParams{Date: date, Userid: userID}
 	if err := a.queries.DeleteRecord(a.ctx, v); err != nil {
-		respond(w, http.StatusInternalServerError, "failed to delete weight entry")
+		respond(w, http.StatusInternalServerError, "Failed to delete weight entry")
 		return
 	}
 
@@ -71,7 +71,7 @@ func (a *API) TogglePeriodDate(w http.ResponseWriter, r *http.Request) {
 		Userid: userID, Date: date, Value: float64(value),
 		Lastmodified: pgtype.Int8{Int64: time.Now().Unix(), Valid: true},
 	}); err != nil {
-		respond(w, http.StatusInternalServerError, "failed to toggle date")
+		respond(w, http.StatusInternalServerError, "Failed to toggle date")
 		return
 	}
 

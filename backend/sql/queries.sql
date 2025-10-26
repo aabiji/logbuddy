@@ -33,11 +33,11 @@ select * from foods where id = $1;
 
 -- name: SearchFoods :many
 select * from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) limit 100;
+where to_tsvector(name) @@ to_tsquery($1) limit 100;
 
 -- name: SearchUserFoods :many
 select * from foods
-where to_tsvector(name) @@ websearch_to_tsquery($1) and userID = $2 limit 100;
+where to_tsvector(name) @@ to_tsquery($1) and userID = $2 limit 100;
 
 -- name: CreateMeal :one
 insert into meals

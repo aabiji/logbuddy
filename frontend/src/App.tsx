@@ -95,9 +95,11 @@ function TabsWrapper() {
           <IonTabButton tab="home" href="/exercise">
             <IonIcon aria-hidden="true" icon={barbell} />
           </IonTabButton>
-          <IonTabButton tab="period" href="/period">
-            <IonIcon aria-hidden="true" icon={water} />
-          </IonTabButton>
+          {settings.trackPeriod &&
+            <IonTabButton tab="period" href="/period">
+              <IonIcon aria-hidden="true" icon={water} />
+            </IonTabButton>
+          }
           <IonTabButton tab="settings" href="/settings">
             <IonIcon aria-hidden="true" icon={settingsIcon} />
           </IonTabButton>

@@ -114,29 +114,29 @@ func parseJWT(a *API, w http.ResponseWriter, r *http.Request) (int32, bool) {
 	token, err := verifyToken(str)
 	if err != nil {
 		if err == jwt.ErrTokenExpired {
-			respond(w, http.StatusUnauthorized, "token expired")
+			respond(w, http.StatusUnauthorized, "Token expired")
 			return -1, false
 		}
 
-		respond(w, http.StatusUnauthorized, "invalid token")
+		respond(w, http.StatusUnauthorized, "Invalid token")
 		return -1, false
 	}
 
 	subject, err := token.Claims.GetSubject()
 	if err != nil {
-		respond(w, http.StatusUnauthorized, "invalid token")
+		respond(w, http.StatusUnauthorized, "Invalid token")
 		return -1, false
 	}
 
 	id, err := strconv.ParseInt(subject, 10, 32)
 	if err != nil {
-		respond(w, http.StatusUnauthorized, "invalid token")
+		respond(w, http.StatusUnauthorized, "Invalid token")
 		return -1, false
 	}
 
 	exists, err := a.queries.UserExists(a.ctx, int32(id))
 	if !exists || err != nil {
-		respond(w, http.StatusUnauthorized, "user not found")
+		respond(w, http.StatusUnauthorized, "User not found")
 		return -1, false
 	}
 
@@ -159,24 +159,24 @@ func (a *API) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := a.queries.GetUser(a.ctx, database.GetUserParams{Email: req.Email})
 	if err == pgx.ErrNoRows {
-		respond(w, http.StatusUnauthorized, "account not found")
+		respond(w, http.StatusUnauthorized, "Account not found")
 		return
 	}
 
 	correct, err := verifyPassword(req.Password, user.Password)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "failed to validate password")
+		respond(w, http.StatusInternalServerError, "Failed to validate password")
 		return
 	}
 
 	if !correct {
-		respond(w, http.StatusUnauthorized, "wrong password")
+		respond(w, http.StatusUnauthorized, "Wrong password")
 		return
 	}
 
 	token, err := createToken(user.ID)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create token")
+		respond(w, http.StatusInternalServerError, "Couldn't create token")
 		return
 	}
 
@@ -195,25 +195,25 @@ func (a *API) CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	p := database.GetUserParams{Email: req.Email}
 	if _, err := a.queries.GetUser(a.ctx, p); err != pgx.ErrNoRows {
-		respond(w, http.StatusUnauthorized, "account already exists")
+		respond(w, http.StatusUnauthorized, "Account already exists")
 		return
 	}
 
 	hashed, err := hashPassword(req.Password)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "failed to hash password")
+		respond(w, http.StatusInternalServerError, "Failed to hash password")
 		return
 	}
 
 	id, err := newUser(a, req.Email, hashed)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create user")
+		respond(w, http.StatusInternalServerError, "Couldn't create user")
 		return
 	}
 
 	token, err := createToken(id)
 	if err != nil {
-		respond(w, http.StatusInternalServerError, "couldn't create token")
+		respond(w, http.StatusInternalServerError, "Couldn't create token")
 		return
 	}
 

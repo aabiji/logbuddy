@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { request, useAuthRequest } from "./../lib/request";
 import { dayUnixTimestamp, elapsedDays, formatDate } from "./../lib/date";
 import { useAppState } from "./../lib/state";
 
-import {
-  IonContent, IonPage, IonButton, IonIcon, IonLabel,
-} from "@ionic/react";
+import { IonContent, IonPage, IonButton, IonIcon, IonLabel } from "@ionic/react";
 import { NotificationTray } from "../Components";
 import { chevronForward, chevronBack } from "ionicons/icons";
 import "../theme/styles.css";
@@ -74,7 +72,7 @@ export default function PeriodPage() {
     const sortedDates = [...periodDates.keys()].sort((a, b) => a - b); // oldest to latest
     const periods = groupIntoPeriods(sortedDates);
     setCanMakePrediction(periods.length >= 3);
-    if (periods.length <= 3) return;
+    if (periods.length < 3) return;
 
     const previousPeriodStart = periods[periods.length - 1][0];
     const [avgCycleLength, avgPeriodLength] = calculateLengthStats(periods);
@@ -83,16 +81,18 @@ export default function PeriodPage() {
     const predictedPeriodStart = new Date(previousPeriodStart + (avgCycleLength * 86400000));
     const currentPhase = getCurrentPhase(dayInCycle, avgCycleLength, avgPeriodLength);
 
-    setPhaseMessage(`Day ${dayInCycle} (${currentPhase})`);
+    setPhaseMessage(`${dayInCycle} • ${currentPhase}`);
     setNextPeriodDate(formatDate(predictedPeriodStart));
-    setAverageCycleMessage(`Average cycle length: ${avgCycleLength}`);
-  }, [periodDates]);
+    setAverageCycleMessage(`${avgCycleLength}`);
+  }, [periodDates.size]);
 
   const toggle = async (date: number) => {
     const willBeSet = periodDates.get(date) ? 0 : 1;
+    togglePeriodDate(date);
     const endpoint = `/period/toggle?date=${date}&set=${willBeSet}`;
-    const response = await authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
-    if (response !== undefined) togglePeriodDate(date);
+    startTransition(() => {
+      authRequest((jwt: string) => request("POST", endpoint, undefined, jwt));
+    });
   }
 
   const monthLength = () =>
@@ -124,8 +124,10 @@ export default function PeriodPage() {
           {Array.from({ length: monthLength() }, (_, i) => {
             const d = new Date(date.getFullYear(), date.getMonth(), i + 1);
             const t = dayUnixTimestamp(d);
+            const disabled = t > new Date().getTime();
             return (
               <IonButton
+                disabled={disabled}
                 className="period-tile"
                 key={i} shape="round" size="small"
                 color={periodDates.get(t) ? "danger" : undefined}
@@ -143,10 +145,19 @@ export default function PeriodPage() {
           <p style={{ textAlign: "center" }}>There's not enough data to make a prediction.</p>}
 
         {canMakePrediction && (
-          <div style={{ textAlign: "center" }}>
-            <p>{phaseMessage}</p>
-            <p>Next predicted period date: {nextPeriodDate}</p>
-            <p>{averageCycleMessage}</p>
+          <div className="period-info">
+            <div>
+              <b>Day in cycle</b>
+              <p>{phaseMessage}</p>
+            </div>
+            <div>
+              <b>Next predicted period date</b>
+              <p>{nextPeriodDate}</p>
+            </div>
+            <div>
+              <b>Average cycle length</b>
+              <p>{averageCycleMessage}</p>
+            </div>
           </div>
         )}
       </IonContent>
