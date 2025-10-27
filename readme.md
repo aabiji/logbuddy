@@ -1,11 +1,18 @@
-# LogBuddy
 <p align="center">
-  <img src="images/banner.png" alt="LogBuddy Banner" width="800">
+  <img src="images/banner.png" alt="LogBuddy Banner" width="700">
 </p>
 
 A simple health tracking app for monitoring your nutrition, workouts, weight, and period.
+Checkout the github releases for the android apk.
 
-#### Develop
+<p align="center">
+  <img src="images/Samsung Galaxy S21 Ultra Screenshot 1.png" alt="Screenshot 1" width="250">
+  <img src="images/Samsung Galaxy S21 Ultra Screenshot 2.png" alt="Screenshot 2" width="250">
+  <img src="images/Samsung Galaxy S21 Ultra Screenshot 3.png" alt="Screenshot 3" width="250">
+  <img src="images/Samsung Galaxy S21 Ultra Screenshot 4.png" alt="Screenshot 4" width="250">
+</p>
+
+### Develop
 LogBuddy was built using Golang for the backend, Ionic for the frontend and PostgreSQL as the database.
 You might also need to install Android Studio for Android builds.
 
