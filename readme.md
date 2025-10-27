@@ -6,10 +6,7 @@ A simple health tracking app for monitoring your nutrition, workouts, weight, an
 Checkout the [github releases](https://github.com/aabiji/logbuddy/releases/) for the android apk.
 
 <p align="center">
-  <img src="images/Samsung Galaxy S21 Ultra Screenshot 1.png" alt="Screenshot 1" width="250">
-  <img src="images/Samsung Galaxy S21 Ultra Screenshot 2.png" alt="Screenshot 2" width="250">
-  <img src="images/Samsung Galaxy S21 Ultra Screenshot 3.png" alt="Screenshot 3" width="250">
-  <img src="images/Samsung Galaxy S21 Ultra Screenshot 4.png" alt="Screenshot 4" width="250">
+  <img src="images/screen-banner.png" alt="LogBuddy Screens" width="800">
 </p>
 
 ### Develop
