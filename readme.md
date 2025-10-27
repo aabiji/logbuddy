@@ -1,13 +1,20 @@
-LogBuddy is a simple app that helps you log your workouts, food consumption, weight and period.
-It has a Golang backend, with an Ionic frontend, using PostgreSQL as its database.
+# LogBuddy
+<p align="center">
+  <img src="images/banner.png" alt="LogBuddy Banner" width="800">
+</p>
 
-### Run
-Run the backend (be sure to edit .env and frontend/.env):
+A simple health tracking app for monitoring your nutrition, workouts, weight, and period.
+
+#### Develop
+LogBuddy was built using Golang for the backend, Ionic for the frontend and PostgreSQL as the database.
+You might also need to install Android Studio for Android builds.
+
+Run the backend (be sure to edit the generated .env and frontend/.env):
 ```bash
 cd path/to/logbuddy && ./run-backend.sh
 ```
 
-Create an android debug build:
+Run a android debug build with live reloading:
 ```bash
 cd path/to/logbuddy/frontend
 
@@ -21,17 +28,4 @@ bunx cap run android -l
 ionic serve --host=0.0.0.0 --port=3000
 ```
 
-Create an android production build:
-```bash
-bun remove capacitor-assets 2>/dev/null || true
-bun add -D @capacitor/assets
-
-bunx cap add android
-bun install
-bun run build
-bunx @capacitor/assets generate --iconBackgroundColor "#00BCD4"
-bunx cap sync android
-cd android && ./gradlew assembleDebug && cd ..
-
-adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-```
+Contributions are welcome! Please feel free to submit a pull request.
