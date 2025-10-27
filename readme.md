@@ -3,7 +3,7 @@
 </p>
 
 A simple health tracking app for monitoring your nutrition, workouts, weight, and period.
-Checkout the github releases for the android apk.
+Checkout the [github releases](https://github.com/aabiji/logbuddy/releases/) for the android apk.
 
 <p align="center">
   <img src="images/Samsung Galaxy S21 Ultra Screenshot 1.png" alt="Screenshot 1" width="250">
@@ -21,7 +21,7 @@ Run the backend (be sure to edit the generated .env and frontend/.env):
 cd path/to/logbuddy && ./run-backend.sh
 ```
 
-Run a android debug build with live reloading:
+Run an android debug build with live reloading:
 ```bash
 cd path/to/logbuddy/frontend
 
