@@ -39,8 +39,10 @@ export default function FoodViewPage() {
       if (edit) return;
       const json = await authRequest((_jwt: string) =>
         request("GET", `/food/get?id=${foodID}`, undefined, undefined)) as { food: Food; };
-      if (json !== undefined)
+      if (json !== undefined) {
         upsertFood(json.food as Food);
+        setFood(json.food as Food);
+      }
     })();
   });
 
@@ -55,14 +57,10 @@ export default function FoodViewPage() {
     } else if (food.calories == 0) {
       addNotification({ message: "Must set calories", error: false });
     } else {
-      const json = await authRequest((jwt: string) =>
-        request("POST", "/food/new", food, jwt)) as { id: number; };
-      if (json === undefined) return;
-
       // normalize the nutrient values down to per 1 g
       // (or whatever the default serving unit is)
       const servingSize = food.servingSizes[food.defaultServingIndex];
-      const normalizedFood = { ...food, id: json.id } as Food;
+      const normalizedFood = { ...food };
       for (const key of Object.keys(food)) {
         if (!excludedKeys.includes(key)) {
           const value = (normalizedFood[key as keyof Food] as number);
@@ -71,8 +69,10 @@ export default function FoodViewPage() {
         }
       }
 
-      setFood(normalizedFood);
-      upsertFood(normalizedFood);
+      const json = await authRequest((jwt: string) =>
+        request("POST", "/food/new", normalizedFood, jwt)) as { id: number; };
+      if (json === undefined) return;
+      upsertFood({ ...normalizedFood, id: json.id });
       history.goBack();
     }
   }
@@ -111,7 +111,7 @@ export default function FoodViewPage() {
               aria-label="Serving size" value={currentServing}
               onIonChange={(event) => setCurrentServing(Number(event.detail.value))}>
                 {food.servingSizes.map((_, i: number) => (
-                  <IonSelectOption value={currentServing} key={i}>
+                  <IonSelectOption value={i} key={i}>
                     {food.servingSizes[i]} {food.servingUnits[i]}
                   </IonSelectOption>
                 ))}
