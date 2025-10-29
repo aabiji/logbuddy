@@ -136,7 +136,8 @@ func getWorkout(
 		workout.Exercises = append(workout.Exercises, ExerciseJSON{
 			ID: row.ID, WorkoutID: w.ID, Name: row.Name,
 			Weight: row.Weight, WeightUnit: row.Weightunit,
-			Reps: row.Reps,
+			Reps: row.Reps, ExerciseType: row.Exercisetype,
+			Duration: row.Duration,
 		})
 	}
 	return workout, nil
