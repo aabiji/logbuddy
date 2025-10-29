@@ -236,46 +236,77 @@ const state: StateCreator<AppState> = (set, _) => ({
 
   updateUserData: (json: UserDataUpdate) =>
     set((state: AppState) => {
-      const newState = {
-        ...state,
-        lastSyncTime: new Date().getTime(),
-        settings: json.settings
-      };
+      const workouts = new Map(state.workouts);
+      const templates = [...state.templates];
+      const meals = new Map(state.meals);
+      const foods = new Map(state.foods);
+      const weightLog = new Map(state.weightLog);
+      const periodDates = new Map(state.periodDates);
 
+      // Update workouts
       for (const workout of json.workouts) {
-        if (workout.deleted && newState.workouts.get(workout.id))
-          newState.removeWorkout(workout.id);
-        else if (!workout.deleted)
-          newState.upsertWorkout(workout);
-      }
-
-      for (const meal of json.meals) {
-        const list = state.meals.get(meal.date) ?? [] as Meal[];
-        const index = list.findIndex(m => m.id == meal.id);
-
-        if (meal.deleted && index != -1)
-          newState.removeMeal(meal.date, index);
-        if (!meal.deleted && index != -1)
-          newState.upsertMeal(meal.date, meal, index);
-      }
-
-      for (const food of json.foods)
-        newState.upsertFood(food);
-
-      for (const record of json.records) {
-        if (record.isPeriod) {
-          const set = newState.periodDates.get(record.date) === true;
-          if ((record.deleted && set) || (!record.deleted && !set))
-            newState.togglePeriodDate(record.date);
+        if (workout.deleted) {
+          if (workout.isTemplate) {
+            const idx = templates.indexOf(workout.id);
+            if (idx !== -1) templates.splice(idx, 1);
+          }
+          workouts.delete(workout.id);
         } else {
-          if (record.deleted && newState.weightLog.get(record.date))
-            newState.removeWeight(record.date);
-          else if (!record.deleted)
-            newState.setWeight(record.date, record.value);
+          if (workout.isTemplate && !templates.includes(workout.id)) {
+            templates.push(workout.id);
+          }
+          workouts.set(workout.id, workout);
         }
       }
 
-      return newState;
+      // Update meals
+      for (const meal of json.meals) {
+        const list = meals.get(meal.date) ?? [];
+        const index = list.findIndex(m => m.id === meal.id);
+
+        if (meal.deleted && index !== -1) {
+          meals.set(meal.date, [
+            ...list.slice(0, index),
+            ...list.slice(index + 1)
+          ]);
+        } else if (!meal.deleted) {
+          if (index !== -1) {
+            meals.set(meal.date, [
+              ...list.slice(0, index),
+              meal,
+              ...list.slice(index + 1)
+            ]);
+          } else
+            meals.set(meal.date, [...list, meal]);
+        }
+      }
+
+      // Update foods
+      for (const food of json.foods)
+        foods.set(food.id, food);
+
+      // Update records
+      for (const record of json.records) {
+        if (record.isPeriod) {
+          if (record.deleted)
+            periodDates.delete(record.date);
+          else
+            periodDates.set(record.date, true);
+        } else {
+          if (record.deleted)
+            weightLog.delete(record.date);
+          else
+            weightLog.set(record.date, record.value);
+        }
+      }
+
+      return {
+        ...state,
+        lastSyncTime: new Date().getTime(),
+        settings: json.settings,
+        workouts, templates, meals,
+        foods, weightLog, periodDates,
+      };
     }),
 
     addNotification: (n: Notification) =>

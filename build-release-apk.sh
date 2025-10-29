@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd frontend
+
 bun remove capacitor-assets 2>/dev/null || true
 bun add -D @capacitor/assets
 

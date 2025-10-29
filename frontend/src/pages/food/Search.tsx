@@ -126,7 +126,7 @@ export default function FoodSearchPage() {
                       {r.servingUnits[r.defaultServingIndex]}
                     </p>
                     <p> • </p>
-                    <p> {r.calories * r.servingSizes[r.defaultServingIndex]} </p>
+                    <p> {Math.round(r.calories * r.servingSizes[r.defaultServingIndex])} </p>
                     <p> calories </p>
                   </div>
                 </div>

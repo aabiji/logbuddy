@@ -64,8 +64,11 @@ export default function FoodViewPage() {
       const servingSize = food.servingSizes[food.defaultServingIndex];
       const normalizedFood = { ...food, id: json.id } as Food;
       for (const key of Object.keys(food)) {
-        if (!excludedKeys.includes(key))
-          (normalizedFood[key as keyof Food] as number) /= servingSize;
+        if (!excludedKeys.includes(key)) {
+          const value = (normalizedFood[key as keyof Food] as number);
+          const normalized = parseFloat((value / servingSize).toFixed(4));
+          (normalizedFood[key as keyof Food] as number) = normalized;
+        }
       }
 
       setFood(normalizedFood);
@@ -195,7 +198,8 @@ export default function FoodViewPage() {
 
         {(Object.keys(food) as (keyof Food)[]).map((key, i) => {
           if (excludedKeys.includes(key)) return null;
-          const unit = key == "calories" ? "cal" : "g";
+          const miligramValues = ["calcium", "potassium", "iron"];
+          const unit = key == "calories" ? "cal" : miligramValues.includes(key) ? "mg" : "g";
           const foodValue = `${(food[key as keyof Food] as number) * food.servingSizes[currentServing]}`;
           return (
             <div key={i} className="nutrient-input horizontal-strip">

@@ -12,12 +12,28 @@ import { Input, NotificationTray } from "../../Components";
 import { add, chevronForward, chevronBack, pencil } from "ionicons/icons";
 import "../../theme/styles.css";
 
-function EditMeal({ date, index, close, setPreviousMealTag }: {
-  date: number; index: number;
+function EditMeal({ date, mealId, close, setPreviousMealTag }: {
+  date: number; mealId: string | null;
   close: () => void; setPreviousMealTag: (tag: string) => void;
 }) {
   const authRequest = useAuthRequest();
   const { foods, meals, settings, upsertMeal, removeMeal } = useAppState();
+
+  // Find the meal by ID instead of using index
+  const findMealByIdAndIndex = () => {
+    if (!mealId) return null;
+    const dayMeals = meals.get(date) ?? [];
+    const index = dayMeals.findIndex(m => m.id === Number(mealId));
+    if (index === -1) return null;
+    return { meal: dayMeals[index], index };
+  };
+
+  const mealInfo = findMealByIdAndIndex();
+  if (!mealInfo) return null;
+
+  const { meal, index } = mealInfo;
+  const food = foods.get(meal.foodID);
+  if (!food) return null;
 
   const update = async (m: Meal) => {
     const response = await authRequest((jwt: string) =>
@@ -27,9 +43,8 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
   }
 
   const remove = async () => {
-    const id = meals.get(date)![index].id;
     const response = await authRequest((jwt: string) =>
-      request("DELETE", `/meal/delete?mealID=${id}`, undefined, jwt));
+      request("DELETE", `/meal/delete?mealID=${meal.id}`, undefined, jwt));
     if (response !== undefined) {
       removeMeal(date, index);
       close();
@@ -38,70 +53,63 @@ function EditMeal({ date, index, close, setPreviousMealTag }: {
 
   return (
     <IonModal
-      isOpen={index != -1}
+      isOpen={mealId !== null}
       initialBreakpoint={0.5}
       breakpoints={[0.0, 0.5, 1.0]}
       onDidDismiss={close}
       handleBehavior="cycle">
       <IonContent>
-        {(() => {
-          const meal = meals.get(date)![index];
-          const food = foods.get(meal.foodID)!;
-          return (
-            <div className="meal-edit">
-              <div className="horizontal-strip">
-                <p>Move to</p>
-                <IonSelect
-                  style={{ width: "45%" }}
-                  value={meal.mealTag}
-                  onIonChange={(event) => {
-                    update({ ...meal, mealTag: event.detail.value, });
-                    setPreviousMealTag(event.detail.value);
-                  }}>
-                  {settings.mealTags.map((t: string, i: number) =>
-                    <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
-                </IonSelect>
-              </div>
+        <div className="meal-edit">
+          <div className="horizontal-strip">
+            <p>Move to</p>
+            <IonSelect
+              style={{ width: "45%" }}
+              value={meal.mealTag}
+              onIonChange={(event) => {
+                update({ ...meal, mealTag: event.detail.value });
+                setPreviousMealTag(event.detail.value);
+              }}>
+              {settings.mealTags.map((t: string, i: number) =>
+                <IonSelectOption value={t} key={i}>{t}</IonSelectOption>)}
+            </IonSelect>
+          </div>
 
-              <div className="horizontal-strip">
-                <div style={{ width: "50% "}}>
-                  <Input
-                    inputType="number"
-                    placeholder="0"
-                    labelPlacement="end"
-                    label="Servings"
-                    min={0}
-                    value={meal.servings}
-                    setValue={(value: string) => {
-                      update({ ...meal, servings: Number(value) });
-                    }}
-                  />
-                </div>
-
-                <IonSelect
-                  aria-label="Serving unit"
-                  value={meal.servingsUnit}
-                  onIonChange={(event) => {
-                    update({ ...meal, servingsUnit: event.detail.value });
-                  }}>
-                  {food.servingUnits.map((u: string, i: number) => (
-                    <IonSelectOption value={u} key={i}>
-                      {food.servingSizes[i]} {u}
-                    </IonSelectOption>
-                    ))
-                  }
-                </IonSelect>
-              </div>
-
-              <IonButton
-                size="default"
-                color="danger"
-                onClick={remove} style={{ width: "100%" }}>
-                Remove meal
-              </IonButton>
+          <div className="horizontal-strip">
+            <div style={{ width: "50%" }}>
+              <Input
+                inputType="number"
+                placeholder="0"
+                labelPlacement="end"
+                label="Servings"
+                min={0}
+                value={meal.servings}
+                setValue={(value: string) => {
+                  update({ ...meal, servings: Number(value) });
+                }}
+              />
             </div>
-          );
-        })()}
+
+            <IonSelect
+              aria-label="Serving unit"
+              value={meal.servingsUnit}
+              onIonChange={(event) => {
+                update({ ...meal, servingsUnit: event.detail.value });
+              }}>
+              {food.servingUnits.map((u: string, i: number) => (
+                <IonSelectOption value={u} key={i}>
+                  {food.servingSizes[i]} {u}
+                </IonSelectOption>
+              ))}
+            </IonSelect>
+          </div>
+
+          <IonButton
+            size="default"
+            color="danger"
+            onClick={remove} style={{ width: "100%" }}>
+            Remove meal
+          </IonButton>
+        </div>
       </IonContent>
     </IonModal>
   );
@@ -118,14 +126,16 @@ export default function FoodPage() {
   const [groupedMeals, setGroupedMeals] = useState<Record<string, Meal[]>>({});
 
   const [previousMealTag, setPreviousMealTag] = useState(settings.mealTags[0]);
-  const [index, setCurrentMealIndex] = useState(-1);
+  const [currentMealId, setCurrentMealId] = useState<string | null>(null);
 
   const countMacro = (meals: Meal[], macro: keyof Food): number => {
     let sum = 0;
     for (const m of meals) {
-      const food = foods.get(m.foodID)!;
+      const food = foods.get(m.foodID);
+      if (!food) continue;
       const i = food.servingUnits.indexOf(m.servingsUnit);
-      sum +=  m.servings * food.servingSizes[i] * (food[macro] as number);
+      if (i === -1) continue;
+      sum += m.servings * food.servingSizes[i] * (food[macro] as number);
     }
     return sum;
   }
@@ -142,14 +152,8 @@ export default function FoodPage() {
     for (const meal of dayMeals)
       groups[meal.mealTag].push(meal);
 
-    if (Object.keys(groups).length == 0) {
-      for (let tag of settings.mealTags) {
-        groups[tag] = [];
-      }
-    }
-
     setGroupedMeals(groups);
-  }, [label, meals]);
+  }, [label, meals, date]);
 
   const fetchFood = async (id: number) => {
     const json = await authRequest((_jwt: string) =>
@@ -159,17 +163,15 @@ export default function FoodPage() {
   }
 
   const fetchMeals = async (dateTimestamp: number) => {
-    // fetch all the meals for this day
     const params = new URLSearchParams();
-    params.append("dateTimestamp", `${dayUnixTimestamp(date)}`);
+    params.append("dateTimestamp", `${dateTimestamp}`);
     const endpoint = `/meal/day?${params.toString()}`;
 
     const json = await authRequest((jwt: string) =>
       request("GET", endpoint, undefined, jwt)) as { meals: Meal[] };
     if (json === undefined) return;
-      upsertMeals(dateTimestamp, json.meals as Meal[]);
+    upsertMeals(dateTimestamp, json.meals as Meal[]);
 
-    // fetch foods that we don't have cached as well
     for (const meal of json.meals) {
       if (foods.get(meal.foodID) === undefined) {
         fetchFood(meal.foodID);
@@ -182,7 +184,6 @@ export default function FoodPage() {
     copy.setDate(date.getDate() + delta);
     setDate(copy);
 
-    // fetch on demand
     const timestamp = dayUnixTimestamp(copy);
     if (meals.get(timestamp) === undefined)
       await fetchMeals(timestamp);
@@ -222,7 +223,7 @@ export default function FoodPage() {
         {Object.keys(settings.macroTargets).map((t, i) => {
           const timestamp = dayUnixTimestamp(date);
           const dayMeals = meals.get(timestamp) ?? [];
-          const value = countMacro(dayMeals, t as keyof Food);
+          const value = Math.round(countMacro(dayMeals, t as keyof Food));
           const max = settings.macroTargets[t];
           const percentage = value / max;
           return (
@@ -233,35 +234,37 @@ export default function FoodPage() {
                 color={percentage < 0.7 ? "success" : percentage < 0.98 ? "warning" : "danger"}
               />
             </div>
-        )})}
+          )})}
 
-        {index != -1 &&
-          <EditMeal
-            date={dayUnixTimestamp(date)} index={index}
-            setPreviousMealTag={setPreviousMealTag}
-            close={() => setCurrentMealIndex(-1)}
-          />}
+        <EditMeal
+          date={dayUnixTimestamp(date)}
+          mealId={currentMealId}
+          setPreviousMealTag={setPreviousMealTag}
+          close={() => setCurrentMealId(null)}
+        />
 
         {Object.keys(groupedMeals).map((tag: string, i: number) => {
-          const values = Object.values(groupedMeals[tag] ?? {});
+          const values = groupedMeals[tag] ?? [];
           return (
             <div key={i}>
               <h5>{tag}</h5>
-              {values.length == 0 && <p style={{ textAlign: "center" }}>No meals</p>}
+              {values.length === 0 && <p style={{ textAlign: "center" }}>No meals</p>}
 
               {values.length > 0 && values.map((meal: Meal, j: number) => {
-                const food = foods.get(meal.foodID)!;
+                const food = foods.get(meal.foodID);
+                if (!food) return null;
                 const servingIndex = food.servingUnits.indexOf(meal.servingsUnit);
+                if (servingIndex === -1) return null;
                 return (
                   <div key={j} className="food-item">
                     <div onClick={() => history.push(`/food/view/${food.id}`)}>
                       <b style={{ fontSize: 14 }}>{food.name}</b>
-                      <p>{meal.servings * food.calories * food.servingSizes[servingIndex]} calories</p>
+                      <p>{Math.round(meal.servings * food.calories * food.servingSizes[servingIndex])} calories</p>
                     </div>
 
                     <IonButton
                       shape="round" size="small" fill="clear"
-                      onClick={() => setCurrentMealIndex(j)}>
+                      onClick={() => setCurrentMealId(`${meal.id}`)}>
                       <IonIcon slot="icon-only" size="small" color="success" icon={pencil} />
                     </IonButton>
                   </div>
