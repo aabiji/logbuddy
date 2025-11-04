@@ -144,6 +144,7 @@ export default function FoodViewPage() {
                 inputType="number"
                 placeholder="0"
                 value={food.servingSizes[i]}
+                max={food.servingUnits[i] == "item" ? 1 : 10000}
                 setValue={(value: string) => {
                   setFood((prev) => {
                     const newServings = [...prev.servingSizes];
@@ -168,6 +169,7 @@ export default function FoodViewPage() {
               }}>
               <IonSelectOption value="g">g</IonSelectOption>
               <IonSelectOption value="mL">mL</IonSelectOption>
+              <IonSelectOption value="item">item</IonSelectOption>
             </IonSelect>
 
             <IonButton

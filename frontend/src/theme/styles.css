@@ -325,6 +325,9 @@ ion-select::part(text) {
 ion-select::part(icon) {
   color: var(--ion-color-primary);
   opacity: 1;
+  position: absolute;
+  right: 0;
+  margin-right: 10px;
 }
 
 ion-popover {

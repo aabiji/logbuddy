@@ -11,7 +11,6 @@ export class ApiError extends Error {
   }
 }
 
-
 // Create a request to the backend
 export async function request(
   method: string,

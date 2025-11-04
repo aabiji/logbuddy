@@ -51,11 +51,14 @@ function TabsWrapper() {
     if (json) updateUserData(json as UserDataUpdate);
   }
 
-  useEffect(() => {
-    if (!indexedbLoaded) return;
-
+  const setupUI = () => {
     clearNotifications();
     document.body.classList.toggle('dark', settings.darkMode);
+  }
+
+  useEffect(() => {
+    if (!indexedbLoaded) return;
+    setupUI();
 
     // automatically redirect to auth page the first time we launch the app
     if (token.length == 0 && location.pathname != "/auth")

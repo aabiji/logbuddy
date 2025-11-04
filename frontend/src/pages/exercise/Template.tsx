@@ -110,7 +110,7 @@ export default function TemplatePage() {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent>
+      <IonContent scrollY={true}>
         <NotificationTray />
         <div className="sticky-controls">
           <div className="horizontal-strip">
