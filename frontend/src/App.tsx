@@ -24,7 +24,6 @@ import SettingsPage from "./pages/Settings";
 
 import ExercisePage from "./pages/exercise/Index";
 import HistoryPage  from "./pages/exercise/History";
-import ProgressPage from "./pages/exercise/Progress";
 import TemplatePage from "./pages/exercise/Template";
 import WorkoutPage from "./pages/exercise/Workout";
 
@@ -76,7 +75,6 @@ function TabsWrapper() {
         <Route exact path="/settings" component={SettingsPage} />
         <Route exact path="/exercise" component={ExercisePage} />
         <Route exact path="/exercise/history" component={HistoryPage} />
-        <Route exact path="/exercise/progress" component={ProgressPage} />
         <Route exact path="/exercise/template/:id" component={TemplatePage} />
         <Route exact path="/exercise/workout/:templateID" component={WorkoutPage} />
         <Route exact path="/food" component={FoodPage} />

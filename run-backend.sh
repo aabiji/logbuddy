@@ -23,8 +23,9 @@ EOF
 fi
 
 # Start/create the backend's docker container
-if sudo docker compose ps -q | grep -q .; then
+if sudo docker compose ps --quiet 2>/dev/null | grep -q .; then
     sudo docker compose start
+    sudo docker compose logs -f
 else
     sudo docker compose up
 fi

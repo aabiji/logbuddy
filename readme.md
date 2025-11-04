@@ -9,6 +9,13 @@ Checkout the [github releases](https://github.com/aabiji/logbuddy/releases/) for
   <img src="images/screen-banner.png" alt="LogBuddy Screens" width="800">
 </p>
 
+- Time workouts (put the timer in the workout header)
+- Add button to time cardio exercises automatically
+- Find a dataset that has calories for common foods and write a script to insert a bunch into a database. Basically, for each food, how many calories are in 1g of it?
+- Add "item" as a specific unit for foods
+- Center the points in the graph
+- Move inputs out of the way of the keyboard so that we can actually see what we're typing
+
 ### Develop
 LogBuddy was built using Golang for the backend, Ionic for the frontend and PostgreSQL as the database.
 You might also need to install Android Studio for Android builds.

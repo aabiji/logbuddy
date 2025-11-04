@@ -5,7 +5,7 @@ import {
   IonContent, IonPage, IonButton, IonIcon
 } from "@ionic/react";
 import { NotificationTray } from "../../Components";
-import { add, barChart, list } from "ionicons/icons";
+import { add, list } from "ionicons/icons";
 import "../../theme/styles.css";
 
 export default function ExercisePage() {
@@ -21,12 +21,6 @@ export default function ExercisePage() {
           <h4>Your workouts</h4>
 
          <div className="horizontal-strip">
-          <IonButton
-            fill="clear" color="primary"
-            onClick={() => history.push("/exercise/progress")}>
-            <IonIcon slot="icon-only" color="white" icon={barChart} />
-          </IonButton>
-
           <IonButton
             fill="clear" color="primary"
             onClick={() => history.push("/exercise/history")}>
