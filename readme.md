@@ -10,3 +10,5 @@ Rough edges makes it awful to use (ex: keyboard covering inputs):
 - Looked like shit, felt slow and clunky
 - Not a fan of react or ionic, I prefer static typing
 - This new version of LogBuddy is designed to fixed all the issues of the old version. Still under active development....
+
+- Have a generic database module that can query data regardless of whether sqlite3 is used on the frontend, or postgresql is used on the backend. Since the app is local first, we would need to have a copy of the user specific copy of the database on the user's device anyways
