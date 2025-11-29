@@ -1,6 +1,9 @@
+// TODO: remove these duplicate type definitions
+
+import "react-native-get-random-values";
 import { v7 as uuidv7 } from "uuid";
 
-export interface ExerciseSet { weight: number; reps: number; };
+export interface ExerciseSet { id?: number, weight: number; reps: number; };
 
 export interface Exercise {
   id: string;

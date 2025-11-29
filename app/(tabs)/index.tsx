@@ -2,16 +2,8 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useEffect, useState } from "react";
-
-import * as SQLite from "expo-sqlite";
-import { drizzle } from "drizzle-orm/expo-sqlite";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
-
+import { useDrizzleMigrations, getWorkouts, insertWorkout } from "@/lib/database";
 import { newExercise, newWorkout, Exercise, Workout, newExerciseSet } from "@/lib/types";
-import migrations from "@/drizzle/migrations";
-
-const expo = SQLite.openDatabaseSync("logbuddy.db");
-const db = drizzle(expo);
 
 function ExerciseTile({ exercise, setExercise }:
   { exercise: Exercise, setExercise: (updated: Exercise) => void; }) {
@@ -59,7 +51,7 @@ function ExerciseTile({ exercise, setExercise }:
 }
 
 export default function Index() {
-  const { success, error } = useMigrations(db, migrations);
+  const error = useDrizzleMigrations();
 
   const [workout, setWorkout] = useState(newWorkout());
   const [modalShown, setModalShown] = useState(true);
@@ -69,10 +61,11 @@ export default function Index() {
   let startTime = 0;
 
   useEffect(() => {
-    if (!success) return;
+    if (error) return;
+
+    getWorkouts(10);
 
     startTime = new Date().getTime();
-
     interval = setInterval(() => {
       const elapsed = (new Date().getTime() - startTime) / 1000; // in seconds
       const hours = Math.floor(elapsed / 3600);
@@ -116,13 +109,17 @@ export default function Index() {
             <Text>{time}</Text>
 
             <Pressable
-              onPress={() => setModalShown(false)}
+              onPress={() => {
+                insertWorkout(workout);
+                setModalShown(false);
+              }}
               style={styles.filledButton}>
               <Text style={styles.filledButtonText}>Finish</Text>
             </Pressable>
           </View>
 
           <FlatList
+            style={{ flexGrow: 0 }}
             data={workout.exercises}
             renderItem={({ index }) =>
               <ExerciseTile
