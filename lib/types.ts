@@ -3,6 +3,7 @@ import { v7 as uuidv7 } from "uuid";
 export interface ExerciseSet { weight: number; reps: number; };
 
 export interface Exercise {
+  id: string;
   name: string;
   workoutId: string;
   sets: ExerciseSet[];
@@ -24,6 +25,7 @@ export const newWorkout = () => ({
 });
 
 export const newExercise = (workoutId: string) => ({
+  id: uuidv7(),
   name: "Bench press",
   workoutId,
   sets: [] as ExerciseSet[],
