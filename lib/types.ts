@@ -1,41 +1,50 @@
-// TODO: remove these duplicate type definitions
+import { InferSelectModel } from "drizzle-orm";
+import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 
 import "react-native-get-random-values";
 import { v7 as uuidv7 } from "uuid";
 
-export interface ExerciseSet { id?: number, weight: number; reps: number; };
+import * as schema from "@/lib/schema";
 
-export interface Exercise {
-  id: string;
-  name: string;
-  workoutId: string;
+export type ExerciseSet =
+  InferSelectModel<typeof schema.exerciseSets>;
+
+export interface Exercise
+  extends InferSelectModel<typeof schema.exercises> {
   sets: ExerciseSet[];
-  notes: string;
-};
+}
 
-export interface Workout {
-  id: string;
+export interface Workout
+  extends InferSelectModel<typeof schema.workouts> {
   exercises: Exercise[];
-  timestamp: number;
-  duration: number;
-};
+}
 
-export const newWorkout = () => ({
-  id: uuidv7(),
-  exercises: [] as Exercise[],
-  timestamp: Date.now(),
-  duration: 0
+// Strip the keys in `obj` down to only the columns defined in the Drizzle table
+export function stripToTable<
+  TTable extends AnySQLiteTable,
+  TObj extends Record<string, any>
+>(
+  table: TTable,
+  obj: TObj
+): TTable["$inferInsert"] {
+  const result: any = {};
+  console.log(Object.keys(table));
+  for (const key of Object.keys(table)) {
+    if (key in obj)
+      result[key] = obj[key];
+  }
+  return result;
+}
+
+export const newWorkout = (): Workout => ({
+  id: uuidv7(), timestamp: new Date().getTime(),
+  duration: 0, exercises: []
 });
 
-export const newExercise = (workoutId: string) => ({
-  id: uuidv7(),
-  name: "Bench press",
-  workoutId,
-  sets: [] as ExerciseSet[],
-  notes: ""
+export const newExercise = (workoutId: string, name: string): Exercise => ({
+  id: uuidv7(), workoutId, name, notes: "", sets: []
 });
 
-export const newExerciseSet = (e: Exercise) => ({
-  weight: e.sets.length == 0 ? 0 : e.sets[e.sets.length - 1].weight,
-  reps: e.sets.length == 0 ? 0 : e.sets[e.sets.length - 1].reps,
+export const newExerciseSet = (exerciseId: string): ExerciseSet => ({
+  id: uuidv7(), exerciseId, weight: 0, reps: 0
 });

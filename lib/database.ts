@@ -4,9 +4,9 @@ import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import migrations from "@/drizzle/migrations";
 
 import * as schema from "@/lib/schema";
-import { Workout } from "@/lib/types";
+import { stripToTable, Workout } from "@/lib/types";
 
-const expo = SQLite.openDatabaseSync("logbuddy.db");
+const expo = SQLite.openDatabaseSync("logbuddy-data.db");
 const db = drizzle(expo, { schema });
 
 export function useDrizzleMigrations() {
@@ -16,37 +16,34 @@ export function useDrizzleMigrations() {
 
 // NOTE: Workouts are immutable once inserted into the database
 export async function insertWorkout(w: Workout) {
-  const setsValues = [] as any[];
-  const exerciseValues = [] as any[];
+  let exerciseSetRows: any[] = [];
 
-  for (const e of w.exercises) {
-    exerciseValues.push({
-      id: e.id, workoutId: w.id, name: e.name, notes: e.notes
-    });;
-    for (const s of e.sets) {
-      setsValues.push({
-        exerciseId: e.id, weight: s.weight, reps: s.reps
-      });
-    }
-  }
+  const exerciseRows = w.exercises.map(e => {
+    const setRows = e.sets.map(s => stripToTable(schema.exerciseSets, s));
+    exerciseSetRows = [...exerciseSetRows, ...setRows];
+
+    return stripToTable(schema.exercises, e);
+  });
 
   await db.transaction(async (tx) => {
     await tx.insert(schema.workouts)
-      .values({ id: w.id, timestamp: w.timestamp, duration: w.duration })
+      .values(stripToTable(schema.workouts, w))
       .onConflictDoNothing({ target: schema.workouts.id });
 
     await tx.insert(schema.exercises)
-      .values(exerciseValues)
+      .values(exerciseRows)
       .onConflictDoNothing({ target: schema.exercises.id });
 
     await tx.insert(schema.exerciseSets)
-      .values(setsValues)
+      .values(exerciseSetRows)
       .onConflictDoNothing({ target: schema.exerciseSets.id });
   });
 }
 
-export async function getWorkouts(pageSize: number) {
-  const values = await db.query.workouts.findMany({
+export async function getWorkouts(page: number, pageSize: number) {
+  return await db.query.workouts.findMany({
+    limit: pageSize,
+    offset: page * pageSize,
     with: {
       exercises: {
         with: {
@@ -55,5 +52,4 @@ export async function getWorkouts(pageSize: number) {
       }
     }
   });
-  console.log(JSON.stringify(values));
 }

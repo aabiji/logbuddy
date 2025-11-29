@@ -1,82 +1,30 @@
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useEffect, useState } from "react";
-import { useDrizzleMigrations, getWorkouts, insertWorkout } from "@/lib/database";
-import { newExercise, newWorkout, Exercise, Workout, newExerciseSet } from "@/lib/types";
 
-function ExerciseTile({ exercise, setExercise }:
-  { exercise: Exercise, setExercise: (updated: Exercise) => void; }) {
-  return (
-    <View>
-      <Text>{exercise.name}</Text>
-
-      <View style={styles.row}>
-        <Text style={styles.rowColumn}>SET</Text>
-        <Text style={styles.rowColumn}>LBS</Text>
-        <Text style={styles.rowColumn}>REPS</Text>
-      </View>
-
-      <FlatList
-        data={exercise.sets}
-        renderItem={({ item, index }) => (
-          <View style={styles.row}>
-            <Text style={styles.rowColumn}>{index + 1}</Text>
-            <TextInput
-              style={styles.rowColumn}
-              value={`${item.reps}`}
-              onChangeText={(value: string) => console.log(Number(value))}
-            />
-            <TextInput
-              style={styles.rowColumn}
-              value={`${item.weight}`}
-              onChangeText={(value: string) => console.log(Number(value))}
-            />
-          </View>
-        )}
-      />
-
-      <Pressable
-        style={styles.filledButton}
-        onPress={() => {
-          setExercise(({
-            ...exercise,
-            sets: [...exercise.sets, newExerciseSet(exercise)]
-          }))
-        }}>
-        <Text style={styles.filledButtonText}>Add set</Text>
-      </Pressable>
-    </View>
-  );
-}
+import { newWorkout, Workout } from "@/lib/types";
+import { useDrizzleMigrations, getWorkouts } from "@/lib/database";
+import WorkoutEditor from "@/app/workoutEditor";
 
 export default function Index() {
   const error = useDrizzleMigrations();
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [modalShown, setModalShown] = useState(false);
+  const [page, setPage] = useState(0);
 
-  const [workout, setWorkout] = useState(newWorkout());
-  const [modalShown, setModalShown] = useState(true);
-  const [time, setTime] = useState("00 m : 00 s");
+  const base = newWorkout();
 
-  let interval;
-  let startTime = 0;
+  const fetchNextPage = async () => {
+    const limit = 10;
+    const result = await getWorkouts(page, limit);
+    setWorkouts(prev => [...prev, ...result]);
+    setPage(page + 1);
+  }
 
   useEffect(() => {
     if (error) return;
-
-    getWorkouts(10);
-
-    startTime = new Date().getTime();
-    interval = setInterval(() => {
-      const elapsed = (new Date().getTime() - startTime) / 1000; // in seconds
-      const hours = Math.floor(elapsed / 3600);
-      const minutes = Math.floor((elapsed - (hours * 3600)) / 60);
-      const seconds = Math.floor(elapsed - (hours * 3600) - (minutes * 60));
-
-      const fmt = (n: number) => n.toFixed(0).padStart(2, '0');
-      setTime(hours == 0
-        ? `${fmt(minutes)} m : ${fmt(seconds)} s`
-        : `${fmt(hours)} h : ${fmt(minutes)} m : ${fmt(seconds)} s`);
-    }, 1000);
+    fetchNextPage();
   }, []);
 
   if (error) {
@@ -91,64 +39,24 @@ export default function Index() {
     <SafeAreaProvider>
       <SafeAreaView>
 
-        <Modal
-          animationType="slide"
-          visible={modalShown}
-          onRequestClose={() => {
-            setModalShown(false);
-            console.log("closing modal!");
-          }}>
+        <Text>Workouts</Text>
 
-          <View style={styles.row}>
-            <Pressable
-              onPress={() => setModalShown(false)}
-              style={styles.textButton}>
-              <Text style={styles.textButtonText}>Cancel</Text>
-            </Pressable>
+        <WorkoutEditor
+          baseWorkout={base}
+          modalShown={modalShown}
+          setModalShown={setModalShown}
+        />
 
-            <Text>{time}</Text>
-
-            <Pressable
-              onPress={() => {
-                insertWorkout(workout);
-                setModalShown(false);
-              }}
-              style={styles.filledButton}>
-              <Text style={styles.filledButtonText}>Finish</Text>
-            </Pressable>
-          </View>
-
-          <FlatList
-            style={{ flexGrow: 0 }}
-            data={workout.exercises}
-            renderItem={({ index }) =>
-              <ExerciseTile
-                exercise={workout.exercises[index]}
-                setExercise={(updated: Exercise) =>
-                  setWorkout((prev: Workout) => ({
-                    ...prev,
-                    exercises: [
-                      ...prev.exercises.slice(0, index),
-                      updated,
-                      ...prev.exercises.slice(index + 1)
-                    ]
-                  })
-                )}
-              />
-            }
-          />
-
-          <Pressable
-            style={styles.filledButton}
-            onPress={() => {
-              setWorkout((prev: Workout) => ({
-                ...prev,
-                exercises: [...prev.exercises, newExercise(workout.id)]
-              }))
-            }}>
-            <Text style={styles.filledButtonText}>Add exercise</Text>
-          </Pressable>
-        </Modal>
+        <FlatList
+          data={workouts}
+          onEndReached={fetchNextPage}
+          onEndReachedThreshold={0.8}
+          renderItem={({ item, index }) => (
+            <Text>
+              {item.timestamp}
+            </Text>
+          )}
+        />
 
       </SafeAreaView>
     </SafeAreaProvider>
@@ -170,17 +78,6 @@ const styles = StyleSheet.create({
   },
   filledButtonText: {
     color: "white",
-    textAlign: "center"
-  },
-  row: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-  },
-  rowColumn: {
-    width: "33%",
     textAlign: "center"
   },
 });

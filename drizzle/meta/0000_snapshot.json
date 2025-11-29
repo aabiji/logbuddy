@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "20f0c6a8-3a54-4d9b-a3e8-150e6bcda326",
+  "id": "044f9935-399c-4d66-933d-55c51a31b40a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "exercise_sets": {
@@ -9,10 +9,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "exerciseId": {
           "name": "exerciseId",

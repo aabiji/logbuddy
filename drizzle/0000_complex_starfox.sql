@@ -1,5 +1,5 @@
 CREATE TABLE `exercise_sets` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
 	`exerciseId` text NOT NULL,
 	`weight` real NOT NULL,
 	`reps` integer NOT NULL,
