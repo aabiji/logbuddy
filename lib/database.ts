@@ -6,7 +6,7 @@ import migrations from "@/drizzle/migrations";
 import * as schema from "@/lib/schema";
 import { stripToTable, Workout } from "@/lib/types";
 
-const expo = SQLite.openDatabaseSync("logbuddy-data.db");
+const expo = SQLite.openDatabaseSync("logbuddy-data1.db");
 const db = drizzle(expo, { schema });
 
 export function useDrizzleMigrations() {

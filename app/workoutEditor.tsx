@@ -1,29 +1,43 @@
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
+import { Modal, ScrollView, Text, TextInput, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
 
-import { Exercise, Workout, newExercise, newExerciseSet } from "@/lib/types";
+import { Exercise, Workout, newExercise, newExerciseSet, newWorkout } from "@/lib/types";
 import { insertWorkout } from "@/lib/database";
+import { Button } from "@/app/components";
+import theme from "@/app/styles";
 
 function ExerciseTile({ exercise, setExercise }:
   { exercise: Exercise, setExercise: (updated: Exercise) => void; }) {
   return (
-    <View>
-      <Text>{exercise.name}</Text>
-
-      <View style={styles.row}>
-        <Text style={styles.rowColumn}>SET</Text>
-        <Text style={styles.rowColumn}>LBS</Text>
-        <Text style={styles.rowColumn}>REPS</Text>
+    <View style={[theme.bottomSpacer, theme.topSpacer]}>
+      <View style={theme.row}>
+        <Text style={theme.h4}>{exercise.name}</Text>
+        <Button
+          onPress={() => { console.log("remove...") }}
+          icon="trash-can"
+          color="error"
+        >
+        </Button>
       </View>
 
-      <FlatList
-        data={exercise.sets}
-        renderItem={({ item, index }) => (
-          <View style={styles.row}>
-            <Text style={styles.rowColumn}>{index + 1}</Text>
+      <View style={[theme.row]}>
+        <Text style={[theme.rowColumn, theme.dimmedHeader]}>SET</Text>
+        <Text style={[theme.rowColumn, theme.dimmedHeader]}>LBS</Text>
+        <Text style={[theme.rowColumn, theme.dimmedHeader]}>REPS</Text>
+      </View>
+
+      {
+        exercise.sets.map((item, index) => (
+          <View
+            key={item.id}
+            style={[
+              theme.row,
+              theme.bottomSpacer,
+              index % 2 != 0 ? theme.gridRow : {}
+            ]}>
+            <Text style={theme.rowColumn}>{index + 1}</Text>
             <TextInput
-              style={styles.rowColumn}
+              style={[theme.rowColumn, theme.input]}
               value={`${item.reps}`}
               onChangeText={(value: string) => {
                 const existing = exercise.sets[index];
@@ -38,7 +52,7 @@ function ExerciseTile({ exercise, setExercise }:
               }}
             />
             <TextInput
-              style={styles.rowColumn}
+              style={[theme.rowColumn, theme.input]}
               value={`${item.weight}`}
               onChangeText={(value: string) => {
                 const existing = exercise.sets[index];
@@ -53,33 +67,34 @@ function ExerciseTile({ exercise, setExercise }:
               }}
             />
           </View>
-        )}
-      />
+        ))
+      }
 
-      <Pressable
-        style={styles.filledButton}
+      <Button
+        fill={false}
+        style={theme.centeredButton}
         onPress={() => {
           setExercise(({
             ...exercise,
             sets: [...exercise.sets, newExerciseSet(exercise.id)]
           }))
-        }}>
-        <Text style={styles.filledButtonText}>Add set</Text>
-      </Pressable>
-    </View>
+        }}
+        label="Add set"
+      />
+    </View >
   );
 }
 
 interface WorkoutEditorProps {
-  baseWorkout: Workout;
-  modalShown: boolean;
+  baseWorkout: undefined | Workout;
   setModalShown: (show: boolean) => void;
 }
 
 export default function WorkoutEditor(
-  { baseWorkout, modalShown, setModalShown }: WorkoutEditorProps) {
-  const [workout, setWorkout] = useState(baseWorkout);
+  { baseWorkout, setModalShown }: WorkoutEditorProps) {
+  const [workout, setWorkout] = useState(baseWorkout ?? newWorkout());
   const [time, setTime] = useState("00 m : 00 s");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const intervalRef = useRef<null | number>(null);
   let startTime = 0;
@@ -108,33 +123,37 @@ export default function WorkoutEditor(
   return (
     <Modal
       animationType="slide"
-      visible={modalShown}
+      visible={true}
       onRequestClose={() => setModalShown(false)}>
-
-      <View style={styles.row}>
-        <Pressable
+      <View style={[theme.row, theme.bottomSpacer]}>
+        <Button
+          fill={false}
+          label="Cancel"
           onPress={() => setModalShown(false)}
-          style={styles.textButton}>
-          <Text style={styles.textButtonText}>Cancel</Text>
-        </Pressable>
-
-        <Text>{time}</Text>
-
-        <Pressable
+        />
+        <Text style={theme.h3}>{time}</Text>
+        <Button
+          label="Finish"
+          color="secondary"
+          fill={true}
           onPress={() => {
+            if (workout.exercises.length == 0) {
+              setErrorMessage("You must create exercises");
+              return;
+            }
             insertWorkout(workout);
             setModalShown(false);
+            setErrorMessage("");
           }}
-          style={styles.filledButton}>
-          <Text style={styles.filledButtonText}>Finish</Text>
-        </Pressable>
+        />
       </View>
+      {errorMessage.length > 0 &&
+        <Text style={theme.errorMessage}>{errorMessage}</Text>}
 
-      <FlatList
-        style={{ flexGrow: 0 }}
-        data={workout.exercises}
-        renderItem={({ index }) =>
+      <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
+        {workout.exercises.map((item, index) => (
           <ExerciseTile
+            key={item.id}
             exercise={workout.exercises[index]}
             setExercise={(updated: Exercise) =>
               setWorkout((prev: Workout) => ({
@@ -147,49 +166,24 @@ export default function WorkoutEditor(
               })
               )}
           />
-        }
-      />
-
-      <Pressable
-        style={styles.filledButton}
-        onPress={() => {
-          setWorkout((prev: Workout) => ({
-            ...prev,
-            exercises: [...prev.exercises, newExercise(workout.id, "Bench press")]
-          }))
-        }}>
-        <Text style={styles.filledButtonText}>Add exercise</Text>
-      </Pressable>
+        ))}
+        <Button
+          fill={true}
+          label="Add exercise"
+          style={theme.centeredButton}
+          color="primary"
+          onPress={() => {
+            setWorkout((prev: Workout) => ({
+              ...prev,
+              exercises:
+                [
+                  ...prev.exercises,
+                  newExercise(workout.id, "Bench press")
+                ]
+            }))
+          }}
+        />
+      </ScrollView>
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  textButton: {
-    padding: 10,
-  },
-  textButtonText: {
-    color: "blue",
-    textAlign: "center"
-  },
-  filledButton: {
-    padding: 10,
-    backgroundColor: "blue",
-    borderRadius: 10
-  },
-  filledButtonText: {
-    color: "white",
-    textAlign: "center"
-  },
-  row: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-  },
-  rowColumn: {
-    width: "33%",
-    textAlign: "center"
-  },
-});

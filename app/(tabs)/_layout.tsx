@@ -1,6 +1,8 @@
 import { Tabs } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
+import { colors } from "@/app/styles";
+
 export default function TabLayout() {
   return (
     <Tabs>
@@ -9,8 +11,8 @@ export default function TabLayout() {
         options={{
           tabBarShowLabel: false,
           headerShown: false,
-          tabBarIcon: ({ color }) =>
-            <MaterialCommunityIcons name="dumbbell" size={28} color={color} />
+          tabBarIcon: ({ }) =>
+            <MaterialCommunityIcons name="dumbbell" size={28} color={colors.primary} />
         }}
       />
     </Tabs>

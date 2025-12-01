@@ -28,7 +28,6 @@ export function stripToTable<
   obj: TObj
 ): TTable["$inferInsert"] {
   const result: any = {};
-  console.log(Object.keys(table));
   for (const key of Object.keys(table)) {
     if (key in obj)
       result[key] = obj[key];
@@ -38,12 +37,13 @@ export function stripToTable<
 
 export const newWorkout = (): Workout => ({
   id: uuidv7(), timestamp: new Date().getTime(),
-  duration: 0, exercises: []
+  duration: 0, exercises: [], notes: ""
 });
 
-export const newExercise = (workoutId: string, name: string): Exercise => ({
-  id: uuidv7(), workoutId, name, notes: "", sets: []
-});
+export const newExercise = (workoutId: string, name: string): Exercise => {
+  const id = uuidv7();
+  return { id, workoutId, name, sets: [newExerciseSet(id)] }
+};
 
 export const newExerciseSet = (exerciseId: string): ExerciseSet => ({
   id: uuidv7(), exerciseId, weight: 0, reps: 0

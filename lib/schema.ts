@@ -5,13 +5,13 @@ export const workouts = sqliteTable("workouts", {
   id: text().primaryKey(),
   timestamp: int().notNull(),
   duration: int().notNull(),
+  notes: text().notNull(),
 });
 
 export const exercises = sqliteTable("exercises", {
   id: text().primaryKey(),
   workoutId: text().notNull().references(() => workouts.id),
   name: text().notNull(),
-  notes: text().notNull(),
 });
 
 export const exerciseSets = sqliteTable("exercise_sets", {

@@ -1,19 +1,26 @@
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-
+import { Text, View } from "react-native";
 import { useEffect, useState } from "react";
 
 import { newWorkout, Workout } from "@/lib/types";
 import { useDrizzleMigrations, getWorkouts } from "@/lib/database";
+import theme from "@/app/styles";
+import { Button, Page } from "@/app/components";
 import WorkoutEditor from "@/app/workoutEditor";
+
+const formatDate = (timestamp: number): string => {
+  const formatter = new Intl.DateTimeFormat(navigator.language, {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+  return formatter.format(timestamp);
+}
 
 export default function Index() {
   const error = useDrizzleMigrations();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [modalShown, setModalShown] = useState(false);
+  const [baseWorkout, setBaseWorkout] = useState<undefined | Workout>(undefined);
   const [page, setPage] = useState(0);
-
-  const base = newWorkout();
 
   const fetchNextPage = async () => {
     const limit = 10;
@@ -36,48 +43,66 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView>
+    <Page>
+      <Text style={[theme.h1, theme.bottomSpacer]}>
+        Workouts
+      </Text>
 
-        <Text>Workouts</Text>
+      {workouts.length == 0 && (
+        <View>
+          <Button
+            fill={true}
+            label="Create your first workout"
+            style={theme.centeredButton}
+            onPress={() => {
+              setBaseWorkout(newWorkout());
+              setModalShown(true);
+            }}
+          />
+        </View>
+      )}
 
+      {modalShown &&
         <WorkoutEditor
-          baseWorkout={base}
-          modalShown={modalShown}
+          baseWorkout={baseWorkout}
           setModalShown={setModalShown}
-        />
+        />}
 
-        <FlatList
-          data={workouts}
-          onEndReached={fetchNextPage}
-          onEndReachedThreshold={0.8}
-          renderItem={({ item, index }) => (
-            <Text>
-              {item.timestamp}
-            </Text>
-          )}
-        />
+      {workouts.map((item) => (
+        <View key={item.id}>
+          <Text style={theme.h3}>{formatDate(item.timestamp)}</Text>
 
-      </SafeAreaView>
-    </SafeAreaProvider>
+          <View>
+            {item.exercises.map((exercise) => {
+              // group reps by the weight they're performed at
+              const setReps: Record<number, number[]> = {};
+              for (const set of exercise.sets) {
+                if (set.weight in setReps)
+                  setReps[set.weight].push(set.reps);
+                else
+                  setReps[set.weight] = [set.reps];
+              }
+              const weights = Object.keys(setReps).map(k => Number(k)).sort();
+              return (
+                <View>
+                  <Text>{exercise.name}</Text>
+                  {weights.map(w =>
+                    <Text>@ {w} lbs: {setReps[w].join(", ")}</Text>)}
+                </View>
+              );
+            })}
+          </View>
+
+          <Button
+            label="Start"
+            onPress={() => {
+              const copy = JSON.parse(JSON.stringify(item));
+              setBaseWorkout(copy);
+              setModalShown(true);
+            }}
+          />
+        </View>
+      ))}
+    </Page>
   );
 }
-
-const styles = StyleSheet.create({
-  textButton: {
-    padding: 10,
-  },
-  textButtonText: {
-    color: "blue",
-    textAlign: "center"
-  },
-  filledButton: {
-    padding: 10,
-    backgroundColor: "blue",
-    borderRadius: 10
-  },
-  filledButtonText: {
-    color: "white",
-    textAlign: "center"
-  },
-});
