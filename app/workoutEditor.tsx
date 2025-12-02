@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Exercise, Workout, newExercise, newExerciseSet, newWorkout } from "@/lib/types";
 import { insertWorkout } from "@/lib/database";
-import { Button } from "@/app/components";
+import { Button, Slideable } from "@/app/components";
 import theme from "@/app/styles";
 
 function ExerciseTile({ exercise, setExercise }:
@@ -12,12 +12,6 @@ function ExerciseTile({ exercise, setExercise }:
     <View style={[theme.bottomSpacer, theme.topSpacer]}>
       <View style={theme.row}>
         <Text style={theme.h4}>{exercise.name}</Text>
-        <Button
-          onPress={() => { console.log("remove...") }}
-          icon="trash-can"
-          color="error"
-        >
-        </Button>
       </View>
 
       <View style={[theme.row]}>
@@ -28,50 +22,70 @@ function ExerciseTile({ exercise, setExercise }:
 
       {
         exercise.sets.map((item, index) => (
-          <View
+          <Slideable
             key={item.id}
-            style={[
-              theme.row,
-              theme.bottomSpacer,
-              index % 2 != 0 ? theme.gridRow : {}
-            ]}>
-            <Text style={theme.rowColumn}>{index + 1}</Text>
-            <TextInput
-              style={[theme.rowColumn, theme.input]}
-              value={`${item.reps}`}
-              onChangeText={(value: string) => {
-                const existing = exercise.sets[index];
-                setExercise(({
-                  ...exercise,
-                  sets: [
-                    ...exercise.sets.slice(0, index),
-                    { ...existing, reps: Number(value) },
-                    ...exercise.sets.slice(index + 1)
-                  ]
-                }));
-              }}
-            />
-            <TextInput
-              style={[theme.rowColumn, theme.input]}
-              value={`${item.weight}`}
-              onChangeText={(value: string) => {
-                const existing = exercise.sets[index];
-                setExercise(({
-                  ...exercise,
-                  sets: [
-                    ...exercise.sets.slice(0, index),
-                    { ...existing, weight: Number(value) },
-                    ...exercise.sets.slice(index + 1)
-                  ]
-                }));
-              }}
-            />
-          </View>
+            slideActions={
+              <Button
+                onPress={() => {
+                  setExercise(({
+                    ...exercise,
+                    sets: [
+                      ...exercise.sets.slice(0, index),
+                      ...exercise.sets.slice(index + 1)
+                    ]
+                  }))
+                }}
+                icon="trash-can"
+                bgColor="error"
+                iconColor="clear"
+                style={theme.slideableIconButton}
+              />
+            }
+          >
+            <View
+              style={[
+                theme.row,
+                theme.bottomSpacer,
+                index % 2 != 0 ? theme.gridRow : {}
+              ]}>
+              <Text style={theme.rowColumn}>{index + 1}</Text>
+              <TextInput
+                style={[theme.rowColumn, theme.input]}
+                value={`${item.reps}`}
+                onChangeText={(value: string) => {
+                  const existing = exercise.sets[index];
+                  setExercise(({
+                    ...exercise,
+                    sets: [
+                      ...exercise.sets.slice(0, index),
+                      { ...existing, reps: Number(value) },
+                      ...exercise.sets.slice(index + 1)
+                    ]
+                  }));
+                }}
+              />
+              <TextInput
+                style={[theme.rowColumn, theme.input]}
+                value={`${item.weight}`}
+                onChangeText={(value: string) => {
+                  const existing = exercise.sets[index];
+                  setExercise(({
+                    ...exercise,
+                    sets: [
+                      ...exercise.sets.slice(0, index),
+                      { ...existing, weight: Number(value) },
+                      ...exercise.sets.slice(index + 1)
+                    ]
+                  }));
+                }}
+              />
+            </View>
+          </Slideable>
         ))
       }
 
       <Button
-        fill={false}
+        bgColor="clear"
         style={theme.centeredButton}
         onPress={() => {
           setExercise(({
@@ -81,7 +95,7 @@ function ExerciseTile({ exercise, setExercise }:
         }}
         label="Add set"
       />
-    </View >
+    </View>
   );
 }
 
@@ -127,15 +141,14 @@ export default function WorkoutEditor(
       onRequestClose={() => setModalShown(false)}>
       <View style={[theme.row, theme.bottomSpacer]}>
         <Button
-          fill={false}
           label="Cancel"
+          bgColor="clear"
           onPress={() => setModalShown(false)}
         />
         <Text style={theme.h3}>{time}</Text>
         <Button
           label="Finish"
-          color="secondary"
-          fill={true}
+          bgColor="secondary"
           onPress={() => {
             if (workout.exercises.length == 0) {
               setErrorMessage("You must create exercises");
@@ -152,26 +165,46 @@ export default function WorkoutEditor(
 
       <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
         {workout.exercises.map((item, index) => (
-          <ExerciseTile
+          <Slideable
             key={item.id}
-            exercise={workout.exercises[index]}
-            setExercise={(updated: Exercise) =>
-              setWorkout((prev: Workout) => ({
-                ...prev,
-                exercises: [
-                  ...prev.exercises.slice(0, index),
-                  updated,
-                  ...prev.exercises.slice(index + 1)
-                ]
-              })
-              )}
-          />
+            slideActions={
+              <Button
+                onPress={() => {
+                  setWorkout((prev: Workout) => ({
+                    ...prev,
+                    exercises: [
+                      ...prev.exercises.slice(0, index),
+                      ...prev.exercises.slice(index + 1)
+                    ]
+                  }))
+                }}
+                style={theme.slideableIconButton}
+                icon="trash-can"
+                iconColor="clear"
+                bgColor="error"
+              />
+            }
+          >
+            <ExerciseTile
+              key={item.id}
+              exercise={workout.exercises[index]}
+              setExercise={(updated: Exercise) =>
+                setWorkout((prev: Workout) => ({
+                  ...prev,
+                  exercises: [
+                    ...prev.exercises.slice(0, index),
+                    updated,
+                    ...prev.exercises.slice(index + 1)
+                  ]
+                })
+                )}
+            />
+          </Slideable>
         ))}
         <Button
-          fill={true}
           label="Add exercise"
           style={theme.centeredButton}
-          color="primary"
+          bgColor="primary"
           onPress={() => {
             setWorkout((prev: Workout) => ({
               ...prev,

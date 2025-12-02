@@ -80,6 +80,12 @@ export const theme = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
+  slidableIconButton: {
+    flex: 1,
+    borderRadius: 0,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   gridRow: { backgroundColor: colors.grey[100] },
   topSpacer: { marginBottom: 16 },
   bottomSpacer: { marginBottom: 16 },

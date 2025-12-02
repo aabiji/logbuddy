@@ -51,7 +51,6 @@ export default function Index() {
       {workouts.length == 0 && (
         <View>
           <Button
-            fill={true}
             label="Create your first workout"
             style={theme.centeredButton}
             onPress={() => {
@@ -84,10 +83,10 @@ export default function Index() {
               }
               const weights = Object.keys(setReps).map(k => Number(k)).sort();
               return (
-                <View>
+                <View key={item.id}>
                   <Text>{exercise.name}</Text>
-                  {weights.map(w =>
-                    <Text>@ {w} lbs: {setReps[w].join(", ")}</Text>)}
+                  {weights.map((w, index) =>
+                    <Text key={index}>@ {w} lbs: {setReps[w].join(", ")}</Text>)}
                 </View>
               );
             })}
