@@ -1,10 +1,11 @@
 import { Modal, ScrollView, Text, TextInput, View } from "react-native";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
 
 import { Exercise, Workout, newExercise, newExerciseSet, newWorkout } from "@/lib/types";
 import { insertWorkout } from "@/lib/database";
-import { Button, Slideable } from "@/app/components";
-import theme from "@/app/styles";
+import { Button, Slideable } from "@/ui/components";
+import theme from "@/ui/styles";
 
 function ExerciseTile({ exercise, setExercise }:
   { exercise: Exercise, setExercise: (updated: Exercise) => void; }) {
@@ -106,6 +107,8 @@ interface WorkoutEditorProps {
 
 export default function WorkoutEditor(
   { baseWorkout, setModalShown }: WorkoutEditorProps) {
+  const router = useRouter();
+
   const [workout, setWorkout] = useState(baseWorkout ?? newWorkout());
   const [time, setTime] = useState("00 m : 00 s");
   const [errorMessage, setErrorMessage] = useState("");
@@ -206,6 +209,8 @@ export default function WorkoutEditor(
           style={theme.centeredButton}
           bgColor="primary"
           onPress={() => {
+            router.navigate("/exericseList");
+            /*
             setWorkout((prev: Workout) => ({
               ...prev,
               exercises:
@@ -214,6 +219,7 @@ export default function WorkoutEditor(
                   newExercise(workout.id, "Bench press")
                 ]
             }))
+            */
           }}
         />
       </ScrollView>

@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 
 import { newWorkout, Workout } from "@/lib/types";
 import { useDrizzleMigrations, getWorkouts } from "@/lib/database";
-import theme from "@/app/styles";
-import { Button, Page } from "@/app/components";
+import theme from "@/ui/styles";
+import { Button, Page } from "@/ui/components";
 import WorkoutEditor from "@/app/workoutEditor";
 
 const formatDate = (timestamp: number): string => {

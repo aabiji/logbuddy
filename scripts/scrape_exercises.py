@@ -4,32 +4,60 @@ from bs4 import BeautifulSoup
 
 print("Starting scrape!")
 
-main_page = requests.get("https://www.strengthlog.com/exercise-directory")
-soup = BeautifulSoup(main_page.content, "html.parser")
+def get_exercise_pages():
+  page = requests.get("https://www.strengthlog.com/exercise-directory")
+  soup = BeautifulSoup(page.content, "html.parser")
 
-exercises = {}
-
-# scrape the exercise names and page urls
-for list_tag in soup.find_all("ol"):
+  exercises = {}
+  for list_tag in soup.find_all("ol"):
     for tag in list_tag.find_all("li"):
-        link = tag.find_all("a")[0]
-        exercises[link.text] = { "url": link["href"], "muscles": [] }
+      link = tag.find_all("a")[0]
+      exercises[link.text] = {
+        "url": link["href"],
+        "muscles": [],
+        "bodyweight": False,
+        "exercise_type": "strength"
+      }
+  return exercises
 
 # get more info for each of the exercises
-for name in exercises:
-    page = requests.get(exercises[name]["url"])
-    soup = BeautifulSoup(page.content, "html.parser")
+exercises = get_exercise_pages()
+exercise_names = list(exercises.keys())
 
-    list_tags = soup.find_all(attrs={"class": "wp-block-list"})
-    for list_tag in list_tags:
-        for tag in list_tag.find_all("li"):
-            a_tag = tag.find("a")
-            if a_tag is not None:
-                exercises[name]["muscles"].append(a_tag.text)
+for exercise_name in exercise_names:
+  page = requests.get(exercises[exercise_name]["url"])
+  soup = BeautifulSoup(page.content, "html.parser")
 
-    del exercises[name]["url"]
+  primary = soup.find(id="h-primary-muscles-worked")
+  secondary = soup.find(id="h-secondary-muscles-worked")
+  if primary is None: # nothing to parse
+    del exercises[exercise_name]
+    continue
+
+  list_tags = primary.find_next("ul").find_all("li")
+  if secondary is not None:
+    list_tags.extend(secondary.find_next("ul").find_all("li"))
+
+  # Map the names of the muscles worked to the format used in the frontend
+  replacements = {
+      "Deltoid": "deltoid", "Forearm": "forearm", "Glutes": "gluteal",
+      "Hamstrings": "hamstring", "Lats": "upper-back", "Traps": "trapezius",
+      "Lower back": "lower-back", "Quads": "quadriceps", "Tibialis": "tibialis"
+  }
+  ignore = ["Rotator Cuff", "Abductors", "Hip"]
+
+  for tag in list_tags:
+    a_tags = tag.find_all("a")
+    name = tag.text if len(a_tags) == 0 else a_tags[-1].text
+    if name in ignore:
+      continue
+    if name in replacements:
+      name = replacements[name]
+    exercises[exercise_name]["muscles"].append(name.lower())
+
+  del exercises[exercise_name]["url"]
 
 with open("exercises.json", "w") as json_file:
-    json.dump(exercises, json_file, indent=2)
+  json.dump(exercises, json_file, indent=2)
 
 print("Done!")

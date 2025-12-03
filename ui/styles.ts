@@ -80,7 +80,7 @@ export const theme = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  slidableIconButton: {
+  slideableIconButton: {
     flex: 1,
     borderRadius: 0,
     alignItems: "center",

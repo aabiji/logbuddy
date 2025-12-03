@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Reanimated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
-import { colors, theme } from "@/app/styles";
+import { colors, theme } from "@/ui/styles";
 
 interface ButtonProps {
   onPress: () => void;
