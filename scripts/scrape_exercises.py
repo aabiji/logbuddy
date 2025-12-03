@@ -49,10 +49,20 @@ for exercise_name in exercise_names:
   for tag in list_tags:
     a_tags = tag.find_all("a")
     name = tag.text if len(a_tags) == 0 else a_tags[-1].text
-    if name in ignore:
+
+    skip = False
+    for muscle_group in ignore:
+      if muscle_group in name:
+        skip = True
+        break
+    if skip:
       continue
-    if name in replacements:
-      name = replacements[name]
+
+    for key in replacements:
+      if key in name:
+        name = replacements[key]
+        break
+
     exercises[exercise_name]["muscles"].append(name.lower())
 
   del exercises[exercise_name]["url"]
