@@ -1,0 +1,452 @@
+{
+  "Bench Press": {
+    "muscles": [
+      "chest",
+      "deltoid",
+      "triceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Squat": {
+    "muscles": [
+      "quadriceps",
+      "adductors",
+      "gluteal",
+      "lower-back",
+      "calves"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Deadlift": {
+    "muscles": [
+      "gluteal",
+      "lower-back",
+      "quadriceps",
+      "hamstring",
+      "adductors",
+      "trapezius",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Lat Pulldown": {
+    "muscles": [
+      "upper-back",
+      "biceps",
+      "deltoid",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Overhead Press": {
+    "muscles": [
+      "deltoid",
+      "triceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Barbell Row": {
+    "muscles": [
+      "upper-back",
+      "trapezius",
+      "deltoid",
+      "biceps",
+      "lower-back",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dumbbell Lateral Raise": {
+    "muscles": [
+      "deltoid"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Leg Extension": {
+    "muscles": [
+      "quadriceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Leg Press": {
+    "muscles": [
+      "quadriceps",
+      "gluteal",
+      "adductors",
+      "hamstring"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Barbell Curl": {
+    "muscles": [
+      "biceps",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Tricep Pushdown": {
+    "muscles": [
+      "triceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Incline Dumbbell Press": {
+    "muscles": [
+      "chest",
+      "deltoid",
+      "triceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dumbbell Curl": {
+    "muscles": [
+      "biceps",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Pull-Up": {
+    "muscles": [
+      "upper-back",
+      "biceps",
+      "deltoid",
+      "forearm"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Cable Seated Row": {
+    "muscles": [
+      "upper-back",
+      "trapezius",
+      "deltoid",
+      "biceps",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Leg Curl": {
+    "muscles": [
+      "hamstring",
+      "gluteal"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dumbbell Shoulder Press": {
+    "muscles": [
+      "triceps",
+      "deltoid"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Romanian Deadlift": {
+    "muscles": [
+      "gluteal",
+      "lower-back",
+      "hamstring",
+      "adductors",
+      "trapezius",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Hammer Curl": {
+    "muscles": [
+      "biceps",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dumbbell Chest Fly": {
+    "muscles": [
+      "chest",
+      "deltoid"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dumbbell Chest Press": {
+    "muscles": [
+      "chest",
+      "deltoid",
+      "triceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Face Pull": {
+    "muscles": [
+      "trapezius",
+      "deltoid"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Hip Thrust": {
+    "muscles": [
+      "gluteal",
+      "adductors",
+      "quadriceps"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Dips": {
+    "muscles": [
+      "chest",
+      "deltoid",
+      "triceps"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Push-Up": {
+    "muscles": [
+      "chest",
+      "deltoid",
+      "triceps",
+      "abs"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Calf Raise": {
+    "muscles": [
+      "calves"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Wrist Curl": {
+    "muscles": [
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Machine Crunch": {
+    "muscles": [
+      "abs",
+      "obliques"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Mountain Climbers": {
+    "muscles": [
+      "abs",
+      "obliques"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Kneeling Ab Wheel Roll-Out": {
+    "muscles": [
+      "abs",
+      "obliques"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Snatch": {
+    "muscles": [
+      "gluteal",
+      "lower-back",
+      "adductors",
+      "quadriceps",
+      "hamstring",
+      "trapezius",
+      "forearm",
+      "calves"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Snatch Grip Deadlift": {
+    "muscles": [
+      "gluteal",
+      "lower-back",
+      "quadriceps",
+      "hamstring",
+      "adductors",
+      "trapezius",
+      "forearm"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Inverted Row": {
+    "muscles": [
+      "upper-back",
+      "trapezius",
+      "deltoid",
+      "biceps",
+      "forearm"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Jefferson Curl": {
+    "muscles": [
+      "lower-back",
+      "adductors",
+      "gluteal",
+      "hamstring",
+      "trapezius"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Muscle-Up": {
+    "muscles": [
+      "chest",
+      "upper-back",
+      "triceps",
+      "biceps",
+      "forearm",
+      "deltoid"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "L-Sit": {
+    "muscles": [
+      "abs",
+      "chest",
+      "deltoid",
+      "triceps",
+      "obliques",
+      "quadriceps"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Cossack Squat": {
+    "muscles": [
+      "gluteal",
+      "quadriceps",
+      "hamstring",
+      "adductors"
+    ],
+    "bodyweight": true,
+    "resistance": true
+  },
+  "Farmers Walk": {
+    "muscles": [
+      "forearm",
+      "obliques",
+      "gluteal",
+      "trapezius",
+      "quadriceps",
+      "abs",
+      "lower-back",
+      "calves",
+      "deltoid"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Bulgarian Split Squat": {
+    "muscles": [
+      "quadriceps",
+      "gluteal",
+      "adductors"
+    ],
+    "bodyweight": false,
+    "resistance": true
+  },
+  "Deadhang": {
+    "muscles": [
+      "upper-back",
+      "abs",
+      "forearm"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Plank": {
+    "muscles": [
+      "abs"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Running": {
+    "muscles": [
+      "quadriceps",
+      "hamstring",
+      "gluteal",
+      "calves"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Cycling": {
+    "muscles": [
+      "quadriceps",
+      "hamstring",
+      "gluteal",
+      "calves"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Walking": {
+    "muscles": [
+      "quadriceps",
+      "hamstring",
+      "gluteal",
+      "calves"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Swimming": {
+    "muscles": [
+      "deltoid",
+      "upper-back",
+      "chest",
+      "biceps",
+      "triceps",
+      "forearm",
+      "abs",
+      "obliques",
+      "quadriceps",
+      "hamstring",
+      "gluteal",
+      "calves"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  },
+  "Jumping jacks": {
+    "muscles": [
+      "deltoid",
+      "abs",
+      "gluteal",
+      "quadriceps",
+      "hamstring",
+      "calves"
+    ],
+    "resistance": false,
+    "bodyweight": true
+  }
+}

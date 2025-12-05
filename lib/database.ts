@@ -14,7 +14,8 @@ export function useDrizzleMigrations() {
   return error;
 }
 
-// NOTE: Workouts are immutable once inserted into the database
+// NOTE: Users will not be allowed to edit past workouts, so they'll be
+//       immutable once inserted into the database
 export async function insertWorkout(w: Workout) {
   let exerciseSetRows: any[] = [];
 

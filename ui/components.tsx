@@ -87,7 +87,6 @@ export function Slideable({ children, slideActions }: SlideableProps) {
         {
           width: slideActionWidth,
           height: "100%",
-          backgroundColor: "blue",
           justifyContent: "center"
         },
         styleAnimation

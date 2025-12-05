@@ -19,7 +19,7 @@ export interface Workout
   exercises: Exercise[];
 }
 
-// Strip the keys in `obj` down to only the columns defined in the Drizzle table
+// Ignore all keys that are not columns defined in the Drizzle table
 export function stripToTable<
   TTable extends AnySQLiteTable,
   TObj extends Record<string, any>
